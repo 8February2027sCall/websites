@@ -1,0 +1,14 @@
+Fait un code HTML pour la communauté "8 February 2027's Call", avec la police d'écriture "Inndam Extended" pour les titres, et "monospace (code)" pour les écritures de base.
+
+
+--- MENU : 
+Donc une page d'acceuil qui n'à pas vraiment de décoration, style page d'accueil (tout l'écran), invite de commande (en bas à droite avec flèche pour réduire ou agrandir), avec des selections de pages (des futurs liens que je vais mettre), avec l'icone de a page : "827scall Logo (Carré).png". Avec en haut de page, a coté du logo, la bannière de la communauté : "827scall Banner Full Version.png"
+
+-Il y aura des boutons pour accéder aux liens (avec description)
+-Il y aura un interface d'invite de commande (style linux, faut pas dire XD), avec la commande "/help"
+-Le site pourra donner vos infos d'appareil (avec l'invite de commande "/device_info") : IP, Addresse, Sécurisé ou pas.
+(Grande page web)
+
+(Minimum 500 lignes, maximum 1000 lignes)
+
+

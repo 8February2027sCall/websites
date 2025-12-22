@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!--
+        8 February 2027's Call - ShieldTips
+        Page minimale, style console noire
+        Police titres : "Inndam Extended"
+        Police texte : monospace
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>8 February 2027's Call — ShieldTips</title>
+
+    <!-- Icône de l’onglet -->
+    <link rel="icon" type="image/png" href="827scall Logo (Carré).png">
+
+    <!-- Import / déclaration de polices -->
+    <!--
+        Remarque :
+        Si "Inndam Extended" est déjà installée sur le système
+        elle sera utilisée directement.
+        Sinon, ajoute ton propre @font-face ou lien externe ici.
+    -->
+    <style>
+        @font-face {
+            font-family: "Inndam Extended";
+            src: local("Inndam Extended");
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --bg-color: #000000;
+            --text-color: #d0f0ff;
+            --accent-color: #2ee6ff;
+            --accent-soft: #0f1418;
+            --warning-color: #ffcc33;
+            --danger-color: #ff5555;
+            --ok-color: #44ff99;
+            --muted-color: #7a8a99;
+            --border-color: #20262c;
+            --shadow-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            line-height: 1.5;
+        }
+
+        main {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 12px 16px 60px 16px;
+        }
+
+        /* Barre supérieure façon terminal */
+        .shell-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(to right, #05090f, #020408);
+            box-shadow: 0 0 12px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .shell-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shell-logo {
+            width: 20px;
+            height: 20px;
+            background-image: url("827scall Logo (Carré).png");
+            background-size: cover;
+            background-position: center;
+            border-radius: 3px;
+            border: 1px solid var(--border-color);
+        }
+
+        .shell-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            white-space: nowrap;
+        }
+
+        .shell-path {
+            font-size: 11px;
+            color: var(--muted-color);
+        }
+
+        .shell-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .shell-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+        }
+
+        .shell-dot.close {
+            background-color: var(--danger-color);
+        }
+
+        .shell-dot.min {
+            background-color: #ffaa33;
+        }
+
+        .shell-dot.max {
+            background-color: #2ee666;
+        }
+
+        /* Typographie titres & sous-titres */
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 16px 0 10px 0;
+            color: var(--accent-color);
+        }
+
+        h2 {
+            font-size: 13px;
+            margin: 22px 0 10px 0;
+            color: var(--accent-color);
+        }
+
+        h3 {
+            font-size: 11px;
+            margin: 18px 0 8px 0;
+            color: var(--warning-color);
+        }
+
+        h4 {
+            font-size: 10px;
+            margin: 10px 0 6px 0;
+            color: var(--muted-color);
+        }
+
+        p {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        code,
+        .code-line {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 14px 0;
+        }
+
+        /* Bloc console principal */
+        .console {
+            border: 1px solid var(--border-color);
+            background-color: #020407;
+            padding: 10px 12px 14px 12px;
+            box-shadow: 0 0 18px rgba(0, 0, 0, 0.8);
+            margin-top: 10px;
+        }
+
+        .console-header-line {
+            font-size: 11px;
+            color: var(--muted-color);
+            margin-bottom: 4px;
+        }
+
+        .prompt-line {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 4px;
+        }
+
+        .prompt-symbol {
+            color: var(--accent-color);
+            margin-right: 4px;
+            font-size: 12px;
+        }
+
+        .prompt-text {
+            font-size: 12px;
+            color: var(--text-color);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 7px;
+            height: 12px;
+            margin-left: 2px;
+            background-color: var(--accent-color);
+            animation: blink 1.1s steps(2, start) infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            49% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Sections ShieldTips */
+        .section-block {
+            margin-top: 16px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .section-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid var(--border-color);
+            background-color: var(--accent-soft);
+            color: var(--muted-color);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .section-subtitle {
+            font-size: 11px;
+            color: var(--muted-color);
+        }
+
+        /* Listes de conseils */
+        .tips-list {
+            margin-top: 8px;
+            margin-bottom: 4px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .tips-list li {
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .tips-label {
+            color: var(--accent-color);
+        }
+
+        .tips-bad {
+            color: var(--danger-color);
+        }
+
+        .tips-good {
+            color: var(--ok-color);
+        }
+
+        .block-note {
+            border-left: 2px solid var(--border-color);
+            padding-left: 8px;
+            margin-top: 6px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: var(--muted-color);
+        }
+
+        .block-warning {
+            border-left: 2px solid var(--warning-color);
+            padding-left: 8px;
+            margin-top: 6px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: var(--warning-color);
+        }
+
+        .block-critical {
+            border-left: 2px solid var(--danger-color);
+            padding-left: 8px;
+            margin-top: 6px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: var(--danger-color);
+        }
+
+        .micro-divider {
+            border-top: 1px dotted var(--border-color);
+            margin: 10px 0;
+        }
+
+        /* Tableaux simples façon console */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border-color);
+            padding: 4px 6px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #050a0f;
+            color: var(--accent-color);
+            font-weight: normal;
+        }
+
+        tr:nth-child(even) {
+            background-color: #05070b;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #020408;
+        }
+
+        /* Ligne finale pseudo-footer */
+        footer {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 10px 16px 18px 16px;
+            font-size: 11px;
+            color: var(--muted-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .footer-left,
+        .footer-right {
+            white-space: nowrap;
+        }
+
+        @media (max-width: 700px) {
+            main {
+                padding: 10px 10px 40px 10px;
+            }
+
+            .shell-title {
+                display: none;
+            }
+
+            .shell-path {
+                font-size: 10px;
+            }
+
+            .footer-line {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .footer-left,
+            .footer-right {
+                white-space: normal;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Barre type fenêtre de terminal -->
+    <div class="shell-bar">
+        <div class="shell-bar-left">
+            <div class="shell-logo"></div>
+            <div class="shell-title">
+                8 February 2027's Call — ShieldTips
+            </div>
+            <div class="shell-path">
+                C:\Community\827sCall\ShieldTips\index.html
+            </div>
+        </div>
+        <div class="shell-controls">
+            <div class="shell-dot close"></div>
+            <div class="shell-dot min"></div>
+            <div class="shell-dot max"></div>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <main>
+        <div class="console">
+            <!-- En-tête type console -->
+            <div class="console-header-line">
+                [SYSTEM] Minimal console interface loaded · No decoration mode · Language: FR · Charset: UTF-8
+            </div>
+            <div class="console-header-line">
+                [INFO] Communauté : 8 February 2027's Call · Module : ShieldTips (Sécurité numérique du quotidien)
+            </div>
+
+            <!-- Prompt d’intro -->
+            <div class="prompt-line">
+                <div class="prompt-symbol">
+                    C:\&gt;
+                </div>
+                <div class="prompt-text">
+                    launch ShieldTips /scope:EVERYDAY_LIFE /mode:EXPLAIN_EVERYTHING
+                    <span class="cursor"></span>
+                </div>
+            </div>
+
+            <!-- Titre principal -->
+            <section class="section-block" id="intro">
+                <h1>ShieldTips — sécurité numérique du quotidien</h1>
+                <p>
+                    Ici, pas de design inutile. Seulement une sorte d’invite de commande, des lignes claires,
+                    et un objectif : expliquer tous les réflexes de cybersécurité qui comptent dans ta vie réelle.
+                </p>
+                <p>
+                    Chaque section est un module. Chaque module est une couche de bouclier. Tu peux lire dans l’ordre
+                    ou sauter directement à ce qui te parle le plus.
+                </p>
+                <div class="block-note">
+                    Note : ce site ne te demandera jamais de mot de passe, de code de carte, ni de document d’identité.
+                    Si une autre page prétend le faire “au nom de 8 February 2027's Call”, considère-la comme hostile.
+                </div>
+
+                <div class="section-header">
+                    <span class="section-tag">SOMMAIRE</span>
+                    <span class="section-subtitle">Aperçu des domaines couverts</span>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Module</th>
+                            <th>Thème</th>
+                            <th>Objectif</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>01</td>
+                            <td>Mots de passe & coffres-forts</td>
+                            <td>Construire des accès solides et gérables.</td>
+                        </tr>
+                        <tr>
+                            <td>02</td>
+                            <td>Double authentification</td>
+                            <td>Ajouter une seconde barrière partout où c’est possible.</td>
+                        </tr>
+                        <tr>
+                            <td>03</td>
+                            <td>Phishing & arnaques</td>
+                            <td>Reconnaître les pièges avant de cliquer.</td>
+                        </tr>
+                        <tr>
+                            <td>04</td>
+                            <td>Mises à jour & appareils</td>
+                            <td>Maintenir ton système au niveau de sécurité attendu.</td>
+                        </tr>
+                        <tr>
+                            <td>05</td>
+                            <td>Wi-Fi & réseaux</td>
+                            <td>Éviter que ton accès Internet devienne une porte ouverte.</td>
+                        </tr>
+                        <tr>
+                            <td>06</td>
+                            <td>Smartphones & applis</td>
+                            <td>Limiter les fuites par la poche.</td>
+                        </tr>
+                        <tr>
+                            <td>07</td>
+                            <td>Sauvegardes & sinistres</td>
+                            <td>Ne pas tout perdre le jour où ça casse.</td>
+                        </tr>
+                        <tr>
+                            <td>08</td>
+                            <td>Réseaux sociaux & image</td>
+                            <td>Maîtriser ce que tu exposes de ta vie.</td>
+                        </tr>
+                        <tr>
+                            <td>09</td>
+                            <td>Cloud & partage</td>
+                            <td>Savoir ce qui reste privé quand c’est “en ligne”.</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>Travail, études, collaborations</td>
+                            <td>Protéger les données quand plusieurs personnes sont impliquées.</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>Déplacements & lieux publics</td>
+                            <td>Éviter les pièges en voyage ou dans les cafés.</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>Parents, enfants, entourage</td>
+                            <td>Transmettre les bons réflexes à ton cercle.</td>
+                        </tr>
+                        <tr>
+                            <td>13</td>
+                            <td>Incident & réaction</td>
+                            <td>Savoir quoi faire quand quelque chose tourne mal.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="block-warning">
+                    Principe de base : chaque conseil ici est volontairement général.
+                    Pour un cas concret, adapte toujours à ta situation, tes lois locales et les règles de ton pays.
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 01 : MOTS DE PASSE -->
+            <section class="section-block" id="passwords">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 01</span>
+                    <span class="section-subtitle">Mots de passe & gestion sécurisée des accès</span>
+                </div>
+
+                <h2>Mots de passe : casser la logique “simple à retenir”</h2>
+                <p>
+                    Un mot de passe “simple à retenir” est très souvent “simple à deviner”.
+                    Ton cerveau aime les schémas, les hackers aussi. Le but ici :
+                    rendre tes accès difficiles à prédire, sans t’obliger à tout mémoriser.
+                </p>
+
+                <h3>Règles fondamentales pour les mots de passe</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Règle 01 — longueur :</span>
+                        vise au moins 14 à 16 caractères pour les comptes importants (mail, banque, cloud, réseaux sociaux principaux).
+                    </li>
+                    <li>
+                        <span class="tips-label">Règle 02 — unicité :</span>
+                        un mot de passe = un seul site. Jamais de réutilisation entre services.
+                    </li>
+                    <li>
+                        <span class="tips-label">Règle 03 — imprévisibilité :</span>
+                        mélange lettres, chiffres, symboles, mais surtout évite tout ce qui te décrit (nom, date de naissance, pseudo connu).
+                    </li>
+                    <li>
+                        <span class="tips-label">Règle 04 — mémoire limitée :</span>
+                        ton objectif n’est pas de tout retenir, mais de bien protéger le peu que tu mémorises.
+                    </li>
+                    <li>
+                        <span class="tips-label">Règle 05 — pas de partage :</span>
+                        même avec des proches. Un mot de passe partagé n’est plus vraiment un secret.
+                    </li>
+                </ul>
+
+                <h3>Exemples de mots de passe à éviter</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-bad">À éviter :</span>
+                        "Valentin2000", "Password123", "Azerty!", "Bonjour123!", "Paris2024".
+                    </li>
+                    <li>
+                        <span class="tips-bad">À éviter :</span>
+                        combinaisons de ton prénom + année de naissance + symbole ("Léa_1997!").
+                    </li>
+                    <li>
+                        <span class="tips-bad">À éviter :</span>
+                        suites logiques sur le clavier (azerty, qwerty, 123456789, etc.).
+                    </li>
+                </ul>
+
+                <h3>Construire un mot de passe solide à partir d’une phrase</h3>
+                <p>
+                    Une méthode robuste consiste à prendre une phrase personnelle que tu n’as jamais publiée,
+                    et à la transformer.
+                </p>
+                <div class="block-note">
+                    Exemple :
+                    <br>
+                    Phrase : "En 2017 j’ai découvert la communauté 8 February 2027's Call."
+                    <br>
+                    Tu peux en garder seulement des initiales, des chiffres, des symboles, et modifier l’ordre.
+                </div>
+
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-good">Transformations possibles :</span>
+                        "En 2017 j’ai découvert la communauté 8 February 2027's Call"
+                        → "E2017jdlc8F2027C!"
+                    </li>
+                    <li>
+                        <span class="tips-good">Autre type :</span>
+                        ajouter ou remplacer des lettres par des symboles, sans tomber dans des patterns trop évidents.
+                    </li>
+                </ul>
+
+                <h3>Gestionnaire de mots de passe : ton coffre-fort central</h3>
+                <p>
+                    Le meilleur moyen de gérer des dizaines de mots de passe forts est d’utiliser un gestionnaire
+                    de mots de passe (password manager). C’est un coffre chiffré qui stocke tous tes accès et
+                    te permet de générer des mots de passe longs et uniques.
+                </p>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Conseil :</span>
+                        choisis un gestionnaire reconnu, maintenu, avec une bonne réputation en sécurité.
+                    </li>
+                    <li>
+                        <span class="tips-label">Conseil :</span>
+                        protège-le avec un mot de passe maître très long, que tu mémorises, que tu ne réutilises nulle part.
+                    </li>
+                    <li>
+                        <span class="tips-label">Conseil :</span>
+                        active si possible une double authentification pour ce coffre-fort.
+                    </li>
+                </ul>
+
+                <div class="block-critical">
+                    Important : si ton gestionnaire de mots de passe te semble compromis (connexion depuis un pays étrange,
+                    activité suspecte, fuite confirmée), change immédiatement ton mot de passe maître et les mots de passe
+                    de tes comptes critiques (mail, banque, cloud, réseau social principal).
+                </div>
+
+                <h3>Organisation basique des accès</h3>
+                <p>
+                    Tu peux classer tes mots de passe par catégorie : perso, travail, famille, finances, loisirs.
+                    Cela simplifie les changements en cas d’incident sur une zone précise de ta vie numérique.
+                </p>
+
+                <div class="micro-divider"></div>
+
+                <h4>Exemple : structure mentale pour ton mot de passe maître</h4>
+                <p>
+                    Ton mot de passe maître doit être une phrase longue, que tu peux retenir
+                    mais que personne ne peut deviner sans connaître ton histoire intime.
+                </p>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-good">Idée :</span>
+                        construire une phrase imagée, avec plusieurs langues, des erreurs volontairement insensées,
+                        des nombres qui ne correspondent à aucune date publique de ta vie.
+                    </li>
+                </ul>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 02 : DOUBLE AUTHENTIFICATION -->
+            <section class="section-block" id="mfa">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 02</span>
+                    <span class="section-subtitle">Double authentification (2FA / MFA)</span>
+                </div>
+
+                <h2>Double authentification : seconde barrière obligatoire</h2>
+                <p>
+                    La double authentification (2FA ou MFA) ajoute une étape à la connexion :
+                    un code, une application, une clé physique. Même si quelqu’un possède ton mot de passe,
+                    il lui manquera la deuxième clé.
+                </p>
+
+                <h3>Où activer la double authentification en priorité</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Email principal :</span>
+                        ton adresse mail contrôle la récupération de la plupart de tes comptes.
+                    </li>
+                    <li>
+                        <span class="tips-label">Banque / finance :</span>
+                        comptes bancaires, services de paiement, crypto si tu en utilises.
+                    </li>
+                    <li>
+                        <span class="tips-label">Réseaux sociaux principaux :</span>
+                        ceux où tu as ton identité réelle ou une grande audience.
+                    </li>
+                    <li>
+                        <span class="tips-label">Stockage cloud :</span>
+                        là où tu gardes des documents sensibles ou des archives familiales.
+                    </li>
+                </ul>
+
+                <h3>Types de double authentification</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Exemple</th>
+                            <th>Niveau de sécurité</th>
+                            <th>Commentaire</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SMS</td>
+                            <td>Code reçu par message sur ton téléphone.</td>
+                            <td>Moyen</td>
+                            <td>Meilleur que rien, mais vulnérable à certains détournements de SIM.</td>
+                        </tr>
+                        <tr>
+                            <td>Application d’authentification</td>
+                            <td>Codes générés localement dans une appli (TOTP).</td>
+                            <td>Bon</td>
+                            <td>Plus robuste que le SMS, fonctionne même sans réseau.</td>
+                        </tr>
+                        <tr>
+                            <td>Clé de sécurité physique</td>
+                            <td>Clé USB/NFC dédiée (type FIDO/U2F).</td>
+                            <td>Très élevé</td>
+                            <td>Excellente protection, surtout contre le phishing ciblé.</td>
+                        </tr>
+                        <tr>
+                            <td>Biométrie locale</td>
+                            <td>Empreinte, visage, etc., sur ton appareil.</td>
+                            <td>Variable</td>
+                            <td>Pratique, mais dépend de la sécurité de ton appareil lui-même.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="block-note">
+                    Conseil : dès que tu as le choix, privilégie une application d’authentification ou une clé physique
+                    plutôt que le SMS. Le SMS doit rester un plan B ou un secours.
+                </div>
+
+                <h3>Codes de secours et plan B</h3>
+                <p>
+                    Quand tu actives la double authentification, la plupart des services te proposent des codes de secours
+                    (recovery codes). C’est ton parachute en cas de perte de téléphone ou de réinitialisation d’appareil.
+                </p>
+
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Bon réflexe :</span>
+                        sauvegarde ces codes dans un endroit hors ligne (papier, coffre-fort physique, ou coffre chiffré).
+                    </li>
+                    <li>
+                        <span class="tips-label">Mauvais réflexe :</span>
+                        laisser ces codes dans un mail non chiffré ou dans une note non protégée de ton téléphone.
+                    </li>
+                </ul>
+
+                <div class="block-warning">
+                    Si tu changes de téléphone, n’attends pas la dernière minute pour migrer tes applications
+                    d’authentification. Fais-le à tête reposée, avec accès à tes comptes, et vérifie que tout fonctionne
+                    avant de réinitialiser l’ancien appareil.
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 03 : PHISHING & ARNAQUES -->
+            <section class="section-block" id="phishing">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 03</span>
+                    <span class="section-subtitle">Phishing, arnaques & liens suspects</span>
+                </div>
+
+                <h2>Phishing : quand quelqu’un prétend être quelqu’un d’autre</h2>
+                <p>
+                    Le phishing consiste à t’envoyer un message qui imite une vraie entreprise, un proche,
+                    ou un service officiel, pour te pousser à cliquer, à payer, ou à donner tes identifiants.
+                </p>
+
+                <h3>Signaux d’alerte dans un mail ou un message</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-bad">Alerte :</span>
+                        urgence artificielle ("Votre compte sera supprimé dans 24h", "Dernier avertissement").
+                    </li>
+                    <li>
+                        <span class="tips-bad">Alerte :</span>
+                        demande de données sensibles par mail ou message (mot de passe, code de carte, photo de pièce d’identité).
+                    </li>
+                    <li>
+                        <span class="tips-bad">Alerte :</span>
+                        adresse d’expéditeur bizarre, avec des variations (banque-securite123@example.com).
+                    </li>
+                    <li>
+                        <span class="tips-bad">Alerte :</span>
+                        fautes d’orthographe grossières pour un service sérieux ou institutionnel.
+                    </li>
+                    <li>
+                        <span class="tips-bad">Alerte :</span>
+                        liens qui n’ont rien à voir avec le site officiel quand tu passes la souris dessus.
+                    </li>
+                </ul>
+
+                <h3>Réflexe minimal avant de cliquer sur un lien</h3>
+                <p>
+                    Sur un ordinateur, tu peux souvent voir l’adresse réelle d’un lien en laissant la souris
+                    dessus sans cliquer. Vérifie que le domaine (la partie principale de l’adresse) correspond
+                    RÉELLEMENT au service.
+                </p>
+
+                <div class="block-note">
+                    Exemple :
+                    <br>
+                    Vrai : https://ma-banque.fr/connexion
+                    <br>
+                    Louche : https://ma-banque.securite-urgence.com/login
+                    <br>
+                    Encore plus louche : http://ma-banque.fr.example.ru/
+                </div>
+
+                <h3>Ne jamais répondre depuis le message suspect</h3>
+                <p>
+                    Si tu reçois un message qui te semble douteux, ne clique ni sur les liens, ni sur les pièces jointes,
+                    et ne réponds pas directement. Va sur le site officiel par tes propres moyens ou utilise un numéro déjà connu.
+                </p>
+
+                <h3>Pièces jointes dangereuses</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-bad">Fichiers à risque élevé :</span>
+                        .exe, .bat, .scr, certains .js, macros dans des documents Office.
+                    </li>
+                    <li>
+                        <span class="tips-label">Réflexe :</span>
+                        si tu n’attendais pas de fichier, considère-le comme suspect, même s’il vient
+                        "d’un ami". Son compte peut avoir été compromis.
+                    </li>
+                </ul>
+
+                <div class="block-critical">
+                    Si tu as cliqué par erreur sur un lien vraiment douteux, ou ouvert une pièce jointe suspecte :
+                    <br>
+                    1) déconnecte l’appareil d’Internet dès que possible ;
+                    <br>
+                    2) sauvegarde ce qui est important si ce n’est pas déjà fait ;
+                    <br>
+                    3) lance une analyse antivirus/antimalware complète ;
+                    <br>
+                    4) change tes mots de passe essentiels depuis un autre appareil si tu soupçonnes une compromission.
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 04 : MISES À JOUR & APPAREILS -->
+            <section class="section-block" id="updates-devices">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 04</span>
+                    <span class="section-subtitle">Mises à jour, systèmes & appareils</span>
+                </div>
+
+                <h2>Mises à jour : ne pas rester coincé dans une version vulnérable</h2>
+                <p>
+                    Les mises à jour ne servent pas qu’à ajouter des fonctionnalités.
+                    Elles corrigent aussi des failles de sécurité exploitées dans la vraie vie.
+                    Ignorer les mises à jour, c’est accepter d’utiliser un système dont les faiblesses sont parfois publiques.
+                </p>
+
+                <h3>Ce qui doit rester à jour en priorité</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Système d’exploitation :</span>
+                        Windows, macOS, Linux, Android, iOS. C’est la base de tout ce que tu fais.
+                    </li>
+                    <li>
+                        <span class="tips-label">Navigateur :</span>
+                        Chrome, Firefox, Edge, Safari, ou autre. Un navigateur obsolète est une porte d’entrée classique.
+                    </li>
+                    <li>
+                        <span class="tips-label">Antivirus / suite de sécurité :</span>
+                        si tu en utilises un, vérifie que les signatures et le logiciel sont à jour.
+                    </li>
+                    <li>
+                        <span class="tips-label">Applications critiques :</span>
+                        clients mail, logiciels de messagerie, utilitaires système.
+                    </li>
+                </ul>
+
+                <h3>Mises à jour automatiques vs contrôlées</h3>
+                <p>
+                    Activer les mises à jour automatiques est souvent une bonne idée, surtout pour les systèmes
+                    et les navigateurs. Tu peux quand même choisir un moment où tu as le temps de redémarrer
+                    sans perdre ton travail.
+                </p>
+
+                <div class="block-note">
+                    Astuce : réserve une plage régulière (par exemple une soirée par semaine ou par mois)
+                    pour vérifier les mises à jour et redémarrer calmement tes appareils.
+                </div>
+
+                <h3>Appareils que l’on oublie souvent</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Routeur / box Internet :</span>
+                        vérifie périodiquement s’il existe un nouveau firmware ou une mise à jour proposée par ton fournisseur.
+                    </li>
+                    <li>
+                        <span class="tips-label">Objets connectés :</span>
+                        caméras, montres, assistants vocaux, ampoules… Mets-les à jour quand le fabricant le permet.
+                    </li>
+                    <li>
+                        <span class="tips-label">Imprimantes & NAS :</span>
+                        souvent oubliés, mais parfois accessibles sur le réseau ou depuis Internet.
+                    </li>
+                </ul>
+
+                <div class="block-warning">
+                    Si un appareil ne reçoit plus de mises à jour depuis longtemps, demande-toi s’il peut rester connecté
+                    à Internet ou s’il doit être isolé, remplacé, ou utilisé uniquement sur un réseau limité.
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 05 : WI-FI & RÉSEAUX -->
+            <section class="section-block" id="wifi-networks">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 05</span>
+                    <span class="section-subtitle">Wi-Fi, réseaux domestiques & publics</span>
+                </div>
+
+                <h2>Wi-Fi domestique : la porte de ta maison numérique</h2>
+                <p>
+                    Ton Wi-Fi est souvent la frontière entre tes appareils et le reste du monde.
+                    Un Wi-Fi mal protégé, c’est comme laisser une fenêtre ouverte avec la lumière allumée.
+                </p>
+
+                <h3>Réflexes pour ton routeur / box</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Changer le mot de passe admin :</span>
+                        ne laisse jamais les identifiants par défaut de ton routeur ou box.
+                    </li>
+                    <li>
+                        <span class="tips-label">Sécurisation du Wi-Fi :</span>
+                        utilise un chiffrement moderne (par exemple WPA2 ou WPA3) avec un mot de passe fort.
+                    </li>
+                    <li>
+                        <span class="tips-label">Nom du réseau (SSID) :</span>
+                        évite d’y mettre ton nom, ton adresse, ou des infos privées.
+                    </li>
+                    <li>
+                        <span class="tips-label">Réseau invité :</span>
+                        si possible, active un réseau séparé pour les invités et certains objets connectés.
+                    </li>
+                </ul>
+
+                <h3>Wi-Fi public : cafés, gares, hôtels</h3>
+                <p>
+                    Les Wi-Fi publics sont pratiques, mais tu n’as aucun contrôle sur qui y est connecté,
+                    ni sur la configuration exacte du réseau.
+                </p>
+
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Évite :</span>
+                        les opérations sensibles (banque, administratif) sur un Wi-Fi public,
+                        sauf si tu passes par une connexion chiffrée end-to-end fiable.
+                    </li>
+                    <li>
+                        <span class="tips-label">Vérifie :</span>
+                        que les sites sensibles utilisent bien le HTTPS (le cadenas dans le navigateur).
+                    </li>
+                    <li>
+                        <span class="tips-label">Désactive :</span>
+                        le partage de fichiers et la découverte d’appareils en réseau public sur ton ordinateur.
+                    </li>
+                </ul>
+
+                <div class="block-note">
+                    Sur téléphone, pense à désactiver la connexion automatique aux Wi-Fi ouverts,
+                    pour éviter de te connecter sans le vouloir à des réseaux inconnus.
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 06 : SMARTPHONES & APPLIS -->
+            <section class="section-block" id="smartphones-apps">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 06</span>
+                    <span class="section-subtitle">Smartphones, applis & permissions</span>
+                </div>
+
+                <h2>Ton smartphone : ta vie dans la poche</h2>
+                <p>
+                    Ton téléphone contient souvent tes messages, tes photos, ton agenda, tes moyens de paiement,
+                    tes codes de double authentification. S’il est compromis, une grande partie de ta vie numérique l’est aussi.
+                </p>
+
+                <h3>Écran de verrouillage solide</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Code :</span>
+                        utilise un code suffisamment long (plus que 4 chiffres si possible) ou un schéma non trivial.
+                    </li>
+                    <li>
+                        <span class="tips-label">Biométrie :</span>
+                        utile pour le confort, mais garde aussi un code en réserve et évite les schémas faciles à deviner.
+                    </li>
+                    <li>
+                        <span class="tips-label">Notifications :</span>
+                        limite les contenus sensibles visibles sur l’écran verrouillé (prévisualisation de messages, codes, etc.).
+                    </li>
+                </ul>
+
+                <h3>Installer des applications en restant méfiant</h3>
+                <p>
+                    Chaque application est un petit programme qui a potentiellement accès à certaines parties de ton appareil.
+                    Plus tu installes d’applications sans réfléchir, plus tu élargis la surface potentielle d’attaque.
+                </p>
+
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Source :</span>
+                        utilise les boutiques officielles de ton système (attention quand même aux clones et aux faux avis).
+                    </li>
+                    <li>
+                        <span class="tips-label">Permissions :</span>
+                        refuse les accès qui ne sont pas nécessaires (micro, caméra, localisation, contacts).
+                    </li>
+                    <li>
+                        <span class="tips-label">Nettoyage :</span>
+                        désinstalle régulièrement les applis que tu n’utilises plus.
+                    </li>
+                </ul>
+
+                <h3>Localisation & traçage</h3>
+                <p>
+                    La localisation permanente permet à certaines applis de construire un historique détaillé
+                    de tous tes déplacements. Parfois tu en as besoin, parfois non.
+                </p>
+
+                <div class="block-warning">
+                    Vérifie quelles applis ont accès à ta localisation en arrière-plan. Ne laisse l’accès permanent
+                    qu’aux services qui en ont réellement besoin, et préfère "uniquement quand l’appli est utilisée"
+                    quand c’est possible.
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 07 : SAUVEGARDES & SINISTRES -->
+            <section class="section-block" id="backups-disasters">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 07</span>
+                    <span class="section-subtitle">Sauvegardes, pannes & catastrophes</span>
+                </div>
+
+                <h2>Sauvegardes : ne pas tout perdre d’un coup</h2>
+                <p>
+                    Un disque qui lâche, un téléphone volé, un ransomware, un verre d’eau renversé…
+                    Sans sauvegarde, chaque incident peut devenir une catastrophe définitive.
+                </p>
+
+                <h3>Règle simple : au moins deux copies</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Original :</span>
+                        ce qui est sur ton appareil principal (PC, téléphone).
+                    </li>
+                    <li>
+                        <span class="tips-label">Copie locale :</span>
+                        un disque externe ou un autre support chez toi, mis à jour régulièrement.
+                    </li>
+                    <li>
+                        <span class="tips-label">Optionnel :</span>
+                        une copie supplémentaire chiffrée dans un service cloud fiable, pour les données les plus importantes.
+                    </li>
+                </ul>
+
+                <h3>Quoi sauvegarder en priorité</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Documents administratifs :</span>
+                        papiers importants, scans, contrats.
+                    </li>
+                    <li>
+                        <span class="tips-label">Souvenirs personnels :</span>
+                        photos, vidéos, archives de conversations importantes.
+                    </li>
+                    <li>
+                        <span class="tips-label">Accès & clés :</span>
+                        certaines infos permettant de récupérer tes comptes (mais idéalement dans un format chiffré).
+                    </li>
+                </ul>
+
+                <div class="block-note">
+                    Fais un test : imagine que ton appareil principal ne redémarre plus demain.
+                    Qu’est-ce que tu perds ? Si la réponse est "beaucoup trop de choses", c’est le signe qu’il faut
+                    structurer tes sauvegardes.
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 08 : RÉSEAUX SOCIAUX -->
+            <section class="section-block" id="social-media">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 08</span>
+                    <span class="section-subtitle">Réseaux sociaux, exposition & réputation</span>
+                </div>
+
+                <h2>Réseaux sociaux : ce que tu postes ne t’appartient plus vraiment</h2>
+                <p>
+                    Une fois publiées, tes photos, tes phrases, tes opinions peuvent être copiées,
+                    remixées, ressorties hors contexte des années plus tard. Les paramètres de confidentialité
+                    limitent le risque, mais ne l’annulent pas.
+                </p>
+
+                <h3>Avant de publier, pose-toi quelques questions</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Question 01 :</span>
+                        serais-tu à l’aise si ce contenu était affiché devant ta famille, ton travail, un futur recruteur ?
+                    </li>
+                    <li>
+                        <span class="tips-label">Question 02 :</span>
+                        ce contenu peut-il révéler ton adresse, ton école, ton lieu de travail, ou des infos trop précises ?
+                    </li>
+                    <li>
+                        <span class="tips-label">Question 03 :</span>
+                        ce contenu pourrait-il être utilisé pour te manipuler, te faire chanter, ou te ridiculiser ?
+                    </li>
+                </ul>
+
+                <h3>Paramètres de confidentialité</h3>
+                <p>
+                    Les plateformes changent régulièrement leurs interfaces, mais plusieurs zones reviennent souvent :
+                    visibilité du profil, qui peut t’envoyer des messages, qui peut voir ta liste d’amis, et qui peut te taguer.
+                </p>
+
+                <div class="block-note">
+                    Prends le temps, une ou deux fois par an, de passer en revue les paramètres de confidentialité
+                    de tes principaux réseaux. Supprime ce qui ne te semble plus cohérent avec la personne que tu es.
+                </div>
+
+                <h3>Gestion des contacts</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Principe :</span>
+                        n’accepte pas systématiquement toutes les demandes. Un réseau social n’est pas un concours
+                        de nombres, mais un espace que tu contrôles.
+                    </li>
+                    <li>
+                        <span class="tips-label">Profil suspect :</span>
+                        photos trop parfaites, peu de contenu réel, insistance rapide en messages privés, demandes d’infos
+                        intimes ou financières.
+                    </li>
+                </ul>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 09 : CLOUD & PARTAGE -->
+            <section class="section-block" id="cloud-sharing">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 09</span>
+                    <span class="section-subtitle">Cloud, liens de partage & confidentialité</span>
+                </div>
+
+                <h2>Cloud : ce n’est pas “magique”, c’est l’ordinateur de quelqu’un d’autre</h2>
+                <p>
+                    Le cloud te permet d’accéder à tes fichiers depuis plusieurs appareils, mais ils sont physiquement
+                    stockés sur des serveurs que tu ne contrôles pas. La confidentialité dépend de la confiance
+                    que tu accordes au service et de la manière dont tu chiffrerais toi-même certaines données.
+                </p>
+
+                <h3>Liens de partage</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Lien public :</span>
+                        toute personne avec le lien peut accéder à ce qui est partagé. Il peut être redistribué
+                        sans que tu le saches.
+                    </li>
+                    <li>
+                        <span class="tips-label">Lien limité :</span>
+                        accès réservé à des comptes ou des adresses précises, parfois avec mot de passe.
+                    </li>
+                    <li>
+                        <span class="tips-label">Date d’expiration :</span>
+                        quand c’est possible, définis une date limite pour que le lien cesse de fonctionner.
+                    </li>
+                </ul>
+
+                <div class="block-note">
+                    Rappelle-toi que "supprimer le lien" ne supprime pas forcément les copies que les gens ont pu faire
+                    des fichiers pendant que le lien était actif.
+                </div>
+
+                <h3>Chiffrement côté utilisateur</h3>
+                <p>
+                    Pour les documents vraiment sensibles, tu peux les chiffrer toi-même avant de les envoyer sur un cloud.
+                    Ainsi, même si le service est compromis, les données restent incompréhensibles sans ta clé.
+                </p>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 10 : TRAVAIL, ÉTUDES & COLLABORATIONS -->
+            <section class="section-block" id="work-study">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 10</span>
+                    <span class="section-subtitle">Travail, études & projets collectifs</span>
+                </div>
+
+                <h2>Quand tes données ne concernent plus que toi</h2>
+                <p>
+                    Dans un contexte pro ou scolaire, tu manipules parfois des données qui appartiennent à d’autres
+                    personnes, ou à une organisation (clients, élèves, collègues). La responsabilité est partagée,
+                    mais tu as une part à tenir.
+                </p>
+
+                <h3>Réflexes en environnement partagé</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Verrouillage d’écran :</span>
+                        verrouille ton poste dès que tu t’éloignes (même quelques minutes).
+                    </li>
+                    <li>
+                        <span class="tips-label">Partage de compte :</span>
+                        évite absolument de partager ton compte avec d’autres personnes, même "pour dépanner".
+                    </li>
+                    <li>
+                        <span class="tips-label">Stockage :</span>
+                        respecte les consignes de ton organisation concernant où stocker les fichiers
+                        (serveur interne, cloud spécifique, etc.).
+                    </li>
+                </ul>
+
+                <h3>Transfert de fichiers sensibles</h3>
+                <p>
+                    Pour des documents qui contiennent des données personnelles ou sensibles, n’utilise pas n’importe
+                    quel service de transfert gratuit trouvé au hasard. Vérifie si ton organisation ou ton école
+                    a une solution dédiée.
+                </p>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 11 : DÉPLACEMENTS & LIEUX PUBLICS -->
+            <section class="section-block" id="travel-public">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 11</span>
+                    <span class="section-subtitle">Déplacements, lieux publics & postes partagés</span>
+                </div>
+
+                <h2>Ordinateurs publics, hôtels, bibliothèques</h2>
+                <p>
+                    Les appareils qui ne t’appartiennent pas sont, par définition, hors de ton contrôle.
+                    Ils peuvent être mal configurés, infectés, ou simplement observés par des inconnus.
+                </p>
+
+                <h3>Ce que tu dois éviter sur un poste public</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-bad">À éviter :</span>
+                        te connecter à ta messagerie principale, à ta banque, ou à ton stockage cloud personnel.
+                    </li>
+                    <li>
+                        <span class="tips-label">Si tu n’as pas le choix :</span>
+                        utilise systématiquement la double authentification, ne coche jamais "se souvenir de moi",
+                        et déconnecte-toi manuellement à la fin.
+                    </li>
+                    <li>
+                        <span class="tips-label">Réflexe :</span>
+                        efface l’historique de navigation et les fichiers téléchargés avant de quitter la session,
+                        si tu en as la possibilité.
+                    </li>
+                </ul>
+
+                <h3>Regard par-dessus l’épaule (“shoulder surfing”)</h3>
+                <p>
+                    Parfois, le problème n’est pas technique : quelqu’un derrière toi peut voir ton écran,
+                    ton code, ton mot de passe. C’est particulièrement vrai dans les transports, les salles d’attente
+                    ou les open-spaces.
+                </p>
+
+                <div class="block-note">
+                    Place-toi de manière à limiter les vues directes sur ton écran. Si tu tapes un mot de passe,
+                    fais-le de manière discrète et ne le dicte jamais à voix haute en public.
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 12 : PARENTS, ENFANTS, ENTOURAGE -->
+            <section class="section-block" id="family-friends">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 12</span>
+                    <span class="section-subtitle">Parents, enfants & entourage</span>
+                </div>
+
+                <h2>Partager les réflexes sans dramatiser</h2>
+                <p>
+                    La sécurité numérique ne fonctionne pas si tu es le seul à l’appliquer.
+                    Tes proches peuvent sans le vouloir ouvrir la porte à des attaques, surtout si des comptes sont liés
+                    ou partagés.
+                </p>
+
+                <h3>Avec des enfants ou des adolescents</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-label">Dialogue :</span>
+                        explique simplement ce qu’est une arnaque, un inconnu, un contenu inadapté.
+                    </li>
+                    <li>
+                        <span class="tips-label">Règles :</span>
+                        définis des limites claires sur ce qu’ils peuvent partager (photos, infos personnelles).
+                    </li>
+                    <li>
+                        <span class="tips-label">Paramètres :</span>
+                        configure avec eux les paramètres de confidentialité de leurs comptes.
+                    </li>
+                </ul>
+
+                <h3>Avec des adultes moins à l’aise</h3>
+                <p>
+                    Tu peux aider des proches qui se sentent perdus, sans les infantiliser.
+                    Commence par quelques réflexes simples : ne jamais donner ses codes, vérifier les adresses,
+                    demander un second avis avant un paiement en ligne suspect.
+                </p>
+            </section>
+
+            <hr>
+
+            <!-- MODULE 13 : INCIDENT & RÉACTION -->
+            <section class="section-block" id="incident-response">
+                <div class="section-header">
+                    <span class="section-tag">MODULE 13</span>
+                    <span class="section-subtitle">Quand quelque chose tourne mal</span>
+                </div>
+
+                <h2>Incident : garder la tête froide</h2>
+                <p>
+                    Il est impossible d’être à 100 % sécurisé en permanence.
+                    Ce qui compte vraiment, c’est la vitesse et la clarté de ta réaction quand tu remarques
+                    un comportement anormal.
+                </p>
+
+                <h3>Signes d’alerte possibles</h3>
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-bad">Signaux :</span>
+                        mails de récupération de mot de passe inattendus pour tes comptes.
+                    </li>
+                    <li>
+                        <span class="tips-bad">Signaux :</span>
+                        connexions depuis des lieux ou appareils que tu ne connais pas.
+                    </li>
+                    <li>
+                        <span class="tips-bad">Signaux :</span>
+                        messages envoyés à tes contacts que tu n’as pas écrits.
+                    </li>
+                    <li>
+                        <span class="tips-bad">Signaux :</span>
+                        programmes que tu ne te souviens pas avoir installés,
+                        fenêtre qui s’ouvre et se referme aussitôt, comportement étrange de la machine.
+                    </li>
+                </ul>
+
+                <h3>Plan d’action général</h3>
+                <ol class="tips-list">
+                    <li>
+                        <span class="tips-label">Étape 01 :</span>
+                        sécurise ton mail principal : change le mot de passe, active ou renforce la double authentification.
+                    </li>
+                    <li>
+                        <span class="tips-label">Étape 02 :</span>
+                        change les mots de passe des comptes critiques, en commençant par la banque et les réseaux sociaux principaux.
+                    </li>
+                    <li>
+                        <span class="tips-label">Étape 03 :</span>
+                        vérifie les appareils utilisés récemment et déconnecte les sessions inconnues
+                        (certaines plateformes permettent de voir les appareils connectés).
+                    </li>
+                    <li>
+                        <span class="tips-label">Étape 04 :</span>
+                        réalise des sauvegardes si ce n’est pas déjà fait, puis exécute des analyses de sécurité
+                        (antivirus, antimalware).
+                    </li>
+                    <li>
+                        <span class="tips-label">Étape 05 :</span>
+                        si des données bancaires sont en jeu, contacte immédiatement ta banque pour signaler le problème.
+                    </li>
+                </ol>
+
+                <div class="block-critical">
+                    En cas d’arnaque financière ou d’usurpation d’identité, informe aussi les services officiels compétents
+                    de ton pays, et conserve des traces (captures d’écran, mails, échanges) sans les modifier.
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- LIGNE DE COMMANDE FINALE – RÉCAP -->
+            <section class="section-block" id="summary">
+                <h2>Résumé : le bouclier quotidien</h2>
+                <p>
+                    Tu n’as pas besoin d’être expert pour être solide.
+                    Tu as besoin de réflexes simples, appliqués régulièrement.
+                </p>
+
+                <ul class="tips-list">
+                    <li>
+                        <span class="tips-good">Réflexe 01 :</span>
+                        mots de passe uniques et robustes + gestionnaire de mots de passe.
+                    </li>
+                    <li>
+                        <span class="tips-good">Réflexe 02 :</span>
+                        double authentification partout où c’est possible.
+                    </li>
+                    <li>
+                        <span class="tips-good">Réflexe 03 :</span>
+                        méfiance envers les messages urgents ou trop beaux pour être vrais.
+                    </li>
+                    <li>
+                        <span class="tips-good">Réflexe 04 :</span>
+                        mises à jour régulières de tes appareils et applications.
+                    </li>
+                    <li>
+                        <span class="tips-good">Réflexe 05 :</span>
+                        sauvegardes régulières des données auxquelles tu tiens.
+                    </li>
+                    <li>
+                        <span class="tips-good">Réflexe 06 :</span>
+                        prudence sur réseaux publics, appareils partagés et réseaux sociaux.
+                    </li>
+                    <li>
+                        <span class="tips-good">Réflexe 07 :</span>
+                        réaction rapide et structurée en cas de doute.
+                    </li>
+                </ul>
+
+                <div class="prompt-line">
+                    <div class="prompt-symbol">
+                        C:\ShieldTips&gt;
+                    </div>
+                    <div class="prompt-text">
+                        echo "Everyday security is a habit, not a panic mode."
+                    </div>
+                </div>
+
+                <div class="prompt-line">
+                    <div class="prompt-symbol">
+                        C:\ShieldTips&gt;
+                    </div>
+                    <div class="prompt-text">
+                        // Pour revenir ici, garde ce lien dans un endroit simple et propre.
+                        <span class="cursor"></span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-line">
+            <div class="footer-left">
+                8 February 2027's Call · Module : ShieldTips · Version 0.1 (Console Draft)
+            </div>
+            <div class="footer-right">
+                Interface : texte brut, police titres "Inndam Extended", base monospace — aucune décoration superflue.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

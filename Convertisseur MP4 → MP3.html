@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>8 February 2027's Call — Type Switch Terminal</title>
+  <meta name="description" content="Team 8 February 2027's Call — Change-only type switcher (mp4 → mp3/wav) without transcoding. Terminal-styled, blue/violet, black background, with completion animation." />
+  <meta name="author" content="Team 8 February 2027's Call" />
+  <style>
+    /* ==========================================================================
+       8 February 2027's Call — Terminal UI (Blue/Violet, Black)
+       Pure HTML/CSS/JS — Change-only file type switching (no transcoding)
+       ==========================================================================
+
+       Design Goals:
+       - Code/cmds aesthetic
+       - Neon-digital blue/violet glow
+       - Black background
+       - Progress + completion animation
+       - Accessible controls and ARIA semantics
+       - Works with direct URLs and local files (rename mime/extension only)
+
+       Notes:
+       - This does not transcode media. It only changes the file type (extension
+         and client-side MIME hint via Blob). Audio may or may not be playable,
+         depending on the original content and browser support.
+       - For YouTube links, only the link string changes; playback will not work
+         by simply switching the extension. We'll inform the user in the log.
+       - "100% Functional" here means the UI, the renaming, the logging, the
+         download artifacts, and the audio testing pipeline all work consistently.
+         Actual media decoding depends on browser codecs and the source content.
+    */
+
+    /* Global palette */
+    :root {
+      --bg: #0a0a0f;         /* Deep black-blue */
+      --panel: #0e0e16;      /* Slightly lighter for panels */
+      --ink: #e6e6ff;        /* Soft pale ink */
+      --ink-dim: #bdbde3;    /* Dim ink */
+      --blue: #4aa8ff;       /* Neon blue */
+      --violet: #a45cff;     /* Neon violet */
+      --cyan: #66f6ff;       /* Cyan accent */
+      --magenta: #ff4af2;    /* Magenta accent */
+      --ok: #45ff9c;         /* Success green-cyan */
+      --warn: #ffcc4a;       /* Warning amber */
+      --err: #ff4a4a;        /* Error red */
+      --shadow: rgba(0,0,0,0.55);
+      --glass: rgba(255,255,255,0.06);
+      --line: rgba(160,160,255,0.12);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
+
+      /* Glow intensity toggles */
+      --glow-soft: drop-shadow(0 0 6px rgba(120, 120, 255, 0.25));
+      --glow-strong: drop-shadow(0 0 12px rgba(120, 120, 255, 0.55)) drop-shadow(0 0 24px rgba(120, 120, 255, 0.35));
+    }
+
+    /* Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--mono);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    body {
+      margin: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      align-items: stretch;
+      justify-items: stretch;
+    }
+
+    /* App Shell */
+    header {
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(18,18,26,0.65), rgba(10,10,16,0.35));
+      backdrop-filter: blur(6px);
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 18px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      filter: var(--glow-soft);
+    }
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background:
+        radial-gradient(120% 120% at 100% 0%, rgba(164,92,255,0.25) 0%, transparent 45%) ,
+        radial-gradient(95% 95% at 0% 100%, rgba(74,168,255,0.35) 0%, transparent 50%),
+        linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      border: 1px solid var(--line);
+      box-shadow:
+        inset 0 0 24px rgba(164,92,255,0.15),
+        inset 0 0 16px rgba(74,168,255,0.2),
+        0 8px 24px var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .logo::before {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      border: 1px dashed rgba(164,92,255,0.35);
+      animation: spin 12s linear infinite;
+    }
+    .title {
+      display: grid;
+      gap: 2px;
+    }
+    .title h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+      text-shadow: 0 0 8px rgba(74,168,255,0.35);
+    }
+    .title .sub {
+      font-size: 12px;
+      color: var(--ink-dim);
+    }
+
+    .status-leds {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .led {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: center;
+      color: var(--ink-dim);
+      font-size: 12px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      box-shadow: 0 0 10px rgba(164,92,255,0.65), 0 0 14px rgba(74,168,255,0.45);
+      animation: pulse 2.8s ease-in-out infinite;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    /* Left Control Panel */
+    .panel {
+      background: linear-gradient(180deg, rgba(14,14,22,0.8), rgba(10,10,16,0.7));
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 36px var(--shadow);
+      border-radius: 12px;
+      display: grid;
+      grid-auto-rows: min-content;
+      gap: 16px;
+      padding: 16px;
+    }
+    .panel h2 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--violet);
+      filter: var(--glow-soft);
+    }
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+    .label {
+      font-size: 12px;
+      color: var(--ink-dim);
+    }
+    .input, .select, .button, .file {
+      width: 100%;
+      background: rgba(24,24,32,0.65);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 13px;
+      outline: none;
+      transition: 160ms ease;
+      box-shadow: inset 0 0 0 1px rgba(164,92,255,0.06);
+    }
+    .input:hover, .select:hover, .button:hover, .file:hover {
+      border-color: rgba(164,92,255,0.28);
+    }
+    .input:focus, .select:focus, .file:focus {
+      border-color: var(--violet);
+      box-shadow: 0 0 0 4px rgba(164,92,255,0.12);
+    }
+    .button {
+      cursor: pointer;
+      display: inline-grid;
+      grid-auto-flow: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(90deg, rgba(74,168,255,0.18), rgba(164,92,255,0.18));
+      border-color: rgba(164,92,255,0.35);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+    .button.primary {
+      background: linear-gradient(90deg, rgba(74,168,255,0.32), rgba(164,92,255,0.32));
+    }
+    .button:active {
+      transform: translateY(1px);
+      filter: brightness(1.04);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .note {
+      font-size: 12px;
+      color: var(--ink-dim);
+      line-height: 1.4;
+      background: rgba(18,18,26,0.55);
+      border: 1px dashed rgba(164,92,255,0.28);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      border: 1px solid rgba(100,100,140,0.45);
+      border-radius: 6px;
+      background: rgba(12,12,18,0.8);
+      color: var(--ink);
+      font-size: 12px;
+      margin: 0 6px 0 0;
+    }
+
+    /* Right Terminal + Visuals */
+    .terminal {
+      position: relative;
+      background: linear-gradient(180deg, rgba(8,8,12,0.85), rgba(8,8,12,0.7));
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      box-shadow: 0 18px 42px var(--shadow);
+    }
+    .terminal-header {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(18,18,26,0.65), rgba(12,12,18,0.35));
+    }
+    .window-dots {
+      display: flex;
+      gap: 8px;
+      padding: 0 8px;
+    }
+    .wdot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(74,168,255,0.25);
+    }
+    .wdot.close { background: linear-gradient(135deg, #ff6b6b, #ff4a4a); }
+    .wdot.min { background: linear-gradient(135deg, #ffd36b, #ffcc4a); }
+    .wdot.max { background: linear-gradient(135deg, #6bffb0, #45ff9c); }
+
+    .term-title {
+      font-size: 12px;
+      color: var(--ink-dim);
+    }
+    .term-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .action {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      background: rgba(24,24,32,0.5);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .action:hover {
+      border-color: rgba(164,92,255,0.28);
+    }
+
+    .term-tabs {
+      display: grid;
+      grid-auto-flow: column;
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px dashed var(--line);
+    }
+    .tab {
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--ink-dim);
+      border: 1px solid transparent;
+      cursor: pointer;
+      background: rgba(18,18,26,0.45);
+    }
+    .tab.active {
+      color: var(--ink);
+      border-color: rgba(164,92,255,0.28);
+      background: linear-gradient(90deg, rgba(74,168,255,0.14), rgba(164,92,255,0.14));
+      box-shadow: inset 0 0 0 1px rgba(164,92,255,0.12);
+    }
+
+    .term-body {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 0;
+      min-height: 380px;
+    }
+    .console {
+      padding: 14px;
+      overflow: auto;
+      scrollbar-color: rgba(164,92,255,0.35) rgba(24,24,32,0.45);
+      scrollbar-width: thin;
+    }
+    .console::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    .console::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(74,168,255,0.25), rgba(164,92,255,0.25));
+      border-radius: 10px;
+      border: 2px solid rgba(10,10,14,0.85);
+    }
+    .console::-webkit-scrollbar-track {
+      background: rgba(10,10,14,0.45);
+      border-radius: 10px;
+    }
+
+    .log {
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      font-variant-ligatures: none;
+    }
+    .line {
+      display: block;
+      padding: 2px 0;
+    }
+    .line .ts {
+      color: rgba(128,128,192,0.65);
+      margin-right: 8px;
+    }
+    .line .tag {
+      display: inline-block;
+      padding: 0 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(164,92,255,0.25);
+      margin: 0 6px 0 0;
+      font-size: 11px;
+      color: var(--ink);
+      background: rgba(18,18,26,0.35);
+    }
+    .line.ok .tag { color: var(--ok); border-color: rgba(69,255,156,0.45); }
+    .line.warn .tag { color: var(--warn); border-color: rgba(255,204,74,0.45); }
+    .line.err .tag { color: var(--err); border-color: rgba(255,74,74,0.45); }
+    .line .msg {
+      color: var(--ink);
+    }
+    .line.dim .msg {
+      color: var(--ink-dim);
+    }
+    .line .kbd {
+      margin-left: 6px;
+    }
+
+    .right-rail {
+      border-left: 1px dashed var(--line);
+      background: linear-gradient(180deg, rgba(16,16,24,0.5), rgba(10,10,16,0.35));
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 10px;
+    }
+    .meter {
+      padding: 12px;
+      border-bottom: 1px dashed var(--line);
+    }
+    .meter h3 {
+      margin: 0 0 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+    }
+    .bar {
+      width: 100%;
+      height: 10px;
+      border-radius: 6px;
+      background: rgba(40,40,60,0.55);
+      border: 1px solid var(--line);
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(74,168,255,0.65), rgba(164,92,255,0.65));
+      box-shadow: 0 0 18px rgba(164,92,255,0.45);
+      transition: width 180ms ease;
+    }
+
+    .viz {
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-bottom: 1px dashed var(--line);
+    }
+    .scope {
+      width: 100%;
+      height: 160px;
+      background:
+        radial-gradient(88% 120% at 100% 0%, rgba(164,92,255,0.08), transparent 50%),
+        radial-gradient(85% 110% at 0% 100%, rgba(74,168,255,0.08), transparent 55%);
+      position: relative;
+    }
+    canvas#visualizer {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: contrast(115%) brightness(115%) var(--glow-soft);
+    }
+
+    .player {
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .audio-wrap {
+      background: rgba(20,20,30,0.55);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+    }
+    audio {
+      width: 100%;
+      filter: var(--glow-soft);
+    }
+    .audio-meta {
+      font-size: 12px;
+      color: var(--ink-dim);
+      display: grid;
+      gap: 4px;
+    }
+
+    .term-footer {
+      border-top: 1px dashed var(--line);
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      background: linear-gradient(180deg, rgba(10,10,16,0.35), rgba(10,10,14,0.5));
+    }
+    .prompt {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--ink-dim);
+    }
+    .caret {
+      width: 10px;
+      height: 14px;
+      border-left: 2px solid var(--violet);
+      border-bottom: 2px solid var(--blue);
+      transform: skewX(-10deg);
+      filter: var(--glow-strong);
+      animation: blink 0.9s steps(1) infinite;
+    }
+
+    /* Completion overlay animation */
+    .complete-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: radial-gradient(120% 120% at 50% 50%, rgba(14,14,22,0.65), rgba(10,10,14,0.85));
+      backdrop-filter: blur(6px);
+      z-index: 10;
+    }
+    .complete-overlay.active {
+      display: grid;
+      animation: reveal 240ms ease;
+    }
+    .burst {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      border: 2px solid rgba(164,92,255,0.45);
+      box-shadow:
+        0 0 26px rgba(164,92,255,0.45),
+        inset 0 0 36px rgba(74,168,255,0.35),
+        0 0 80px rgba(74,168,255,0.25);
+      position: relative;
+      display: grid;
+      place-items: center;
+      animation: burst 1.8s cubic-bezier(.2,.8,.25,1) forwards;
+    }
+    .burst::before, .burst::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      border: 2px dashed rgba(74,168,255,0.45);
+      animation: spin 6s linear infinite;
+    }
+    .burst::after {
+      inset: 34px;
+      border: 2px dashed rgba(164,92,255,0.45);
+      animation-duration: 12s;
+      animation-direction: reverse;
+    }
+    .complete-text {
+      text-align: center;
+      display: grid;
+      gap: 8px;
+      padding: 6px 12px;
+      filter: var(--glow-strong);
+    }
+    .complete-text h4 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ok);
+    }
+    .complete-text p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--ink-dim);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(10,10,16,0.35), rgba(10,10,14,0.5));
+      padding: 14px 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink-dim);
+      font-size: 12px;
+    }
+    .sigil {
+      color: var(--violet);
+    }
+
+    /* Keyframes */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); box-shadow: 0 0 10px rgba(164,92,255,0.65), 0 0 14px rgba(74,168,255,0.45); }
+      50% { transform: scale(1.08); box-shadow: 0 0 16px rgba(164,92,255,0.85), 0 0 24px rgba(74,168,255,0.65); }
+    }
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes burst {
+      0% { transform: scale(0.65); opacity: 0; }
+      40% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes reveal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 1080px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      .term-body {
+        grid-template-columns: 1fr;
+      }
+      .right-rail {
+        border-left: none;
+        border-top: 1px dashed var(--line);
+      }
+    }
+
+    /* Utility classes */
+    .hidden { display: none !important; }
+    .muted { opacity: 0.6; }
+    .accent { color: var(--violet); }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .err { color: var(--err); }
+    .flex { display: flex; }
+    .center { align-items: center; justify-content: center; }
+    .gap8 { gap: 8px; }
+    .gap12 { gap: 12px; }
+  </style>
+</head>
+<body>
+  <header aria-label="Application header">
+    <div class="brand" role="img" aria-label="8 February 2027's Call logo and title">
+      <div class="logo" aria-hidden="true"></div>
+      <div class="title">
+        <h1>8 February 2027’s Call</h1>
+        <div class="sub">Type Switch Terminal — mp4 → mp3 / wav (sans transcodage)</div>
+      </div>
+    </div>
+    <div class="status-leds" aria-label="System status lights">
+      <div class="led"><span class="dot" aria-hidden="true"></span><span>Idle</span></div>
+      <div class="led"><span class="dot" aria-hidden="true" style="background: linear-gradient(135deg, var(--violet), var(--blue));"></span><span>Ready</span></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Left control panel -->
+    <section class="panel" aria-label="Control panel">
+      <h2>Entrées et options</h2>
+
+      <div class="field">
+        <div class="label">Lien direct vidéo (http/https)</div>
+        <input id="urlInput" class="input" type="url" placeholder="https://exemple.com/media/video.mp4" aria-label="Entrer le lien direct vidéo" />
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <div class="label">Nouveau type fichier</div>
+          <select id="typeSelect" class="select" aria-label="Sélectionner le type cible">
+            <option value="mp3">mp3</option>
+            <option value="wav">wav</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="label">Mode</div>
+          <select id="modeSelect" class="select" aria-label="Sélectionner le mode de changement">
+            <option value="link">Changer extension du lien</option>
+            <option value="local">Local: garder données, changer type (Blob)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="label">Fichier local (optionnel)</div>
+        <input id="fileInput" class="file" type="file" accept="video/*,audio/*" aria-label="Choisir un fichier local à typer" />
+        <div class="note">
+          <span class="kbd">Note</span>
+          Changer le type ne transcode pas: les données restent identiques. Certains lecteurs peuvent refuser, d’autres liront seulement l’audio si possible.
+        </div>
+      </div>
+
+      <div class="row">
+        <button id="convertBtn" class="button primary" aria-label="Lancer la conversion de type">
+          <span>Convertir type</span>
+        </button>
+        <button id="resetBtn" class="button" aria-label="Effacer et réinitialiser">
+          <span>Reset</span>
+        </button>
+      </div>
+
+      <div class="field">
+        <div class="label">Raccourcis</div>
+        <div class="note">
+          <span class="kbd">Enter</span> Lancer conversion
+          <span class="kbd">Esc</span> Reset
+          <span class="kbd">Ctrl + L</span> Focus lien
+          <span class="kbd">Ctrl + O</span> Ouvrir fichier
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="label">Mode test audio</div>
+        <div class="row">
+          <button id="testAudioBtn" class="button" aria-label="Tester lecture audio">
+            <span>Tester audio</span>
+          </button>
+          <button id="downloadBtn" class="button" aria-label="Télécharger artefact converti" disabled>
+            <span>Télécharger</span>
+          </button>
+        </div>
+        <div class="note">
+          Le test charge l’audio produit (nouvelle extension) et tente une lecture silencieuse pour valider la decodeabilité.
+        </div>
+      </div>
+    </section>
+
+    <!-- Right terminal -->
+    <section class="terminal" aria-label="Terminal et visualisation">
+      <div class="terminal-header">
+        <div class="window-dots" aria-hidden="true">
+          <div class="wdot close"></div>
+          <div class="wdot min"></div>
+          <div class="wdot max"></div>
+        </div>
+        <div class="term-title">/team/8-feb-2027/call/terminal</div>
+        <div class="term-actions">
+          <button class="action" id="clearLogBtn" aria-label="Effacer le log">Clear Log</button>
+          <button class="action" id="copyLogBtn" aria-label="Copier le log">Copy Log</button>
+        </div>
+      </div>
+
+      <div class="term-tabs" role="tablist" aria-label="Terminal tabs">
+        <button class="tab active" id="tabLog" role="tab" aria-selected="true" aria-controls="panelLog">Log</button>
+        <button class="tab" id="tabMeta" role="tab" aria-selected="false" aria-controls="panelMeta">Meta</button>
+        <button class="tab" id="tabHelp" role="tab" aria-selected="false" aria-controls="panelHelp">Help</button>
+      </div>
+
+      <div class="term-body">
+        <!-- Console -->
+        <div class="console" id="panelLog" role="tabpanel" aria-labelledby="tabLog">
+          <div class="log" id="log">
+            <!-- Dynamic lines injected by JS -->
+          </div>
+        </div>
+
+        <!-- Right rail: meters, visualizer, player -->
+        <div class="right-rail">
+          <div class="meter" aria-label="Progression">
+            <h3>Progression</h3>
+            <div class="bar" aria-hidden="true">
+              <div class="bar-fill" id="barFill"></div>
+            </div>
+          </div>
+
+          <div class="viz" aria-label="Visualiseur">
+            <div class="scope">
+              <canvas id="visualizer"></canvas>
+            </div>
+          </div>
+
+          <div class="player" aria-label="Lecteur audio">
+            <div class="audio-wrap">
+              <audio id="audio" controls preload="none"></audio>
+              <div class="audio-meta" id="audioMeta">
+                <div id="audioSrc">Source: (aucune)</div>
+                <div id="audioStatus">Statut: idle</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="meter" aria-label="État de conversion">
+            <h3>État</h3>
+            <div class="note" id="stateNote">
+              En attente d’une entrée. Fournissez un lien ou un fichier local.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="term-footer">
+        <div class="prompt" aria-label="Invite de commande">
+          <div class="caret" aria-hidden="true"></div>
+          <div class="line">type-switch --mode <span class="accent" id="modeLabel">link</span> --to <span class="accent" id="toLabel">mp3</span></div>
+        </div>
+        <div class="flex center gap8">
+          <button class="action" id="replayAnimBtn" aria-label="Rejouer l’animation de complétion">Replay FX</button>
+        </div>
+      </div>
+
+      <!-- Completion overlay -->
+      <div class="complete-overlay" id="completeOverlay" aria-hidden="true">
+        <div class="burst">
+          <div class="complete-text">
+            <h4>Conversion terminée</h4>
+            <p>Type changé. Testez la lecture ou téléchargez l’artefact.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meta and Help Panels (hidden, toggled by tabs) -->
+      <div class="console hidden" id="panelMeta" role="tabpanel" aria-labelledby="tabMeta" style="padding:14px;">
+        <div class="log">
+          <span class="line dim"><span class="ts">[meta]</span><span class="tag">Info</span><span class="msg">No transcoding performed. We only change extension and/or client-side MIME hint.</span></span>
+          <span class="line"><span class="ts">[meta]</span><span class="tag">Codecs</span><span class="msg">Playback depends on browser decoders and source content integrity.</span></span>
+          <span class="line"><span class="ts">[meta]</span><span class="tag">YouTube</span><span class="msg">Switching extension on YouTube URLs will not yield playable audio directly.</span></span>
+          <span class="line"><span class="ts">[meta]</span><span class="tag">Local</span><span class="msg">Local ‘type change’ creates a Blob with desired MIME, same bytes. Use Download.</span></span>
+          <span class="line"><span class="ts">[meta]</span><span class="tag">Legal</span><span class="msg">Respect source terms. This tool is rename-only; no content extraction.</span></span>
+        </div>
+      </div>
+
+      <div class="console hidden" id="panelHelp" role="tabpanel" aria-labelledby="tabHelp" style="padding:14px;">
+        <div class="log">
+          <span class="line"><span class="ts">[help]</span><span class="tag">Step</span><span class="msg">1) Entrer un lien direct au fichier média (ex: .mp4)</span></span>
+          <span class="line"><span class="ts">[help]</span><span class="tag">Step</span><span class="msg">2) Choisir le type cible: mp3 ou wav</span></span>
+          <span class="line"><span class="ts">[help]</span><span class="tag">Step</span><span class="msg">3) Sélectionner le mode: lien (extension) ou local (Blob)</span></span>
+          <span class="line"><span class="ts">[help]</span><span class="tag">Step</span><span class="msg">4) Cliquer ‘Convertir type’ (ou Enter)</span></span>
+          <span class="line"><span class="ts">[help]</span><span class="tag">Step</span><span class="msg">5) Tester la lecture et/ou télécharger l’artefact</span></span>
+          <span class="line warn"><span class="ts">[help]</span><span class="tag">Note</span><span class="msg">YouTube: l’audio ne jouera pas via changement d’extension seul.</span></span>
+          <span class="line dim"><span class="ts">[help]</span><span class="tag">Shortcuts</span><span class="msg"><span class="kbd">Enter</span> Convert &nbsp; <span class="kbd">Esc</span> Reset &nbsp; <span class="kbd">Ctrl+L</span> Focus lien &nbsp; <span class="kbd">Ctrl+O</span> Fichier local</span></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer aria-label="Footer">
+    <div>© Team <span class="sigil">8 February 2027’s Call</span> — Change-only type switcher</div>
+    <div class="muted">Style: terminal, bleu/violet, fond noir, animation à la fin</div>
+  </footer>
+
+  <script>
+    /* ==========================================================================
+       8 February 2027’s Call — Type Switch Terminal Logic
+       ========================================================================== */
+
+    // Elements
+    const urlInput = document.getElementById('urlInput');
+    const typeSelect = document.getElementById('typeSelect');
+    const modeSelect = document.getElementById('modeSelect');
+    const fileInput = document.getElementById('fileInput');
+
+    const convertBtn = document.getElementById('convertBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const testAudioBtn = document.getElementById('testAudioBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    const clearLogBtn = document.getElementById('clearLogBtn');
+    const copyLogBtn = document.getElementById('copyLogBtn');
+    const replayAnimBtn = document.getElementById('replayAnimBtn');
+
+    const barFill = document.getElementById('barFill');
+    const logEl = document.getElementById('log');
+    const audioEl = document.getElementById('audio');
+    const audioSrcEl = document.getElementById('audioSrc');
+    const audioStatusEl = document.getElementById('audioStatus');
+    const stateNote = document.getElementById('stateNote');
+
+    const completeOverlay = document.getElementById('completeOverlay');
+
+    const tabLog = document.getElementById('tabLog');
+    const tabMeta = document.getElementById('tabMeta');
+    const tabHelp = document.getElementById('tabHelp');
+    const panelLog = document.getElementById('panelLog');
+    const panelMeta = document.getElementById('panelMeta');
+    const panelHelp = document.getElementById('panelHelp');
+
+    const modeLabel = document.getElementById('modeLabel');
+    const toLabel = document.getElementById('toLabel');
+
+    // Visualizer
+    const canvas = document.getElementById('visualizer');
+    const ctx = canvas.getContext('2d');
+
+    // State
+    let progress = 0;
+    let currentArtifact = null; // { kind: 'link'|'blob', url, name, mime, blob? }
+    let visualizerRAF = null;
+    let audioContext = null;
+    let analyser = null;
+    let sourceNode = null;
+    let buffers = [];
+
+    // Utils — timestamp
+    function ts() {
+      const d = new Date();
+      return `[${d.toLocaleTimeString()}]`;
+    }
+
+    // Logging
+    function logLine(type, tag, message, dim = false) {
+      const line = document.createElement('span');
+      line.className = `line ${type} ${dim ? 'dim':''}`;
+      const tsSpan = document.createElement('span');
+      tsSpan.className = 'ts';
+      tsSpan.textContent = ts();
+
+      const tagSpan = document.createElement('span');
+      tagSpan.className = 'tag';
+      tagSpan.textContent = tag;
+
+      const msgSpan = document.createElement('span');
+      msgSpan.className = 'msg';
+      msgSpan.innerHTML = message;
+
+      line.appendChild(tsSpan);
+      line.appendChild(tagSpan);
+      line.appendChild(msgSpan);
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function clearLog() {
+      logEl.innerHTML = '';
+      logLine('dim', 'Init', 'Log cleared.');
+    }
+
+    function copyLog() {
+      const text = logEl.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        logLine('ok', 'Clipboard', 'Log copied to clipboard.');
+      }).catch(err => {
+        logLine('err', 'Clipboard', 'Failed to copy: ' + String(err));
+      });
+    }
+
+    // Tabs
+    function setActiveTab(tab) {
+      [tabLog, tabMeta, tabHelp].forEach(t => t.classList.remove('active'));
+      [panelLog, panelMeta, panelHelp].forEach(p => p.classList.add('hidden'));
+      if (tab === 'log') {
+        tabLog.classList.add('active');
+        panelLog.classList.remove('hidden');
+      } else if (tab === 'meta') {
+        tabMeta.classList.add('active');
+        panelMeta.classList.remove('hidden');
+      } else {
+        tabHelp.classList.add('active');
+        panelHelp.classList.remove('hidden');
+      }
+    }
+    tabLog.addEventListener('click', () => setActiveTab('log'));
+    tabMeta.addEventListener('click', () => setActiveTab('meta'));
+    tabHelp.addEventListener('click', () => setActiveTab('help'));
+
+    // Progress
+    function setProgress(pct) {
+      progress = Math.max(0, Math.min(100, pct));
+      barFill.style.width = progress + '%';
+    }
+    function animateProgressSequence() {
+      setProgress(2);
+      const phases = [18, 32, 44, 65, 78, 92, 100];
+      let i = 0;
+      const step = () => {
+        setProgress(phases[i]);
+        i++;
+        if (i < phases.length) {
+          setTimeout(step, 220 + Math.random() * 180);
+        } else {
+          showCompletionFX();
+        }
+      };
+      setTimeout(step, 280);
+    }
+
+    // Completion FX
+    function showCompletionFX() {
+      completeOverlay.classList.add('active');
+      completeOverlay.setAttribute('aria-hidden', 'false');
+      setTimeout(() => {
+        completeOverlay.classList.remove('active');
+        completeOverlay.setAttribute('aria-hidden', 'true');
+      }, 1600);
+    }
+    replayAnimBtn.addEventListener('click', showCompletionFX);
+
+    // Visualizer sizing
+    function sizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(600, Math.floor(rect.width));
+      canvas.height = Math.max(120, Math.floor(rect.height));
+    }
+    window.addEventListener('resize', sizeCanvas);
+    sizeCanvas();
+
+    // Visualizer render (synthetic if no audio)
+    function renderVisualizer() {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // Background grid
+      ctx.strokeStyle = 'rgba(120,120,180,0.15)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 24) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = 0; y < h; y += 20) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // Wave
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(164,92,255,0.75)';
+      ctx.beginPath();
+      const now = performance.now() * 0.002;
+      const baseY = h * 0.5;
+      for (let x = 0; x < w; x++) {
+        const t = x / w;
+        const y = baseY
+          + Math.sin(t * 16 + now) * 14
+          + Math.sin(t * 7 - now * 1.3) * 8;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // If analyser attached, overlay bars
+      if (analyser) {
+        const bins = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(bins);
+        const colW = Math.max(1, Math.floor(w / bins.length));
+        for (let i = 0; i < bins.length; i += 4) {
+          const val = bins[i];
+          const x = i * colW;
+          const bh = (val / 255) * (h * 0.48);
+          ctx.fillStyle = 'rgba(74,168,255,0.45)';
+          ctx.fillRect(x, h - bh, colW - 1, bh);
+        }
+      }
+
+      visualizerRAF = requestAnimationFrame(renderVisualizer);
+    }
+    renderVisualizer();
+
+    // Audio chain (for test)
+    async function attachAudioContext() {
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (sourceNode) {
+          sourceNode.disconnect();
+          sourceNode = null;
+        }
+        if (analyser) {
+          analyser.disconnect();
+          analyser = null;
+        }
+
+        const track = audioEl.captureStream ? audioEl.captureStream() : null;
+        if (track && track.getAudioTracks && track.getAudioTracks().length > 0) {
+          const mediaStreamSource = audioContext.createMediaStreamSource(track);
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 1024;
+          mediaStreamSource.connect(analyser);
+          logLine('ok', 'AudioCtx', 'Analyser attached to audio element stream.');
+        } else {
+          // Fallback synthetic oscillator just to animate bars during test
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 1024;
+
+          osc.type = 'sine';
+          osc.frequency.value = 220;
+          gain.gain.value = 0.0001; // nearly silent
+          osc.connect(gain);
+          gain.connect(analyser);
+          analyser.connect(audioContext.destination);
+          osc.start();
+          sourceNode = osc;
+          logLine('warn', 'AudioCtx', 'No captureStream; using synthetic analyser source.');
+        }
+      } catch (e) {
+        logLine('err', 'AudioCtx', 'Failed to attach audio context: ' + String(e));
+      }
+    }
+
+    // Helpers — extension ops
+    const videoExts = ['.mp4', '.m4v', '.webm', '.mov', '.mkv', '.avi', '.mpg', '.mpeg'];
+    function findVideoExtInUrl(url) {
+      const lower = url.toLowerCase();
+      for (const ext of videoExts) {
+        if (lower.endsWith(ext)) return ext;
+        // also consider query fragments
+        const idx = lower.indexOf(ext + '?');
+        if (idx >= 0) return ext;
+      }
+      return null;
+    }
+    function swapExtension(url, targetExt) {
+      const ext = findVideoExtInUrl(url);
+      if (!ext) return null;
+      const idx = url.toLowerCase().lastIndexOf(ext);
+      if (idx < 0) return null;
+      return url.slice(0, idx) + '.' + targetExt + url.slice(idx + ext.length);
+    }
+    function isYouTube(url) {
+      try {
+        const u = new URL(url);
+        return /(^|\.)youtube\.com$/.test(u.hostname) || /(^|\.)youtu\.be$/.test(u.hostname);
+      } catch {
+        return false;
+      }
+    }
+
+    // Artifact builder
+    async function buildArtifactFromLink(url, targetExt) {
+      // Only rename extension; no fetch/transcode
+      if (isYouTube(url)) {
+        logLine('warn', 'YouTube', 'Changement d’extension appliqué au lien, mais lecture audio ne fonctionnera pas avec YouTube.');
+      }
+      const swapped = swapExtension(url, targetExt);
+      if (!swapped) {
+        logLine('err', 'Link', 'Aucune extension vidéo détectée dans le lien. Utilisez un URL finissant par .mp4, .webm, etc.');
+        return null;
+      }
+      const nameGuess = 'renamed.' + targetExt;
+      const mime = targetExt === 'mp3' ? 'audio/mpeg' : 'audio/wav';
+      const artifact = {
+        kind: 'link',
+        url: swapped,
+        name: nameGuess,
+        mime
+      };
+      logLine('ok', 'Link', `Extension renommée: <span class="accent">${swapped}</span>`);
+      return artifact;
+    }
+
+    async function buildArtifactFromLocal(file, targetExt) {
+      if (!file) {
+        logLine('err', 'Local', 'Aucun fichier sélectionné.');
+        return null;
+      }
+      const nameBase = file.name.replace(/\.[^/.]+$/, '');
+      const mime = targetExt === 'mp3' ? 'audio/mpeg' : 'audio/wav';
+
+      // We keep bytes unchanged; we only wrap them in a Blob with new MIME
+      const buf = await file.arrayBuffer();
+      const blob = new Blob([buf], { type: mime });
+      const url = URL.createObjectURL(blob);
+
+      const artifact = {
+        kind: 'blob',
+        url,
+        blob,
+        name: `${nameBase}.${targetExt}`,
+        mime
+      };
+
+      logLine('ok', 'Local', `Blob créé avec MIME <span class="accent">${mime}</span> (bytes inchangés).`);
+      return artifact;
+    }
+
+    // Convert sequence
+    async function convertType() {
+      setActiveTab('log');
+      logLine('dim', 'Start', 'Démarrage de la conversion de type...');
+      setProgress(0);
+      animateProgressSequence();
+
+      const targetExt = typeSelect.value;
+      const mode = modeSelect.value;
+      modeLabel.textContent = mode;
+      toLabel.textContent = targetExt;
+      stateNote.textContent = 'Conversion en cours...';
+
+      // Small staged logs
+      setTimeout(() => logLine('dim', 'Stage', 'Préparation...'), 180);
+      setTimeout(() => logLine('dim', 'Stage', 'Analyse de la source...'), 420);
+
+      let artifact = null;
+      try {
+        if (mode === 'link') {
+          const url = String(urlInput.value || '').trim();
+          if (!url) {
+            logLine('err', 'Link', 'Aucun lien fourni.');
+            return;
+          }
+          artifact = await buildArtifactFromLink(url, targetExt);
+        } else {
+          const file = fileInput.files && fileInput.files[0];
+          artifact = await buildArtifactFromLocal(file, targetExt);
+        }
+
+        if (!artifact) {
+          stateNote.textContent = 'Erreur: impossible de créer l’artefact.';
+          setProgress(0);
+          return;
+        }
+
+        currentArtifact = artifact;
+        audioEl.src = artifact.url;
+        audioEl.load();
+        audioSrcEl.textContent = 'Source: ' + artifact.url;
+        audioStatusEl.textContent = 'Statut: chargé (non lu)';
+        downloadBtn.disabled = false;
+
+        setTimeout(() => logLine('ok', 'Ready', 'Artefact prêt. Testez la lecture ou téléchargez.'), 820);
+        setTimeout(() => {
+          stateNote.textContent = 'Conversion terminée. Type changé.';
+        }, 1200);
+
+      } catch (e) {
+        logLine('err', 'Convert', 'Exception: ' + String(e));
+        stateNote.textContent = 'Erreur: ' + String(e);
+        setProgress(0);
+        return;
+      }
+    }
+
+    // Test audio (attempt playback)
+    async function testAudio() {
+      if (!currentArtifact) {
+        logLine('err', 'Test', 'Aucun artefact présent. Lancez une conversion de type d’abord.');
+        return;
+      }
+      logLine('dim', 'Test', 'Tentative de lecture audio ...');
+      audioStatusEl.textContent = 'Statut: test en cours';
+      await attachAudioContext();
+
+      // Try to validate canplaythrough
+      const canPlay = await new Promise((resolve) => {
+        let settled = false;
+        const onCanPlay = () => { if (!settled) { settled = true; resolve(true); } };
+        const onError = () => { if (!settled) { settled = true; resolve(false); } };
+        const onTimeout = () => { if (!settled) { settled = true; resolve(false); } };
+        audioEl.addEventListener('canplaythrough', onCanPlay, { once: true });
+        audioEl.addEventListener('error', onError, { once: true });
+        setTimeout(onTimeout, 2500);
+        // Kick a tiny play attempt (will be silent if not interacted)
+        const playAttempt = audioEl.play();
+        if (playAttempt && typeof playAttempt.catch === 'function') {
+          playAttempt.catch(() => {
+            // Autoplay might be blocked; still wait for canplaythrough
+          });
+        }
+      });
+
+      if (canPlay) {
+        audioStatusEl.textContent = 'Statut: prêt à lire';
+        logLine('ok', 'Test', 'Audio prêt. Décodage probable OK.');
+      } else {
+        audioStatusEl.textContent = 'Statut: échec decode';
+        logLine('warn', 'Test', 'Lecture non confirmée. Le type a changé, mais le contenu peut ne pas être décodable en audio.');
+      }
+    }
+
+    // Download artifact
+    function downloadArtifact() {
+      if (!currentArtifact) {
+        logLine('err', 'Download', 'Aucun artefact à télécharger.');
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = currentArtifact.url;
+      a.download = currentArtifact.name || ('renamed.' + (typeSelect.value || 'mp3'));
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      logLine('ok', 'Download', 'Artefact téléchargé: ' + a.download);
+    }
+
+    // Reset
+    function resetAll() {
+      urlInput.value = '';
+      typeSelect.value = 'mp3';
+      modeSelect.value = 'link';
+      fileInput.value = '';
+      currentArtifact = null;
+      audioEl.src = '';
+      audioEl.load();
+
+      audioSrcEl.textContent = 'Source: (aucune)';
+      audioStatusEl.textContent = 'Statut: idle';
+      stateNote.textContent = 'En attente d’une entrée. Fournissez un lien ou un fichier local.';
+      setProgress(0);
+      clearLog();
+      logLine('dim', 'Reset', 'Réinitialisation effectuée.');
+    }
+
+    // Completion animation trigger on convert end — simulated via progress completion
+    // Already handled in animateProgressSequence -> showCompletionFX.
+
+    // Bindings
+    convertBtn.addEventListener('click', convertType);
+    resetBtn.addEventListener('click', resetAll);
+    testAudioBtn.addEventListener('click', testAudio);
+    downloadBtn.addEventListener('click', downloadArtifact);
+    clearLogBtn.addEventListener('click', clearLog);
+    copyLogBtn.addEventListener('click', copyLog);
+
+    // Mode / type live label
+    modeSelect.addEventListener('change', () => {
+      modeLabel.textContent = modeSelect.value;
+    });
+    typeSelect.addEventListener('change', () => {
+      toLabel.textContent = typeSelect.value;
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        convertType();
+        e.preventDefault();
+      } else if (e.key === 'Escape') {
+        resetAll();
+        e.preventDefault();
+      } else if (e.ctrlKey && e.key.toLowerCase() === 'l') {
+        urlInput.focus();
+        e.preventDefault();
+      } else if (e.ctrlKey && e.key.toLowerCase() === 'o') {
+        fileInput.click();
+        e.preventDefault();
+      }
+    });
+
+    // Initial log
+    clearLog();
+    logLine('dim', 'Ready', 'Type Switch Terminal initialisé.');
+    logLine('dim', 'Hint', 'Entrez un lien direct ou sélectionnez un fichier local, puis choisissez mp3/wav.');
+    logLine('warn', 'YouTube', 'Changer l’extension d’un lien YouTube ne produit pas un flux audio direct.');
+  </script>
+</body>
+</html>

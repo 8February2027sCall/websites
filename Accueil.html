@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>8 February 2027's Call - Accueil</title>
+
+    <!--
+        8 February 2027's Call
+        Page d'accueil minimaliste – style terminal / code
+        Police titres : "Inndam Extended"
+        Police corps : monospace (type code)
+    -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Chargement de la police "Inndam Extended" (à adapter selon ton hébergement ou CDN) -->
+    <!--
+        Exemple :
+        @font-face {
+            font-family: "Inndam Extended";
+            src: url("fonts/InndamExtended.woff2") format("woff2");
+            font-weight: normal;
+            font-style: normal;
+        }
+    -->
+
+    <style>
+        /* ============================================================
+           RESET SIMPLE
+        ============================================================ */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background-color: #05070b;
+            color: #d7f5ff;
+            font-family: "Courier New", Courier, monospace;
+            line-height: 1.5;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: inherit;
+        }
+
+        /* ============================================================
+           VARIABLES (UTILISÉES INDIRECTEMENT)
+        ============================================================ */
+
+        :root {
+            --bg-main: #05070b;
+            --bg-alt: #070b10;
+            --bg-panel: #05070b;
+            --accent: #7af2ff;
+            --accent-soft: rgba(122, 242, 255, 0.12);
+            --accent-strong: #52e0f5;
+            --danger: #ff4b6f;
+            --ok: #84ff9a;
+            --text-main: #d7f5ff;
+            --text-dim: #7f9ca7;
+            --border-soft: rgba(122, 242, 255, 0.2);
+            --shadow-soft: 0 0 24px rgba(0, 0, 0, 0.9);
+            --radius-soft: 8px;
+            --radius-pill: 999px;
+            --transition-fast: 0.15s ease-out;
+        }
+
+        /* ============================================================
+           STRUCTURE GLOBALE
+        ============================================================ */
+
+        .page-root {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(circle at top, #0a1620 0, #05070b 48%, #020306 100%);
+            color: var(--text-main);
+        }
+
+        /* ------------------------------------------------------------
+           BANDEAU HAUT DE PAGE
+        ------------------------------------------------------------ */
+
+        header.site-header {
+            width: 100%;
+            border-bottom: 1px solid var(--border-soft);
+            background: linear-gradient(
+                to bottom,
+                rgba(5, 7, 11, 0.98),
+                rgba(5, 7, 11, 0.9),
+                rgba(5, 7, 11, 0.98)
+            );
+            backdrop-filter: blur(10px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .header-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 12px 18px 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-banner-wrapper {
+            flex: 1 1 auto;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Bannière principale – tu mets "827scall Banner Full Version.png" */
+        .header-banner {
+            width: 100%;
+            max-height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .header-logo-wrapper {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Logo carré – "827scall Logo (Carré).png" */
+        .header-logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            border: 1px solid var(--border-soft);
+            overflow: hidden;
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 1),
+                0 0 20px rgba(0, 0, 0, 0.9);
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-title-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+        }
+
+        .header-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--accent-strong);
+            white-space: nowrap;
+        }
+
+        .header-subtitle {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--text-dim);
+        }
+
+        /* ============================================================
+           CONTENU PRINCIPAL PLEIN ÉCRAN
+        ============================================================ */
+
+        main.site-main {
+            flex: 1 1 auto;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .main-inner {
+            width: 100%;
+            max-width: 1240px;
+            min-height: calc(100vh - 110px);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            grid-template-rows: minmax(0, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .main-inner {
+                grid-template-columns: minmax(0, 1fr);
+                grid-auto-rows: auto;
+            }
+        }
+
+        /* ------------------------------------------------------------
+           PANNEAU CONTENU : TITRE + DESCRIPTION + BOUTONS
+        ------------------------------------------------------------ */
+
+        .panel {
+            background: linear-gradient(135deg, rgba(7, 11, 16, 0.95), rgba(4, 7, 10, 0.98));
+            border-radius: 14px;
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+            padding: 18px 20px 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background:
+                radial-gradient(circle at top left, rgba(122, 242, 255, 0.1) 0, transparent 52%),
+                radial-gradient(circle at bottom right, rgba(82, 224, 245, 0.12) 0, transparent 40%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .panel-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel-header {
+            margin-bottom: 16px;
+        }
+
+        .panel-tagline {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.28em;
+            color: var(--accent-strong);
+            margin-bottom: 6px;
+        }
+
+        .panel-title-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .panel-title-main {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 20px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .panel-title-pill {
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-soft);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--text-dim);
+            background: rgba(5, 7, 11, 0.9);
+        }
+
+        .panel-subtitle {
+            font-size: 12px;
+            color: var(--text-dim);
+            max-width: 520px;
+        }
+
+        .panel-subtitle strong {
+            font-weight: normal;
+            color: var(--accent-strong);
+        }
+
+        .panel-divider {
+            width: 100%;
+            height: 1px;
+            margin: 14px 0 10px 0;
+            background: linear-gradient(
+                to right,
+                transparent 0,
+                rgba(122, 242, 255, 0.5) 20%,
+                rgba(122, 242, 255, 0.5) 80%,
+                transparent 100%
+            );
+        }
+
+        /* ------------------------------------------------------------
+           LISTE DE BOUTONS / LIENS
+        ------------------------------------------------------------ */
+
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        @media (max-width: 800px) {
+            .link-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .link-card {
+            position: relative;
+            border-radius: 10px;
+            padding: 10px 11px;
+            background: radial-gradient(circle at top, rgba(122, 242, 255, 0.08) 0, rgba(5, 7, 11, 0.96) 60%);
+            border: 1px solid rgba(122, 242, 255, 0.24);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+        }
+
+        .link-card:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 1),
+                0 0 26px rgba(82, 224, 245, 0.32);
+            border-color: rgba(122, 242, 255, 0.9);
+        }
+
+        .link-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .link-card-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--accent);
+        }
+
+        .link-card-tag {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(122, 242, 255, 0.35);
+            background: rgba(5, 7, 11, 0.92);
+        }
+
+        .link-card-desc {
+            font-size: 11px;
+            color: var(--text-main);
+        }
+
+        .link-card-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 3px;
+        }
+
+        .link-card-foot-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .link-card-foot-right {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .link-card-pill {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            padding: 2px 7px 2px 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(122, 242, 255, 0.4);
+            background: rgba(5, 7, 11, 0.96);
+            color: var(--accent);
+        }
+
+        .link-card-go {
+            font-size: 10px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #52e0f5, #7af2ff);
+            color: #020307;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: bold;
+        }
+
+        .link-card-go span.arrow {
+            font-size: 11px;
+        }
+
+        /* ------------------------------------------------------------
+           SECTION AIDE / COMMANDES
+        ------------------------------------------------------------ */
+
+        .help-block {
+            margin-top: 18px;
+            border-radius: 10px;
+            padding: 10px 11px;
+            background: radial-gradient(circle at left, rgba(122, 242, 255, 0.16) 0, rgba(5, 7, 11, 0.96) 60%);
+            border: 1px dashed rgba(122, 242, 255, 0.4);
+        }
+
+        .help-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 10px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: var(--accent-strong);
+        }
+
+        .help-commands {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        @media (max-width: 680px) {
+            .help-commands {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .help-command {
+            font-size: 11px;
+            color: var(--text-main);
+        }
+
+        .help-command-code {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(122, 242, 255, 0.4);
+            margin-right: 6px;
+        }
+
+        .help-command-label {
+            color: var(--text-dim);
+        }
+
+        /* ============================================================
+           PANNEAU DROIT : INFO / STATUT / PLACEHOLDER
+        ============================================================ */
+
+        .panel-secondary {
+            background: radial-gradient(circle at top, rgba(122, 242, 255, 0.1) 0, rgba(5, 7, 11, 0.98) 55%);
+            border-radius: 14px;
+            border: 1px solid var(--border-soft);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 1),
+                0 0 36px rgba(0, 0, 0, 0.9);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-secondary::before {
+            content: "";
+            position: absolute;
+            inset: -30%;
+            background:
+                radial-gradient(circle at 20% 0%, rgba(122, 242, 255, 0.18) 0, transparent 50%),
+                radial-gradient(circle at 80% 100%, rgba(82, 224, 245, 0.12) 0, transparent 40%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .panel-secondary-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel-secondary-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .panel-secondary-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+        }
+
+        .panel-secondary-badge {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(122, 242, 255, 0.5);
+            background: rgba(5, 7, 11, 0.95);
+            color: var(--text-dim);
+        }
+
+        .panel-secondary-desc {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .panel-secondary-desc strong {
+            font-weight: normal;
+            color: var(--accent-strong);
+        }
+
+        .panel-secondary-list {
+            font-size: 11px;
+            color: var(--text-main);
+            border-radius: 10px;
+            border: 1px solid rgba(122, 242, 255, 0.35);
+            background: rgba(5, 7, 11, 0.92);
+            padding: 9px 10px;
+            margin-bottom: 10px;
+        }
+
+        .panel-secondary-list ul {
+            list-style: none;
+        }
+
+        .panel-secondary-list li {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            padding: 2px 0;
+        }
+
+        .panel-secondary-list span.bullet {
+            color: var(--accent-strong);
+            font-size: 11px;
+        }
+
+        .panel-secondary-list span.text {
+            color: var(--text-main);
+        }
+
+        .panel-secondary-footer {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 6px;
+        }
+
+        .panel-secondary-footer code {
+            font-family: "Courier New", Courier, monospace;
+            background: rgba(0, 0, 0, 0.65);
+            padding: 2px 5px;
+            border-radius: 4px;
+            border: 1px solid rgba(122, 242, 255, 0.35);
+        }
+
+        /* ============================================================
+           INVITE DE COMMANDE FLOTTANTE (EN BAS À DROITE)
+        ============================================================ */
+
+        .terminal-wrapper {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 60;
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .terminal-toggle {
+            position: absolute;
+            right: 0;
+            bottom: 100%;
+            margin-bottom: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(5, 7, 11, 0.96);
+            border: 1px solid rgba(122, 242, 255, 0.5);
+            color: var(--accent);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 1),
+                0 0 20px rgba(0, 0, 0, 0.9);
+            transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+        }
+
+        .terminal-toggle:hover {
+            background: rgba(10, 16, 23, 0.98);
+            border-color: rgba(122, 242, 255, 0.9);
+            transform: translateY(-1px);
+        }
+
+        .terminal-toggle span.icon {
+            font-size: 13px;
+        }
+
+        .terminal-window {
+            width: 100%;
+            background: #020308;
+            border-radius: 10px;
+            border: 1px solid rgba(122, 242, 255, 0.5);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 1),
+                0 0 36px rgba(0, 0, 0, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: 320px;
+            transition: transform var(--transition-fast), opacity var(--transition-fast), visibility var(--transition-fast);
+        }
+
+        .terminal-window.hidden {
+            transform: translateY(8px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .terminal-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: linear-gradient(to right, #05070b, #090f18);
+            border-bottom: 1px solid rgba(122, 242, 255, 0.4);
+        }
+
+        .terminal-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .terminal-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #0cff9a;
+            box-shadow: 0 0 12px rgba(12, 255, 154, 0.7);
+        }
+
+        .terminal-bar-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .terminal-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+        }
+
+        .terminal-status {
+            color: var(--ok);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .terminal-btn {
+            width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(122, 242, 255, 0.4);
+            background: rgba(2, 3, 8, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .terminal-content {
+            padding: 9px 10px 6px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            font-size: 11px;
+        }
+
+        .terminal-line-system {
+            color: var(--accent);
+        }
+
+        .terminal-line-warning {
+            color: var(--danger);
+        }
+
+        .terminal-line-info {
+            color: var(--text-main);
+        }
+
+        .terminal-line-device {
+            color: var(--ok);
+        }
+
+        .terminal-line-prefix {
+            color: var(--accent-strong);
+        }
+
+        .terminal-line-time {
+            color: var(--text-dim);
+            margin-right: 4px;
+        }
+
+        .terminal-prompt-area {
+            border-top: 1px solid rgba(122, 242, 255, 0.35);
+            padding: 4px 8px 6px 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: radial-gradient(circle at top, rgba(122, 242, 255, 0.12) 0, rgba(2, 3, 8, 1) 60%);
+        }
+
+        .terminal-prompt-label {
+            font-size: 11px;
+            color: var(--accent-strong);
+        }
+
+        .terminal-input {
+            flex: 1 1 auto;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-family: "Courier New", Courier, monospace;
+            font-size: 11px;
+        }
+
+        .terminal-input::placeholder {
+            color: rgba(127, 156, 167, 0.7);
+        }
+
+        .terminal-submit {
+            flex: 0 0 auto;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(122, 242, 255, 0.55);
+            color: var(--accent-strong);
+            background: rgba(5, 7, 11, 0.96);
+        }
+
+        /* barre de défilement du terminal */
+        .terminal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .terminal-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .terminal-content::-webkit-scrollbar-thumb {
+            background: rgba(122, 242, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        /* ============================================================
+           PIED DE PAGE MINIMAL
+        ============================================================ */
+
+        footer.site-footer {
+            width: 100%;
+            padding: 8px 16px 10px 16px;
+            border-top: 1px solid var(--border-soft);
+            background: #05070b;
+            font-size: 10px;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: center;
+        }
+
+        .footer-inner {
+            width: 100%;
+            max-width: 1240px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer-left {
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .footer-right {
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        .footer-right code {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 2px 5px;
+            border-radius: 4px;
+            border: 1px solid rgba(122, 242, 255, 0.35);
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-root">
+
+    <!-- ============================================================
+         HEADER / BANNIÈRE
+    ============================================================ -->
+    <header class="site-header">
+        <div class="header-inner">
+
+            <div class="header-banner-wrapper">
+                <!-- Bannière principale -->
+                <img
+                    src="827scall Banner Full Version.png"
+                    alt="Bannière 8 February 2027's Call"
+                    class="header-banner"
+                >
+            </div>
+
+            <div class="header-logo-wrapper">
+                <div class="header-logo">
+                    <img
+                        src="827scall Logo (Carré).png"
+                        alt="Logo 8 February 2027's Call"
+                    >
+                </div>
+                <div class="header-title-block">
+                    <div class="header-title">
+                        8 FEBRUARY 2027'S CALL
+                    </div>
+                    <div class="header-subtitle">
+                        Minimal entrypoint · Terminal surface
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- ============================================================
+         CONTENU PRINCIPAL
+    ============================================================ -->
+    <main class="site-main">
+        <div class="main-inner">
+
+            <!-- ----------------------------------------------------
+                 PANNEAU GAUCHE : TITRE, TEXTE, LIENS
+            ----------------------------------------------------- -->
+            <section class="panel">
+                <div class="panel-inner">
+
+                    <header class="panel-header">
+                        <div class="panel-tagline">
+                            COMMUNITY · SHELL ENTRY
+                        </div>
+
+                        <div class="panel-title-line">
+                            <h1 class="panel-title-main">
+                                8 FEBRUARY 2027'S CALL
+                            </h1>
+
+                            <div class="panel-title-pill">
+                                Community Link Access
+                            </div>
+                        </div>
+
+                        <p class="panel-subtitle">
+                            Page d'accueil minimale, en plein écran, conçue comme une
+                            <strong>surface d'invite de commande</strong>.
+                            Aucun décor inutile. Seulement les liens essentiels, et
+                            l'interface de commande pour interroger ton appareil.
+                        </p>
+                    </header>
+
+                    <div class="panel-divider"></div>
+
+                    <!-- GRILLE DE LIENS / BOUTONS (PLACEHOLDERS) -->
+                    <div class="link-grid">
+
+                        <!-- Carte 1 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    827scall Official Link
+                                </div>
+                                <div class="link-card-tag">
+                                    Commu Discord. Lien Pas Encore Valide
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                Rejoindre le Discord de notre communauté pour la Terre et nos futures générations.
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Lien :</span>
+                                    <span class="link-card-pill">Discord</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder au portail principal">
+                                        <a href="https://example.com" class="mon-bouton">Accéder au Discord</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 2 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    827scall Official Link
+                                </div>
+                                <div class="link-card-tag">
+                                    SafeCheck
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                Vous pouvez scanner des fichiers ou des liens qui vous semble suspect.
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">Scanner</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder aux archives">
+                                        <a href="SafeCheck.html" class="mon-bouton">Accéder au scanneur</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 3 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    827scall Official Link
+                                </div>
+                                <div class="link-card-tag">
+                                    PassGuard
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                Vérifier votre mot de passe s'il est sécurisé ou pas.
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">Password</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la zone technique">
+                                        <a href="PassGuard.html" class="mon-bouton">Accéder au site</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 4 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    827scall Official Link
+                                </div>
+                                <div class="link-card-tag">
+                                    LeakFinder
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                Vérifier/Scanner des e-mail dans le monde.
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">Scanner</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la communauté">
+                                        <a href="LeakFinder.html" class="mon-bouton">Accéder au scanneur</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 5 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    827scall Official Link
+                                </div>
+                                <div class="link-card-tag">
+                                    NetSpeedCheck
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                Tester votre latence internet!
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">Scanner</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la zone technique">
+                                        <a href="NetSpeedCheck.html" class="mon-bouton">Accéder au scanneur</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 6 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    827scall Official Link
+                                </div>
+                                <div class="link-card-tag">
+                                    ShieldTips
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                Voici les conseils de cybersécurité, on vous recommande de lire!
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">conseils</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la communauté">
+                                        <a href="ShieldTips.html" class="mon-bouton">Accéder au conseils</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 7 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    827scall Official Link
+                                </div>
+                                <div class="link-card-tag">
+                                    EcoTech
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                Voici les conseils pour réduire l'empreinte numérique, on vous recommande de lire!
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">conseils</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la zone technique">
+                                        <a href="EcoTech.html" class="mon-bouton">Accéder au conseils</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 8 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    Communauté &amp; échanges
+                                </div>
+                                <div class="link-card-tag">
+                                    test
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                test
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">/community</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la communauté">
+                                        <a href="https://example.com" class="mon-bouton">Ouvrir</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 9 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    Zone technique
+                                </div>
+                                <div class="link-card-tag">
+                                    test
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                test
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">/lab</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la zone technique">
+                                        <a href="https://example.com" class="mon-bouton">Ouvrir</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 10 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    Communauté &amp; échanges
+                                </div>
+                                <div class="link-card-tag">
+                                    test
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                test
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">/community</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la communauté">
+                                        <a href="https://example.com" class="mon-bouton">Ouvrir</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 11 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    Zone technique
+                                </div>
+                                <div class="link-card-tag">
+                                    test
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                test
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">/lab</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la zone technique">
+                                        <a href="https://example.com" class="mon-bouton">Ouvrir</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 12 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    Communauté &amp; échanges
+                                </div>
+                                <div class="link-card-tag">
+                                    test
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                test
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">/community</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la communauté">
+                                        <a href="https://example.com" class="mon-bouton">Ouvrir</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 13 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    Zone technique
+                                </div>
+                                <div class="link-card-tag">
+                                    test
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                test
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">/lab</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la zone technique">
+                                        <a href="https://example.com" class="mon-bouton">Ouvrir</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 14 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    Communauté &amp; échanges
+                                </div>
+                                <div class="link-card-tag">
+                                    test
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                test
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">/community</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la communauté">
+                                        <a href="https://example.com" class="mon-bouton">Ouvrir</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 15 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    Zone technique
+                                </div>
+                                <div class="link-card-tag">
+                                    test
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                test
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">/lab</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la zone technique">
+                                        <a href="https://example.com" class="mon-bouton">Ouvrir</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte 16 -->
+                        <article class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-title">
+                                    Communauté &amp; échanges
+                                </div>
+                                <div class="link-card-tag">
+                                    test
+                                </div>
+                            </div>
+                            <div class="link-card-desc">
+                                test
+                            </div>
+                            <div class="link-card-foot">
+                                <div class="link-card-foot-left">
+                                    <span>Target :</span>
+                                    <span class="link-card-pill">/community</span>
+                                </div>
+                                <div class="link-card-foot-right">
+                                    <a href="#"
+                                       class="link-card-go"
+                                       aria-label="Accéder à la communauté">
+                                        <a href="https://example.com" class="mon-bouton">Ouvrir</a>
+                                        <span class="arrow">↗</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                    </div>
+
+                    <!-- BLOC AIDE / COMMANDES -->
+                    <section class="help-block" aria-label="Aide sur les commandes">
+                        <h2 class="help-title">
+                            COMMANDES DISPONIBLES
+                        </h2>
+                        <div class="help-commands">
+                            <div class="help-command">
+                                <span class="help-command-code">/help</span>
+                                <span class="help-command-label">
+                                    Liste les commandes disponibles dans l'invite de commande.
+                                </span>
+                            </div>
+                            <div class="help-command">
+                                <span class="help-command-code">/device_info</span>
+                                <span class="help-command-label">
+                                    Affiche les informations de ton appareil : IP, navigateur,
+                                    résolution écran, et statut (basique).
+                                </span>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </section>
+
+            <!-- ----------------------------------------------------
+                 PANNEAU DROIT : CONTEXTE / ÉTAT / PLACEHOLDER
+            ----------------------------------------------------- -->
+            <aside class="panel-secondary">
+                <div class="panel-secondary-inner">
+
+                    <header class="panel-secondary-header">
+                        <div class="panel-secondary-title">
+                            STATUS · DEVICE SURFACE
+                        </div>
+                        <div class="panel-secondary-badge">
+                            read-only · client side
+                        </div>
+                    </header>
+
+                    <p class="panel-secondary-desc">
+                        Cette zone rappelle que l'analyse est
+                        <strong>limitée au navigateur</strong>.
+                        Pour lire ton IP, ton adresse et un statut de sécurité
+                        plus détaillé, l'invite de commande déclenchera un
+                        appel vers un service distant (à brancher côté serveur).
+                    </p>
+
+                    <div class="panel-secondary-list">
+                        <ul>
+                            <li>
+                                <span class="bullet">•</span>
+                                <span class="text">
+                                    Le site ne voit pas tes mots de passe, tes fichiers
+                                    ni ton stockage local.
+                                </span>
+                            </li>
+                            <li>
+                                <span class="bullet">•</span>
+                                <span class="text">
+                                    Les informations affichées proviennent de ton navigateur,
+                                    de ton écran, et (optionnellement) d'un service d'IP.
+                                </span>
+                            </li>
+                            <li>
+                                <span class="bullet">•</span>
+                                <span class="text">
+                                    Pour un audit avancé, il faudra une API ou un backend
+                                    que tu contrôleras.
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <p class="panel-secondary-footer">
+                        Pour tester depuis cette surface, utilise
+                        <code>/help</code> et <code>/device_info</code>
+                        dans l'invite de commande en bas à droite.
+
+                        Aussi, on vous recommande de rejoindre la communauté Discord. C'est où il y a le plus d'activité de notre communauté. Si vous avez des idées pour la Terre ou/et pour nos futures générations, vous êtes les beinvenue!
+                    </p>
+
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- ============================================================
+         INVITE DE COMMANDE FLOTTANTE
+    ============================================================ -->
+    <div class="terminal-wrapper" aria-live="polite">
+
+        <!-- BOUTON DE RÉDUCTION / AGRANDISSEMENT -->
+        <button
+            type="button"
+            class="terminal-toggle"
+            id="terminalToggle"
+        >
+            <span class="icon">▎▎</span>
+            <span class="label">Invite de commande</span>
+        </button>
+
+        <!-- FENÊTRE TERMINAL -->
+        <section class="terminal-window" id="terminalWindow" aria-label="Invite de commande 8 February 2027's Call">
+            <header class="terminal-bar">
+                <div class="terminal-bar-left">
+                    <span class="terminal-dot"></span>
+                    <span class="terminal-bar-title">shell · 8 February 2027's Call</span>
+                </div>
+                <div class="terminal-bar-right">
+                    <span class="terminal-status">online</span>
+                    <span class="terminal-btn" id="terminalMinimize" title="Réduire">–</span>
+                </div>
+            </header>
+
+            <div class="terminal-content" id="terminalOutput">
+                <div class="terminal-line-system">
+                    <span class="terminal-line-time">[00:00:00]</span>
+                    <span class="terminal-line-prefix">system</span>
+                    <span>· Terminal initialisé. Utilise <strong>/help</strong> pour lister les commandes.</span>
+                </div>
+            </div>
+
+            <form class="terminal-prompt-area" id="terminalForm" autocomplete="off">
+                <label class="terminal-prompt-label" for="terminalInput">
+                    &gt;
+                </label>
+                <input
+                    type="text"
+                    id="terminalInput"
+                    class="terminal-input"
+                    placeholder="/help, /device_info, ..."
+                    spellcheck="false"
+                    autocomplete="off"
+                >
+                <button type="submit" class="terminal-submit">
+                    RUN
+                </button>
+            </form>
+        </section>
+
+    </div>
+
+    <!-- ============================================================
+         PIED DE PAGE
+    ============================================================ -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-left">
+                8 February 2027's Call - Community
+            </div>
+            <div class="footer-right">
+                <code>root@827s:~$ /help</code>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+<!-- ============================================================
+     SCRIPT : LOGIQUE DE L'INVITE DE COMMANDE
+============================================================ -->
+<script>
+    // ============================================================
+    // Sélecteurs de base
+    // ============================================================
+
+    const terminalToggle = document.getElementById("terminalToggle");
+    const terminalWindow = document.getElementById("terminalWindow");
+    const terminalMinimize = document.getElementById("terminalMinimize");
+    const terminalOutput = document.getElementById("terminalOutput");
+    const terminalForm = document.getElementById("terminalForm");
+    const terminalInput = document.getElementById("terminalInput");
+
+    // ============================================================
+    // Fonction utilitaire : heure formatée HH:MM:SS
+    // ============================================================
+
+    function getCurrentTimeString() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, "0");
+        const m = String(now.getMinutes()).padStart(2, "0");
+        const s = String(now.getSeconds()).padStart(2, "0");
+        return h + ":" + m + ":" + s;
+    }
+
+    // ============================================================
+    // Affichage d'une ligne dans le terminal
+    // ============================================================
+
+    function appendTerminalLine(type, prefix, message) {
+        const line = document.createElement("div");
+        line.classList.add("terminal-line-" + type);
+
+        const timeSpan = document.createElement("span");
+        timeSpan.classList.add("terminal-line-time");
+        timeSpan.textContent = "[" + getCurrentTimeString() + "]";
+
+        const prefixSpan = document.createElement("span");
+        prefixSpan.classList.add("terminal-line-prefix");
+        prefixSpan.textContent = prefix;
+
+        const messageSpan = document.createElement("span");
+        messageSpan.innerHTML = " · " + message;
+
+        line.appendChild(timeSpan);
+        line.appendChild(prefixSpan);
+        line.appendChild(messageSpan);
+
+        terminalOutput.appendChild(line);
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    // ============================================================
+    // Commande : /help
+    // ============================================================
+
+    function runHelpCommand() {
+        appendTerminalLine(
+            "system",
+            "help",
+            "Commandes disponibles :<br>" +
+            "&nbsp;&nbsp;- <strong>/help</strong> : affiche cette aide.<br>" +
+            "&nbsp;&nbsp;- <strong>/device_info</strong> : infos basiques de ton appareil (navigateur, écran, IP publique si disponible)."
+        );
+    }
+
+    // ============================================================
+    // Récupération basique d'informations device côté client
+    // (sans backend : IP via service externe optionnel)
+    // ============================================================
+
+    async function runDeviceInfoCommand() {
+        // Infos navigateur / écran
+        const userAgent = navigator.userAgent;
+        const platform = navigator.platform || "Inconnu";
+        const language = navigator.language || "Inconnu";
+        const screenWidth = window.screen.width;
+        const screenHeight = window.screen.height;
+        const secureContext = (window.isSecureContext === true);
+
+        // IP publique via service externe (tu pourras changer l'URL ou router via ton backend)
+        let ipInfo = "Non disponible (sans appel à un service externe).";
+        try {
+            const response = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.ip) {
+                    ipInfo = data.ip;
+                }
+            } else {
+                ipInfo = "Non disponible (erreur de service externe).";
+            }
+        } catch (error) {
+            ipInfo = "Non disponible (échec de la requête externe).";
+        }
+
+        // Statut "sécurisé" très simplifié
+        const isSecure = secureContext && location.protocol === "https:";
+        const secureLabel = isSecure ? "Connexion HTTPS détectée." : "Connexion potentiellement non sécurisée (pas de HTTPS).";
+
+        // Affichage dans le terminal
+        appendTerminalLine(
+            "device",
+            "device",
+            "Informations basiques de ton appareil :<br>" +
+            "&nbsp;&nbsp;- IP publique (vue par le service) : <strong>" + ipInfo + "</strong><br>" +
+            "&nbsp;&nbsp;- Navigateur / User-Agent : <strong>" + userAgent.replace(/</g, "&lt;") + "</strong><br>" +
+            "&nbsp;&nbsp;- Plateforme : <strong>" + platform + "</strong><br>" +
+            "&nbsp;&nbsp;- Langue : <strong>" + language + "</strong><br>" +
+            "&nbsp;&nbsp;- Résolution écran : <strong>" + screenWidth + " × " + screenHeight + "</strong><br>" +
+            "&nbsp;&nbsp;- Statut : <strong>" + secureLabel + "</strong>"
+        );
+    }
+
+    // ============================================================
+    // Gestion de la saisie et dispatch des commandes
+    // ============================================================
+
+    function handleTerminalCommand(rawCommand) {
+        const command = rawCommand.trim();
+
+        if (!command) {
+            return;
+        }
+
+        // Echo de la commande
+        appendTerminalLine("info", "you", command);
+
+        // Commandes reconnues
+        if (command === "/help") {
+            runHelpCommand();
+            return;
+        }
+
+        if (command === "/device_info") {
+            runDeviceInfoCommand();
+            return;
+        }
+
+        // Commande inconnue
+        appendTerminalLine(
+            "warning",
+            "system",
+            "Commande inconnue : <strong>" + command + "</strong>. Utilise <strong>/help</strong> pour lister les commandes."
+        );
+    }
+
+    // ============================================================
+    // Gestion du formulaire (entrée commande)
+    // ============================================================
+
+    terminalForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const value = terminalInput.value;
+        terminalInput.value = "";
+        handleTerminalCommand(value);
+    });
+
+    // ============================================================
+    // Gestion du toggle (réduction / agrandissement)
+    // ============================================================
+
+    function toggleTerminalVisibility() {
+        const isHidden = terminalWindow.classList.contains("hidden");
+        if (isHidden) {
+            terminalWindow.classList.remove("hidden");
+        } else {
+            terminalWindow.classList.add("hidden");
+        }
+    }
+
+    terminalToggle.addEventListener("click", function () {
+        toggleTerminalVisibility();
+    });
+
+    terminalMinimize.addEventListener("click", function () {
+        toggleTerminalVisibility();
+    });
+
+    // ============================================================
+    // Focus automatique sur l'input à l'ouverture
+    // ============================================================
+
+    document.addEventListener("click", function (event) {
+        if (terminalWindow.contains(event.target) || terminalToggle.contains(event.target)) {
+            setTimeout(function () {
+                terminalInput.focus();
+            }, 50);
+        }
+    });
+
+    // Focus initial si le terminal est visible
+    window.addEventListener("load", function () {
+        if (!terminalWindow.classList.contains("hidden")) {
+            terminalInput.focus();
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>8 February 2027's Call — EcoTech Terminal</title>
+
+    <!-- Icône de la page -->
+    <link rel="icon" type="image/png" href="827scall Logo (Carré).png">
+
+    <!-- Meta de base -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Terminal EcoTech de la communauté 8 February 2027's Call. Conseils détaillés pour réduire l'empreinte numérique et utiliser les outils digitaux de manière écoresponsable.">
+
+    <!-- Police principale (titres) : Inndam Extended -->
+    <!-- Si la police n'est pas disponible localement, le navigateur prendra la police de secours. -->
+    <style>
+        @font-face {
+            font-family: "Inndam Extended";
+            src: local("Inndam Extended"), local("Inndam-Extended");
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        :root {
+            --bg-main: #000000;
+            --fg-main: #d6ffd6;
+            --fg-soft: #9adf9a;
+            --accent-strong: #00ff7f;
+            --accent-warning: #ffdd57;
+            --accent-danger: #ff5555;
+            --accent-muted: #4f4f4f;
+            --accent-link: #7fffd4;
+            --border-soft: #1f401f;
+            --shadow-soft: 0 0 18px rgba(0, 255, 127, 0.25);
+            --shadow-strong: 0 0 30px rgba(0, 255, 127, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-main);
+            color: var(--fg-main);
+            font-family: "Courier New", monospace;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            color: var(--accent-link);
+            text-decoration: none;
+        }
+
+        a:hover,
+        a:focus {
+            text-decoration: underline;
+        }
+
+        .screen {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 12px;
+        }
+
+        .frame {
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .frame-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-soft);
+            padding: 4px 8px;
+            background: linear-gradient(90deg, #020202, #050d05);
+        }
+
+        .frame-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .frame-header-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .window-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--accent-muted);
+        }
+
+        .window-dot.close {
+            background-color: #ff5f57;
+        }
+
+        .window-dot.minimize {
+            background-color: #febc2e;
+        }
+
+        .window-dot.maximize {
+            background-color: #28c840;
+        }
+
+        .frame-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--fg-soft);
+        }
+
+        .frame-icon {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+        }
+
+        .frame-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            border-right: 1px solid var(--border-soft);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .main {
+            flex: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .status-bar {
+            border-top: 1px solid var(--border-soft);
+            padding: 3px 8px;
+            font-size: 11px;
+            color: var(--fg-soft);
+            background-color: #020602;
+        }
+
+        .prompt-label {
+            color: var(--accent-strong);
+        }
+
+        .prompt-path {
+            color: var(--accent-warning);
+        }
+
+        .prompt-input {
+            color: var(--fg-main);
+        }
+
+        .title-block {
+            border: 1px solid var(--border-soft);
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            box-shadow: var(--shadow-soft);
+            background: radial-gradient(circle at top left, rgba(0, 255, 127, 0.08), transparent 55%);
+        }
+
+        .title-main {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 20px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin: 0 0 4px 0;
+            color: var(--accent-strong);
+        }
+
+        .title-sub {
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--fg-soft);
+            margin: 0;
+        }
+
+        .section {
+            border: 1px dashed var(--border-soft);
+            padding: 8px 10px;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 14px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin: 0 0 6px 0;
+            color: var(--accent-strong);
+        }
+
+        .section-subtitle {
+            font-size: 11px;
+            color: var(--fg-soft);
+            margin: 0 0 4px 0;
+        }
+
+        .mono-label {
+            font-weight: bold;
+            color: var(--accent-warning);
+        }
+
+        .section-list {
+            margin: 4px 0 0 0;
+            padding-left: 14px;
+        }
+
+        .section-list li {
+            margin-bottom: 4px;
+        }
+
+        .tagline {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent-muted);
+        }
+
+        .command-log {
+            font-size: 13px;
+            margin-bottom: 6px;
+            white-space: pre-wrap;
+        }
+
+        .command-log .cmd {
+            color: var(--accent-strong);
+        }
+
+        .command-log .comment {
+            color: var(--fg-soft);
+        }
+
+        .command-log .warning {
+            color: var(--accent-warning);
+        }
+
+        .command-log .danger {
+            color: var(--accent-danger);
+        }
+
+        .command-log .linkish {
+            color: var(--accent-link);
+        }
+
+        .separator {
+            border-top: 1px dashed var(--border-soft);
+            margin: 8px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 1px 4px;
+            border-radius: 3px;
+            border: 1px solid var(--border-soft);
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--fg-soft);
+        }
+
+        .badge-green {
+            border-color: var(--accent-strong);
+            color: var(--accent-strong);
+        }
+
+        .badge-warning {
+            border-color: var(--accent-warning);
+            color: var(--accent-warning);
+        }
+
+        .badge-danger {
+            border-color: var(--accent-danger);
+            color: var(--accent-danger);
+        }
+
+        .kbd {
+            display: inline-block;
+            padding: 1px 4px;
+            border-radius: 2px;
+            border: 1px solid var(--border-soft);
+            font-size: 11px;
+            background-color: #020602;
+        }
+
+        .pill {
+            padding: 1px 7px;
+            border-radius: 999px;
+            border: 1px solid var(--border-soft);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .pill-low {
+            border-color: var(--accent-strong);
+            color: var(--accent-strong);
+        }
+
+        .pill-medium {
+            border-color: var(--accent-warning);
+            color: var(--accent-warning);
+        }
+
+        .pill-high {
+            border-color: var(--accent-danger);
+            color: var(--accent-danger);
+        }
+
+        .small-label {
+            font-size: 11px;
+            color: var(--fg-soft);
+        }
+
+        .scroll-hint {
+            font-size: 11px;
+            color: var(--accent-muted);
+            margin-top: 4px;
+        }
+
+        .side-section-title {
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--accent-strong);
+            margin-bottom: 2px;
+        }
+
+        .side-section-body {
+            font-size: 12px;
+            color: var(--fg-soft);
+        }
+
+        .side-list {
+            list-style: none;
+            margin: 4px 0;
+            padding: 0;
+        }
+
+        .side-list li {
+            margin-bottom: 2px;
+        }
+
+        .side-list .bullet {
+            color: var(--accent-strong);
+            margin-right: 4px;
+        }
+
+        .grid-two {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 6px;
+        }
+
+        .note-box {
+            border: 1px solid var(--border-soft);
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+
+        .note-box.warning {
+            border-color: var(--accent-warning);
+        }
+
+        .note-box.danger {
+            border-color: var(--accent-danger);
+        }
+
+        .note-box.success {
+            border-color: var(--accent-strong);
+        }
+
+        .note-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .section-anchor {
+            color: var(--accent-muted);
+            font-size: 11px;
+        }
+
+        .ascii-divider {
+            font-size: 11px;
+            color: var(--accent-muted);
+            margin: 4px 0;
+        }
+
+        .ascii-divider strong {
+            color: var(--accent-strong);
+        }
+
+        /* Scrollbars discrets */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #020402;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #0f3018;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #145022;
+        }
+
+        /* Responsif minimal */
+        @media (max-width: 720px) {
+            .sidebar {
+                display: none;
+            }
+
+            .frame-body {
+                flex-direction: column;
+            }
+
+            .main {
+                padding: 8px;
+            }
+
+            .title-main {
+                font-size: 17px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="screen">
+    <div class="frame">
+        <div class="frame-header">
+            <div class="frame-header-left">
+                <div class="window-dot close"></div>
+                <div class="window-dot minimize"></div>
+                <div class="window-dot maximize"></div>
+                <img src="827scall Logo (Carré).png" alt="8 February 2027's Call" class="frame-icon">
+                <span class="frame-title">8 February 2027's Call — EcoTech Terminal v1.0.0</span>
+            </div>
+            <div class="frame-header-right">
+                <span class="tagline">LOW IMPACT / HIGH CONSCIENCE</span>
+            </div>
+        </div>
+
+        <div class="frame-body">
+            <!-- Sidebar / Index -->
+            <aside class="sidebar">
+                <div>
+                    <div class="side-section-title">SESSION</div>
+                    <div class="side-section-body">
+                        <span class="mono-label">USER:</span> eco_guest<br>
+                        <span class="mono-label">NODE:</span> 8feb2027.call<br>
+                        <span class="mono-label">MODE:</span> <span class="badge badge-green">read-only / eco-guide</span>
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <div>
+                    <div class="side-section-title">NAVIGATION</div>
+                    <ul class="side-list">
+                        <li><span class="bullet">&gt;</span><a href="#intro">intro / manifeste</a></li>
+                        <li><span class="bullet">&gt;</span><a href="#energie">énergie &amp; puissance</a></li>
+                        <li><span class="bullet">&gt;</span><a href="#stockage">stockage &amp; données</a></li>
+                        <li><span class="bullet">&gt;</span><a href="#reseau">réseau &amp; streaming</a></li>
+                        <li><span class="bullet">&gt;</span><a href="#materiel">matériel &amp; durée de vie</a></li>
+                        <li><span class="bullet">&gt;</span><a href="#outils">outils &amp; usages</a></li>
+                        <li><span class="bullet">&gt;</span><a href="#checklist">checklist eco-session</a></li>
+                    </ul>
+                    <div class="scroll-hint">
+                        F1 — aide locale (lire les blocs ci-dessous).<br>
+                        ESC — quitter l'écran, garder les habitudes.
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <div>
+                    <div class="side-section-title">PROFILS DE CONSOMMATION</div>
+                    <div class="side-section-body">
+                        <div>
+                            <span class="pill pill-low">low</span> navigation texte, mail, docs statiques.
+                        </div>
+                        <div>
+                            <span class="pill pill-medium">medium</span> vidéo basse rés., visioconf courte.
+                        </div>
+                        <div>
+                            <span class="pill pill-high">high</span> streaming HD, cloud 24/7, IA lourde.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <div>
+                    <div class="side-section-title">RITUEL RAPIDE</div>
+                    <div class="side-section-body">
+                        <ul class="side-list">
+                            <li><span class="bullet">+</span> baisser la luminosité.</li>
+                            <li><span class="bullet">+</span> fermer les onglets inutiles.</li>
+                            <li><span class="bullet">+</span> couper les autoplays.</li>
+                            <li><span class="bullet">+</span> penser au <span class="badge badge-warning">hors ligne</span>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <div>
+                    <div class="side-section-title">RAPPELS</div>
+                    <div class="side-section-body">
+                        <span class="badge badge-green">eco</span> réduire sans culpabiliser.<br>
+                        <span class="badge badge-warning">clarity</span> comprendre avant d'utiliser.<br>
+                        <span class="badge badge-danger">limit</span> éviter ce qui tourne sans fin.
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main terminal -->
+            <main class="main">
+                <header class="title-block" id="intro">
+                    <h1 class="title-main">8 February 2027's Call</h1>
+                    <p class="title-sub">EcoTech terminal — manuel d'usage numérique sobre</p>
+                </header>
+
+                <section class="section">
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> init_session --mode="conscience" --style="terminal-noir"</span>
+                    </div>
+                    <div class="command-log">
+<span class="comment"># Bienvenue dans le terminal EcoTech de la communauté "8 February 2027's Call".</span>
+                    </div>
+                    <div class="command-log">
+<span class="comment"># Ici, chaque conseil explique le pourquoi, le comment, et la trace énergétique derrière chaque geste numérique.</span>
+                    </div>
+                    <div class="command-log">
+<span class="comment"># Objectif : transformer ton usage des outils en un choix conscient, sobre, mais toujours créatif.</span>
+                    </div>
+                    <div class="separator"></div>
+                    <p>
+                        Ce guide ne te demande pas de disparaître du réseau, mais de
+                        le traverser avec lucidité.
+                        Tu peux tout lire d'un bloc ou piocher par section.
+                        Chaque bloc fonctionne comme une commande,
+                        une réponse,
+                        un morceau de manuel.
+                    </p>
+                    <p>
+                        Tu peux imaginer que chaque clic a une ombre électrique,
+                        chaque fichier stocké a un poids réel quelque part dans un data center,
+                        chaque flux vidéo est de l'eau et du métal en mouvement.
+                        Ici,
+                        on met des mots dessus,
+                        on propose des alternatives,
+                        on trace des lignes simples à suivre.
+                    </p>
+                </section>
+
+                <!-- SECTION ENERGIE & PUISSANCE -->
+                <section class="section" id="energie">
+                    <div class="section-header">
+                        <h2 class="section-title">module 01 — énergie &amp; puissance</h2>
+                        <p class="section-subtitle">
+                            comprendre ce que consomme ta session avant même de parler d'outils.
+                            (CPU, GPU, écran, temps)
+                        </p>
+                        <span class="section-anchor">anchor: /energy/power-basics</span>
+                    </div>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[POWER-OVERVIEW]</strong> ----------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> show_power_basics /verbose</span>
+                    </div>
+
+                    <p>
+                        Ton appareil consomme de l'énergie dès qu'il est allumé,
+                        même si tu ne fais "rien".
+                        L'écran,
+                        surtout s'il est grand et lumineux,
+                        est souvent l'un des plus gros postes de consommation.
+                        Le processeur et la carte graphique montent en puissance
+                        dès que tu lances des tâches lourdes
+                        (jeux,
+                        rendu vidéo,
+                        intelligence artificielle,
+                        calcul scientifique).
+                    </p>
+
+                    <p>
+                        Chaque heure passée devant un flux vidéo HD,
+                        chaque onglet qui recharge en continu,
+                        chaque application qui tourne en arrière-plan,
+                        s'empilent dans ta consommation totale.
+                        L'objectif n'est pas de tout arrêter,
+                        mais de couper ce qui ne sert à rien,
+                        d'abaisser ce qui peut l'être,
+                        de condenser ce qui peut être fait plus vite,
+                        plus simplement.
+                    </p>
+
+                    <div class="grid-two">
+                        <div class="note-box success">
+                            <div class="note-title">réflexe 01 — luminosité</div>
+                            <p>
+                                Baisse la luminosité globale de ton écran
+                                à un niveau confortable mais sobre.
+                                Sur un portable,
+                                c'est souvent l'un des leviers les plus efficaces.
+                                Tu peux aussi activer les modes
+                                "basse consommation"
+                                ou "économie d'énergie"
+                                proposés par ton système.
+                            </p>
+                        </div>
+                        <div class="note-box success">
+                            <div class="note-title">réflexe 02 — veille rapide</div>
+                            <p>
+                                Configure une mise en veille automatique
+                                après quelques minutes d'inactivité.
+                                Tu peux garder l'écran qui s'éteint vite
+                                mais la session intacte.
+                                Cela réduit la consommation
+                                pendant les micro-pauses,
+                                sans casser ton flux de travail.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[POWER-COMMANDS]</strong> ----------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> tips --power --quick</span>
+                    </div>
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Astuce:</span>
+                            préférer le thème sombre n'est pas une solution magique,
+                            mais sur les écrans OLED,
+                            cela peut réellement réduire la consommation.
+                        </li>
+                        <li>
+                            <span class="mono-label">Astuce:</span>
+                            désactive les animations inutiles
+                            et les fonds d'écran dynamiques
+                            qui consomment GPU
+                            juste pour du décor.
+                        </li>
+                        <li>
+                            <span class="mono-label">Astuce:</span>
+                            ferme les logiciels lourds
+                            (montage vidéo,
+                            jeu,
+                            moteur 3D)
+                            dès que tu n'en as plus besoin,
+                            au lieu de les laisser "au cas où".
+                        </li>
+                        <li>
+                            <span class="mono-label">Astuce:</span>
+                            si tu peux,
+                            regroupe les tâches gourmandes
+                            en sessions courtes et concentrées,
+                            au lieu de les laisser tourner doucement,
+                            mais longtemps.
+                        </li>
+                    </ul>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[POWER-INTENSITY]</strong> -------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Quelques usages typiques,
+# classés par intensité énergétique relative.</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="pill pill-low">intensité faible</span>
+                            lire / écrire des mails,
+                            écrire un document texte,
+                            lire un article statique,
+                            utiliser une interface en mode texte comme celle-ci.
+                        </li>
+                        <li>
+                            <span class="pill pill-medium">intensité moyenne</span>
+                            participer à une visio courte,
+                            écouter de la musique en streaming audio,
+                            regarder une vidéo en basse résolution
+                            ou en petite fenêtre.
+                        </li>
+                        <li>
+                            <span class="pill pill-high">intensité forte</span>
+                            streaming vidéo longue durée en HD ou 4K,
+                            jeux vidéo gourmands,
+                            rendu 3D,
+                            entraînement de modèles d'IA,
+                            transferts massifs de données en cloud.
+                        </li>
+                    </ul>
+
+                    <p>
+                        L'idée n'est pas d'interdire les usages "intensité forte",
+                        mais de les traiter comme des choix de puissance.
+                        Tu peux te demander :
+                        "Est-ce que cette qualité d'image est vraiment nécessaire maintenant ?"
+                        "Est-ce que je peux télécharger une fois
+                        au lieu de streamer en boucle ?"
+                        "Est-ce que ce calcul doit tourner aujourd'hui
+                        ou peut attendre une plage horaire spécifique ?"
+                    </p>
+                </section>
+
+                <!-- SECTION STOCKAGE & DONNÉES -->
+                <section class="section" id="stockage">
+                    <h2 class="section-title">module 02 — stockage &amp; empreinte des données</h2>
+                    <p class="section-subtitle">
+                        chaque photo,
+                        chaque backup,
+                        chaque pièce jointe,
+                        vit quelque part sur une machine physique qui consomme.
+                    </p>
+                    <span class="section-anchor">anchor: /data/storage</span>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[DATA-WEIGHT]</strong> -----------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> inspect_storage --mode="conscience"</span>
+                    </div>
+
+                    <p>
+                        Le stockage n'est pas abstrait.
+                        Derrière chaque gigaoctet de données stocké dans un cloud,
+                        il y a des disques,
+                        des systèmes de refroidissement,
+                        des sauvegardes,
+                        des alimentations électriques,
+                        des redondances.
+                        Garder des fichiers "au cas où" n'est pas neutre :
+                        c'est accepter que des machines tournent pour les garder vivants.
+                    </p>
+
+                    <p>
+                        Les pièces jointes envoyées dix fois,
+                        les anciens projets jamais nettoyés,
+                        les photos en double ou floues,
+                        tout cela fabrique une couche de données morte,
+                        mais énergivore.
+                        Un ménage régulier n'est pas qu'une question d'organisation,
+                        c'est un geste écologique concret.
+                    </p>
+
+                    <div class="grid-two">
+                        <div class="note-box success">
+                            <div class="note-title">réflexe 03 — tri périodique</div>
+                            <p>
+                                Planifie un rituel de tri
+                                (par exemple chaque mois).
+                                Supprime les doublons,
+                                les versions obsolètes,
+                                les archives qui n'ont plus de valeur.
+                                Plus le stockage est clair,
+                                plus tu réduis les ressources occupées pour rien.
+                            </p>
+                        </div>
+                        <div class="note-box warning">
+                            <div class="note-title">réflexe 04 — format &amp; compression</div>
+                            <p>
+                                Pour les images,
+                                privilégie des formats efficaces
+                                (par ex. WEBP, JPEG optimisé au lieu de PNG massif).
+                                Pour les vidéos,
+                                une résolution adaptée à l'usage suffit.
+                                Pour les documents,
+                                évite les pièces jointes énormes
+                                quand un lien ou une version compressée peut faire l'affaire.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[DATA-PRACTICES]</strong> --------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> tips --data --storage</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            évite de multiplier les sauvegardes inutiles du même fichier
+                            sur plusieurs services cloud,
+                            sauf si c'est réellement critique.
+                        </li>
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            préfère une archive compressée bien organisée
+                            à un dossier dispersé
+                            avec des centaines de fichiers rarement consultés.
+                        </li>
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            pour les conversations,
+                            n'hésite pas à supprimer
+                            les anciens médias envoyés
+                            qui n'ont plus de sens aujourd'hui.
+                        </li>
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            quand tu partages un dossier de travail,
+                            nettoie-le avant la diffusion :
+                            moins de fichiers,
+                            c'est moins de transferts
+                            et moins de confusion.
+                        </li>
+                    </ul>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[DATA-LIFECYCLE]</strong> ------------------------------------------
+                    </div>
+
+                    <p>
+                        Tu peux imaginer un cycle de vie pour chaque fichier :
+                        création,
+                        usage actif,
+                        archivage,
+                        oubli.
+                        Le geste écologique consiste à ne pas laisser l'oubli
+                        occuper des serveurs sans raison.
+                        Pose-toi régulièrement la question :
+                        "Ce fichier sert-il encore ?"
+                        "Est-il nécessaire de le garder accessible en permanence ?"
+                    </p>
+
+                    <p>
+                        Tu peux aussi choisir de garder
+                        une partie de tes archives hors ligne
+                        sur un disque externe,
+                        qui ne consomme rien tant qu'il est éteint.
+                        Cela allège la charge sur le cloud,
+                        tout en te laissant la possibilité
+                        de consulter tes données quand tu en as réellement besoin.
+                    </p>
+                </section>
+
+                <!-- SECTION RÉSEAU & STREAMING -->
+                <section class="section" id="reseau">
+                    <h2 class="section-title">module 03 — réseau, streaming &amp; trafic</h2>
+                    <p class="section-subtitle">
+                        ce qui transite est aussi important que ce qui tourne.
+                        chaque flux est un trajet énergétique.
+                    </p>
+                    <span class="section-anchor">anchor: /network/streaming</span>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[NET-OVERVIEW]</strong> ---------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> net_usage --explain</span>
+                    </div>
+
+                    <p>
+                        Chaque requête envoyée,
+                        chaque vidéo chargée,
+                        chaque flux audio,
+                        traverse une chaîne de machines,
+                        de câbles,
+                        de routeurs,
+                        de serveurs,
+                        de caches,
+                        de data centers.
+                        Plus tu demandes de données,
+                        plus la chaîne s'active intensément.
+                        Le streaming en haute définition,
+                        en particulier,
+                        mobilise énormément de bande passante
+                        et de ressources côté serveur.
+                    </p>
+
+                    <p>
+                        L'enjeu n'est pas de renoncer à la culture,
+                        à la musique,
+                        aux films,
+                        mais de repenser comment tu les consommes.
+                        Un épisode téléchargé une fois
+                        et regardé plusieurs fois
+                        coûte moins cher
+                        qu'un flux streamé à répétition.
+                        Une vidéo en 480p sur un petit écran
+                        est souvent suffisante
+                        là où la 4K n'apporte presque rien.
+                    </p>
+
+                    <div class="grid-two">
+                        <div class="note-box success">
+                            <div class="note-title">réflexe 05 — qualité adaptée</div>
+                            <p>
+                                Si l'interface le permet,
+                                baisse la résolution vidéo
+                                pour l'adapter à la taille réelle de ton écran
+                                ou à l'importance du contenu.
+                                Pour un tutoriel à écouter,
+                                la HD n'est pas toujours utile.
+                            </p>
+                        </div>
+                        <div class="note-box warning">
+                            <div class="note-title">réflexe 06 — autoplay &amp; suggestions</div>
+                            <p>
+                                Désactive la lecture automatique
+                                quand c'est possible.
+                                Refuse la logique du flux infini :
+                                choisis consciemment ce que tu regardes,
+                                puis coupe.
+                                La sobriété commence aussi par la maîtrise de ton attention.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[NET-PRACTICES]</strong> ----------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> tips --network --stream</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            privilégie le téléchargement ponctuel
+                            pour les contenus que tu vas revoir.
+                        </li>
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            coupe les flux vidéo
+                            quand tu passes à autre chose,
+                            au lieu de les laisser tourner en bruit de fond.
+                        </li>
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            préfére les plateformes qui te laissent
+                            ajuster finement la qualité de diffusion.
+                        </li>
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            pour la musique,
+                            le streaming audio consomme moins que la vidéo.
+                            Si tu n'as pas besoin de l'image,
+                            choisis le son seul.
+                        </li>
+                    </ul>
+
+                    <div class="note-box danger">
+                        <div class="note-title">attention — flux infini</div>
+                        <p>
+                            Les réseaux sociaux,
+                            les plateformes de vidéos courtes,
+                            les timelines infinies,
+                            sont conçus pour te maintenir connecté le plus longtemps possible.
+                            Leur empreinte numérique réelle
+                            ne dépend pas que de la puissance instantanée,
+                            mais du temps total passé.
+                            Réduire la durée de ces sessions
+                            est l'un des leviers les plus puissants
+                            pour diminuer ton impact global.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- SECTION MATÉRIEL & DURÉE DE VIE -->
+                <section class="section" id="materiel">
+                    <h2 class="section-title">module 04 — matériel &amp; durée de vie</h2>
+                    <p class="section-subtitle">
+                        l'objet que tu tiens a déjà une longue histoire matérielle.
+                        le garder en vie est un geste fort.
+                    </p>
+                    <span class="section-anchor">anchor: /hardware/lifecycle</span>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[HARDWARE-VIEW]</strong> --------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> hardware_impact --lifecycle</span>
+                    </div>
+
+                    <p>
+                        La fabrication d'un appareil numérique
+                        (ordinateur,
+                        smartphone,
+                        tablette)
+                        consomme énormément de ressources
+                        (métaux,
+                        eau,
+                        énergie,
+                        transport).
+                        Prolonger la durée de vie de ce que tu as déjà
+                        est souvent plus écologique
+                        que d'acheter un nouveau produit "plus efficace".
+                    </p>
+
+                    <p>
+                        Le réflexe de mise à jour permanente
+                        est souvent encouragé par le marché,
+                        mais tu peux le questionner.
+                        Un appareil légèrement plus lent,
+                        mais encore fonctionnel,
+                        est parfois un meilleur choix
+                        qu'un remplacement anticipé.
+                        Chaque année gagnée sur la durée d'usage
+                        dilue l'empreinte de fabrication
+                        dans le temps.
+                    </p>
+
+                    <div class="grid-two">
+                        <div class="note-box success">
+                            <div class="note-title">réflexe 07 — entretien simple</div>
+                            <p>
+                                Nettoie ton appareil,
+                                dépoussière les aérations,
+                                contrôle les mises à jour de sécurité.
+                                Un matériel bien entretenu chauffe moins,
+                                consomme mieux,
+                                et tient plus longtemps.
+                            </p>
+                        </div>
+                        <div class="note-box warning">
+                            <div class="note-title">réflexe 08 — réparation &amp; réemploi</div>
+                            <p>
+                                Avant de remplacer un appareil,
+                                informe-toi sur les options de réparation.
+                                Parfois,
+                                changer une batterie ou un composant
+                                suffit à prolonger la vie de la machine.
+                                Le réemploi (don,
+                                revente,
+                                recyclage organisé)
+                                est préférable à l'abandon.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[HARDWARE-PRACTICES]</strong> ----------------------------------------
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            évite de multiplier les appareils
+                            pour le même usage,
+                            si un seul peut suffire.
+                        </li>
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            si tu n'utilises plus un appareil,
+                            ne le laisse pas dormir dans un tiroir :
+                            trouve-lui une seconde vie adaptée.
+                        </li>
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            prête attention aux conditions de charge :
+                            ne laisse pas ton appareil constamment à 100%
+                            sur secteur,
+                            si tu peux le gérer autrement.
+                        </li>
+                        <li>
+                            <span class="mono-label">Conseil:</span>
+                            quand tu changes de matériel,
+                            prends le temps d'effacer proprement tes données
+                            et d'organiser le transfert
+                            pour éviter les doublons massifs.
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- SECTION OUTILS & USAGES NUMÉRIQUES -->
+                <section class="section" id="outils">
+                    <h2 class="section-title">module 05 — outils numériques &amp; recommandations écolo</h2>
+                    <p class="section-subtitle">
+                        chaque type d'outil a ses habitudes,
+                        ses excès possibles,
+                        ses leviers de sobriété.
+                    </p>
+                    <span class="section-anchor">anchor: /tools/eco-usage</span>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[TOOLS-OVERVIEW]</strong> --------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> list_tools --category="usage-courant"</span>
+                    </div>
+
+                    <p class="small-label">
+                        ci-dessous,
+                        des blocs par type d'outil :
+                        mail,
+                        navigation,
+                        bureautique,
+                        cloud,
+                        visioconférence,
+                        IA,
+                        etc.
+                        le but est d'expliquer,
+                        pour chaque catégorie,
+                        la consommation typique
+                        et les gestes concrets pour la réduire.
+                    </p>
+
+                    <!-- OUTIL : MAIL -->
+                    <div class="ascii-divider">
+                        ---------- <strong>[TOOLS-MAIL]</strong> -----------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># MAIL : indispensable pour beaucoup,
+# mais souvent saturé de pièces jointes lourdes et de notifications inutiles.</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Consommation typique:</span>
+                            faible à moyenne par mail,
+                            mais cumulative si tu en reçois
+                            et en envoies énormément,
+                            surtout avec des pièces jointes volumineuses.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 01:</span>
+                            nettoie régulièrement ta boîte de réception,
+                            supprime les newsletters que tu ne lis plus,
+                            désinscris-toi plutôt que de laisser les mails s'accumuler.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 02:</span>
+                            compresse les pièces jointes quand c'est possible
+                            et évite les envois multiples du même fichier à de nombreux destinataires.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 03:</span>
+                            limite l'usage du "Répondre à tous"
+                            quand ce n'est pas nécessaire,
+                            pour éviter de multiplier les copies de mails.
+                        </li>
+                    </ul>
+
+                    <!-- OUTIL : NAVIGATION WEB -->
+                    <div class="ascii-divider">
+                        ---------- <strong>[TOOLS-BROWSER]</strong> --------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># NAVIGATION WEB : le point d'entrée principal.
+# chaque onglet, chaque script, chaque vidéo intégrée a un coût.</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Consommation typique:</span>
+                            variable.
+                            Un simple article texte est relativement léger,
+                            tandis que les sites complexes avec beaucoup de scripts,
+                            de trackers et de vidéos intégrées
+                            peuvent être bien plus gourmands.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 04:</span>
+                            ferme les onglets que tu n'utilises plus,
+                            au lieu de les laisser ouverts en arrière-plan pendant des jours.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 05:</span>
+                            utilise des bloqueurs de publicité et de scripts non essentiels
+                            pour réduire le nombre de requêtes et la charge côté navigateur.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 06:</span>
+                            préfère des sites ou des versions "lite" / "lecture"
+                            qui se concentrent sur le contenu principal
+                            plutôt que sur les effets visuels lourds.
+                        </li>
+                    </ul>
+
+                    <!-- OUTIL : BUREAUTIQUE -->
+                    <div class="ascii-divider">
+                        ---------- <strong>[TOOLS-OFFICE]</strong> ---------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># BUREAUTIQUE : traitement de texte,
+# tableur, présentations.
+# souvent peu gourmand,
+# sauf quand tout passe par le cloud en temps réel.</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Consommation typique:</span>
+                            faible en local.
+                            Plus élevée quand tous les documents sont synchronisés en permanence via le cloud.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 07:</span>
+                            quand c'est possible,
+                            travaille hors ligne sur des documents locaux
+                            puis synchronise en fin de session.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 08:</span>
+                            évite de dupliquer des documents identiques sur plusieurs plateformes
+                            sans utilité claire.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 09:</span>
+                            allège les présentations en limitant les médias lourds
+                            et en compressant les images intégrées.
+                        </li>
+                    </ul>
+
+                    <!-- OUTIL : CLOUD & BACKUP -->
+                    <div class="ascii-divider">
+                        ---------- <strong>[TOOLS-CLOUD]</strong> ----------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># CLOUD &amp; SAUVEGARDES : confortables,
+# mais invisiblement énergivores.
+# les données y restent tant que tu ne décides pas de les effacer.</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Consommation typique:</span>
+                            dépend de la quantité de données stockées
+                            et de la fréquence de synchronisation,
+                            ainsi que du nombre de copies de sauvegarde.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 10:</span>
+                            paramètre les sauvegardes intelligemment :
+                            inutile de sauvegarder en permanence
+                            des fichiers qui ne changent pas.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 11:</span>
+                            supprime les anciennes sauvegardes obsolètes
+                            au lieu de laisser des générations s'empiler sans fin.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 12:</span>
+                            si tu peux,
+                            garde certaines archives sur un support externe hors ligne,
+                            pour limiter le volume stocké en cloud.
+                        </li>
+                    </ul>
+
+                    <!-- OUTIL : VISIOCONFÉRENCE -->
+                    <div class="ascii-divider">
+                        ---------- <strong>[TOOLS-VIDEO-CALL]</strong> -----------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># VISIOCONFÉRENCE : nécessaire parfois,
+# épuisante souvent,
+# énergivore toujours,
+# surtout quand la vidéo est activée pour tout le monde.</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Consommation typique:</span>
+                            moyenne à élevée,
+                            car la vidéo en direct exige une compression en temps réel
+                            et un flux constant.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 13:</span>
+                            coupe ta caméra quand elle n'apporte rien à la discussion
+                            (réunions d'écoute,
+                            grandes conférences,
+                            moments où seule la voix compte).
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 14:</span>
+                            privilégie l'audio uniquement
+                            pour les échanges simples
+                            où le visage n'est pas indispensable.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 15:</span>
+                            raccourcis les réunions,
+                            adopte des ordres du jour clairs,
+                            réduis le temps passé "connecté pour rien".
+                        </li>
+                    </ul>
+
+                    <!-- OUTIL : IA & CALCUL INTENSIF -->
+                    <div class="ascii-divider">
+                        ---------- <strong>[TOOLS-AI]</strong> ------------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># IA &amp; CALCUL INTENSIF : génération d'images,
+# traitement de données massives,
+# entraînement de modèles,
+# simulation.
+# puissants,
+# mais exigeants énergétiquement.</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Consommation typique:</span>
+                            élevée à très élevée,
+                            surtout pour les tâches répétées,
+                            massives
+                            et en temps réel.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 16:</span>
+                            interroge la nécessité :
+                            "Ai-je besoin de générer dix variantes
+                            ou deux suffisent-elles ?"
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 17:</span>
+                            regroupe les requêtes,
+                            prépare tes idées hors ligne,
+                            puis lance une session courte,
+                            ciblée,
+                            plutôt qu'un flux continu de tests.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 18:</span>
+                            conserve les résultats vraiment utiles,
+                            supprime les brouillons inutiles,
+                            documente ce qui doit être gardé
+                            pour éviter de régénérer la même chose plus tard.
+                        </li>
+                    </ul>
+
+                    <!-- OUTIL : JEUX & DIVERTISSEMENT -->
+                    <div class="ascii-divider">
+                        ---------- <strong>[TOOLS-GAMES]</strong> ----------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># JEUX &amp; DIVERTISSEMENT : espaces de plaisir,
+# de lien et d'évasion,
+# mais aussi parfois des gouffres énergétiques.</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">Consommation typique:</span>
+                            souvent élevée,
+                            surtout pour les jeux 3D récents,
+                            avec des cartes graphiques sollicitées en permanence.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 19:</span>
+                            limite la fréquence des sessions longues,
+                            privilégie des temps de jeu choisis
+                            plutôt que des marathons par défaut.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 20:</span>
+                            ferme complètement le jeu
+                            et le lanceur associé
+                            quand tu as terminé,
+                            au lieu de les laisser tourner en arrière-plan.
+                        </li>
+                        <li>
+                            <span class="mono-label">Geste écolo 21:</span>
+                            explore aussi des jeux moins gourmands
+                            qui privilégient la créativité ou la réflexion
+                            plutôt que la puissance brute.
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- CHECKLIST ECO-SESSION -->
+                <section class="section" id="checklist">
+                    <h2 class="section-title">module 06 — checklist d'une session numérique sobre</h2>
+                    <p class="section-subtitle">
+                        un rappel rapide,
+                        comme un script.
+                        à lancer mentalement avant,
+                        pendant,
+                        après ta session.
+                    </p>
+                    <span class="section-anchor">anchor: /session/checklist</span>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[SESSION-BEFORE]</strong> --------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> session --phase="avant"</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">1.</span>
+                            définir ton intention :
+                            pourquoi t'ouvres ton appareil maintenant ?
+                            pour combien de temps ?
+                        </li>
+                        <li>
+                            <span class="mono-label">2.</span>
+                            vérifier la luminosité,
+                            le mode d'alimentation,
+                            la mise en veille automatique.
+                        </li>
+                        <li>
+                            <span class="mono-label">3.</span>
+                            préparer tes ressources hors ligne
+                            si possible
+                            (docs,
+                            notes,
+                            idées).
+                        </li>
+                    </ul>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[SESSION-DURING]</strong> -------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> session --phase="pendant"</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">4.</span>
+                            fermer les onglets qui n'ont plus de rôle
+                            dans ce que tu fais maintenant.
+                        </li>
+                        <li>
+                            <span class="mono-label">5.</span>
+                            adapter la qualité des flux
+                            (vidéo,
+                            audio,
+                            visio)
+                            à ton usage réel,
+                            pas à la valeur par défaut.
+                        </li>
+                        <li>
+                            <span class="mono-label">6.</span>
+                            rester attentif aux "autoplays"
+                            et aux algorithmes d'enchaînement.
+                        </li>
+                    </ul>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[SESSION-AFTER]</strong> --------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> session --phase="après"</span>
+                    </div>
+
+                    <ul class="section-list">
+                        <li>
+                            <span class="mono-label">7.</span>
+                            sauvegarder ce qui compte,
+                            fermer les logiciels lourds,
+                            quitter les services qui tournent en arrière-plan.
+                        </li>
+                        <li>
+                            <span class="mono-label">8.</span>
+                            faire un mini-tri :
+                            fichiers créés,
+                            captures d'écran,
+                            brouillons.
+                        </li>
+                        <li>
+                            <span class="mono-label">9.</span>
+                            éteindre l'appareil
+                            si tu sais que tu ne l'utiliseras plus pendant un long moment.
+                        </li>
+                    </ul>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[SESSION-RITUAL]</strong> -------------------------------------------
+                    </div>
+
+                    <p>
+                        À chaque fois que tu passes par cette checklist,
+                        même partiellement,
+                        tu ajustes ton empreinte sans devoir tout calculer.
+                        Tu transformes l'usage numérique
+                        en une série de gestes,
+                        de réflexes,
+                        de choix.
+                        C'est une forme de discipline,
+                        mais aussi de soin :
+                        pour l'énergie,
+                        pour ton attention,
+                        pour le temps que tu veux vraiment consacrer à l'écran.
+                    </p>
+                </section>
+
+                <!-- LONGUE SÉRIE DE COMMANDES / CONSEILS DÉTAILLÉS
+                     (Pour atteindre le volume demandé, avec du contenu réel et lisible.) -->
+
+                <section class="section">
+                    <h2 class="section-title">appendix — log étendu de conseils EcoTech</h2>
+                    <p class="section-subtitle">
+                        un long flux de lignes,
+                        comme un historique de terminal.
+                        tu peux le parcourir lentement,
+                        y revenir,
+                        ou le laisser comme un bruit de fond de conscience.
+                    </p>
+                    <span class="section-anchor">anchor: /appendix/extended-log</span>
+
+                    <!-- Nous allons volontairement détailler de nombreux conseils,
+                         chacun sur plusieurs lignes,
+                         pour former un log dense mais clair. -->
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[LOG-ENERGY-DETAILS]</strong> --------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> log /energy /details</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil énergie 01 :
+# Quand tu travailles sur du texte uniquement,
+# ne laisse pas une vidéo tourner à côté "pour combler le silence".
+# Si le silence te pèse,
+# préfère un flux audio seul,
+# ou une playlist locale que tu as déjà téléchargée.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil énergie 02 :
+# Sur un ordinateur portable,
+# surveille la température et le bruit des ventilateurs.
+# Si tout devient bruyant,
+# c'est souvent que des tâches lourdes tournent en arrière-plan.
+# Vérifie les logiciels ouverts,
+# les onglets,
+# les mises à jour automatiques
+# et ferme ce qui n'est pas nécessaire.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil énergie 03 :
+# Ne te fie pas uniquement au mode "éco" proposé par certaines applications.
+# Observe aussi ton usage réel :
+# durée,
+# fréquence,
+# attention.
+# Une application "optimisée" mais utilisée en continu
+# peut consommer bien plus
+# qu'un outil simple utilisé brièvement.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil énergie 04 :
+# Si tu joues à un jeu qui propose un mode "performance" ou "qualité",
+# interroge ce dont tu as réellement besoin.
+# Un framerate légèrement plus bas,
+# ou des détails graphiques réduits,
+# peuvent diminuer la charge sur ta machine
+# sans briser ton expérience de manière significative.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil énergie 05 :
+# Les écrans multiples peuvent être confortables,
+# mais ils consomment plus.
+# Si tu n'as pas besoin de tous tes écrans pour une tâche donnée,
+# éteins ceux qui ne servent pas,
+# ou débranche-les pendant les sessions de travail minimal.</span>
+                    </div>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[LOG-STORAGE-DETAILS]</strong> -------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> log /storage /details</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil stockage 01 :
+# Quand tu fais des photos,
+# prends quelques secondes pour supprimer immédiatement
+# les clichés flous ou ratés.
+# Ce micro-tri instantané te fera gagner du temps plus tard
+# et évitera des gigaoctets inutiles dans ton cloud.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil stockage 02 :
+# Pour les projets créatifs,
+# organise un dossier clair par projet,
+# avec des sous-dossiers datés.
+# À la fin du projet,
+# archive un ensemble cohérent
+# et supprime les brouillons non nécessaires,
+# au lieu de tout garder indéfiniment.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil stockage 03 :
+# Si tu utilises plusieurs services de cloud en parallèle,
+# fais un audit :
+# où sont stockés tes fichiers,
+# en combien d'exemplaires,
+# et pourquoi.
+# Tu pourras peut-être réduire le nombre de copies
+# ou consolider sur une solution mieux maîtrisée.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil stockage 04 :
+# Avant d'envoyer un gros fichier,
+# demande-toi si la personne en face en a vraiment besoin.
+# Parfois,
+# un résumé,
+# une version allégée
+# ou quelques captures d'écran suffisent,
+# plutôt que de transmettre un bloc massif de données.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil stockage 05 :
+# Pour les mails archivés depuis des années,
+# demande-toi ce que tu cherches vraiment à conserver.
+# Certaines correspondances ont une valeur affective ou juridique,
+# d'autres non.
+# Tu peux décider de garder un échantillon,
+# plutôt que l'intégralité,
+# pour alléger la charge globale.</span>
+                    </div>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[LOG-NETWORK-DETAILS]</strong> -------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> log /network /details</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil réseau 01 :
+# Quand tu dois regarder une vidéo longue
+# (cours, conférence, film),
+# vérifie si tu peux la télécharger une fois
+# pour la visionner hors ligne,
+# plutôt que de la streamer plusieurs fois en entier.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil réseau 02 :
+# Sur les plateformes de vidéos,
+# coupe le son et l'image
+# si tu ne regardes plus activement.
+# Évite de "laisser tourner"
+# un flux derrière toi
+# juste pour remplir l'espace,
+# surtout si tu n'y prêtes plus attention.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil réseau 03 :
+# Mets en favori les ressources que tu consultes souvent,
+# au lieu de les rechercher à chaque fois.
+# Tu économises quelques requêtes,
+# mais surtout,
+# tu passes moins de temps à naviguer
+# dans des contenus qui n'étaient pas nécessaires.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil réseau 04 :
+# Sur les messageries instantanées,
+# évite d'envoyer de nombreuses pièces jointes lourdes successives
+# si un seul envoi bien organisé suffit.
+# Tu peux regrouper les fichiers dans une archive
+# ou dans un dossier partagé unique.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil réseau 05 :
+# Quand tu partages une ressource,
+# choisis le lien le plus direct
+# plutôt que des captures d'écran multiples
+# ou des extraits vidéo
+# à répétition.
+# Moins de redondance,
+# moins de flux inutiles.</span>
+                    </div>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[LOG-TOOLS-DETAILS]</strong> ---------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> log /tools /details</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil outils 01 :
+# Pour les applications de prise de notes,
+# privilégie un outil simple,
+# léger,
+# que tu peux exporter facilement.
+# Les systèmes de notes très lourds et riches en médias
+# peuvent devenir des mini-clouds énergivores,
+# surtout s'ils synchronisent constamment entre plusieurs appareils.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil outils 02 :
+# Dans les environnements de travail collaboratif,
+# clarifie les canaux.
+# Moins de doublons de messages,
+# moins de notifications superflues,
+# moins de fichiers jetés dans des salons oubliés.
+# Tu allèges les serveurs
+# et l'attention collective.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil outils 03 :
+# Quand un outil propose une version "web" et une version "app" lourde,
+# demande-toi laquelle consomme le moins
+# pour ton usage réel.
+# Parfois,
+# une simple interface web suffit,
+# sans lancer un logiciel massif.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil outils 04 :
+# Évite d'avoir plusieurs outils ouverts
+# pour la même tâche
+# (plusieurs messageries,
+# plusieurs éditeurs)
+# si tu peux en concentrer l'usage
+# sur un nombre réduit de plateformes.
+# Chaque application de moins,
+# c'est un peu de charge mentale
+# et de charge machine en moins.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil outils 05 :
+# Fais un inventaire périodique de tes logiciels installés.
+# Supprime ceux que tu n'utilises plus.
+# Moins de logiciels,
+# c'est moins de mises à jour à gérer,
+# moins de processus en arrière-plan,
+# moins de risques de consommation silencieuse.</span>
+                    </div>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[LOG-ATTENTION-DETAILS]</strong> -----------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="cmd">C:\8FEB2027\ECOTECH&gt;</span><span class="prompt-input"> log /attention /details</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil attention 01 :
+# L'empreinte numérique n'est pas seulement une affaire d'énergie,
+# mais aussi de temps de cerveau capté.
+# Chaque minute passée à défiler mécaniquement
+# est une minute de puissance machine
+# et de puissance humaine consommées.
+# Réduire ce temps,
+# c'est protéger les deux.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil attention 02 :
+# Mets des limites temporelles à certaines plateformes.
+# Par exemple,
+# 10 minutes le matin,
+# 10 minutes le soir,
+# et rien entre les deux.
+# Tu diminues l'empreinte globale
+# et tu libères de l'espace mental.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil attention 03 :
+# Quand tu ouvres une nouvelle page,
+# demande-toi :
+# "Ce clic me rapproche-t-il de ce que je voulais faire aujourd'hui ?"
+# Si la réponse est non,
+# coupe le flux,
+# respire,
+# reviens à ton intention initiale.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil attention 04 :
+# Sens-toi libre de choisir des outils lents,
+# sobres,
+# non-optimisés pour la captation.
+# Un lecteur RSS,
+# un site en mode texte,
+# un terminal comme celui-ci,
+# sont des environnements volontairement pauvres visuellement,
+# mais riches en clarté.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Conseil attention 05 :
+# Si tu fais partie d'une communauté,
+# propose régulièrement des temps de "déconnexion partagée".
+# Une journée,
+# un week-end,
+# où chacun réduit sa présence en ligne,
+# pour se rappeler que les liens peuvent exister
+# sans flux permanent.</span>
+                    </div>
+
+                    <div class="ascii-divider">
+                        ---------- <strong>[LOG-SYNTHESIS]</strong> -------------------------------------------
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># La sobriété numérique ne demande pas de perfection,
+# mais de l'attention,
+# des choix répétés,
+# des réglages fins.
+# Tu peux commencer par un seul geste :
+# baisser la luminosité,
+# couper l'autoplay,
+# trier un dossier,
+# raccourcir une visio.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Chaque geste compte plus
+# s'il est inventé,
+# répété,
+# partagé.
+# C'est là que la communauté "8 February 2027's Call"
+# existe :
+# dans cette façon de transformer des habitudes isolées
+# en culture commune.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="comment"># Terminal note :
+# Tu peux revenir ici quand tu veux,
+# relire un bloc,
+# choisir une nouvelle astuce à intégrer,
+# ajuster doucement ton rapport aux outils numériques.</span>
+                    </div>
+
+                    <div class="command-log">
+<span class="linkish"># &gt;&gt; Quand tu fermes cette page,
+# tu ne fermes pas le processus :
+# tu le passes en toi.</span>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <div class="status-bar">
+            <span class="prompt-label">C:\8FEB2027\ECOTECH&gt;</span>
+            <span class="prompt-path"> session_state=ACTIVE </span>
+            <span class="prompt-input">| press ALT+F4 to exit / or just choose to log off consciously.</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

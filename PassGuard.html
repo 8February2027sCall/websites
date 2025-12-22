@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!--
+        =====================================================================
+        8 February 2027's Call – PASSGUARD
+        Interface minimaliste type console noire
+        Analyse pessimiste de la sécurité des mots de passe
+        Auteur : FUTURE VAL CORP x Copilot
+        =====================================================================
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PassGuard | 8 February 2027's Call</title>
+
+    <!-- Icône de la page -->
+    <link rel="icon" type="image/png" href="827scall Logo (Carré).png">
+
+    <!-- Police de titre "Inndam Extended" (exemple via @font-face, à adapter à ton chemin réel) -->
+    <style>
+        /* =========================================================================
+           BASE TYPOGRAPHIE
+           ========================================================================= */
+
+        @font-face {
+            font-family: "Inndam Extended";
+            src: url("fonts/InndamExtended.woff2") format("woff2"),
+                 url("fonts/InndamExtended.woff") format("woff");
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            /* -----------------------------------------------------------------
+               COULEURS DE FOND ET DE TEXTE
+               ----------------------------------------------------------------- */
+            --bg-main: #020305;
+            --bg-panel: #050608;
+            --bg-panel-soft: #08090c;
+            --border-soft: #151820;
+            --border-strong: #2c3a4a;
+
+            --txt-primary: #f5f7ff;
+            --txt-secondary: #aeb7c8;
+            --txt-muted: #6f7582;
+
+            /* Couleurs de statut */
+            --status-blue: #4fc3ff;   /* PERFECT */
+            --status-green: #29cc7a;  /* SAFE */
+            --status-yellow: #ffea5a; /* NORMAL */
+            --status-orange: #ff944d; /* DANGEREUX */
+            --status-red: #ff4d6a;    /* A RISQUE */
+
+            /* Autres */
+            --accent-soft: #4f7cff;
+            --accent-strong: #92b0ff;
+            --shadow-soft: rgba(0, 0, 0, 0.55);
+
+            /* Typographie */
+            --font-title: "Inndam Extended", system-ui, sans-serif;
+            --font-body: "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+
+            /* Rythme visuel */
+            --radius-xs: 3px;
+            --radius-sm: 6px;
+            --radius-md: 9px;
+            --radius-lg: 12px;
+
+            --pad-xs: 4px;
+            --pad-sm: 8px;
+            --pad-md: 12px;
+            --pad-lg: 18px;
+            --pad-xl: 24px;
+
+            --transition-fast: 130ms ease-out;
+            --transition-normal: 200ms ease-out;
+        }
+
+        /* =========================================================================
+           RESET MINIMAL
+           ========================================================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #09101a, #020305 55%, #000000 100%);
+            color: var(--txt-primary);
+            font-family: var(--font-body);
+            font-size: 14px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* =========================================================================
+           STRUCTURE GLOBALE
+           ========================================================================= */
+
+        .page-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-frame {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 12px;
+        }
+
+        @media (min-width: 800px) {
+            .terminal-frame {
+                padding: 32px 32px;
+            }
+        }
+
+        .terminal-window {
+            margin: auto;
+            width: 100%;
+            max-width: 960px;
+            background: linear-gradient(145deg, #050608, #020305);
+            border-radius: 14px;
+            box-shadow:
+                0 0 0 1px rgba(79, 124, 255, 0.09),
+                0 25px 80px rgba(0, 0, 0, 0.75),
+                0 0 40px rgba(26, 135, 255, 0.07);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* =========================================================================
+           BARRE TITRE STYLE CONSOLE
+           ========================================================================= */
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            background: linear-gradient(
+                90deg,
+                rgba(10, 13, 20, 0.96),
+                rgba(6, 8, 14, 0.98),
+                rgba(10, 13, 20, 0.96)
+            );
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .traffic-lights {
+            display: inline-flex;
+            gap: 6px;
+        }
+
+        .traffic-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
+        }
+
+        .traffic-dot.red {
+            background: radial-gradient(circle at 30% 30%, #ffadad, #ff4d4d);
+        }
+
+        .traffic-dot.yellow {
+            background: radial-gradient(circle at 30% 30%, #fff7b3, #ffd633);
+        }
+
+        .traffic-dot.green {
+            background: radial-gradient(circle at 30% 30%, #b7ffcf, #39d98a);
+        }
+
+        .header-identity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-logo {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #050505;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-text-block {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .header-title {
+            font-family: var(--font-title);
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            font-size: 9px;
+            color: var(--txt-primary);
+        }
+
+        .header-subtitle {
+            font-family: var(--font-body);
+            font-size: 10px;
+            color: var(--txt-muted);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            color: var(--txt-muted);
+        }
+
+        .header-pill {
+            border-radius: 999px;
+            border: 1px solid rgba(146, 176, 255, 0.3);
+            padding: 2px 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: radial-gradient(circle at top left, rgba(146, 176, 255, 0.23), transparent 55%);
+        }
+
+        .header-pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, #92b0ff, #4f7cff);
+            box-shadow:
+                0 0 0 1px rgba(102, 140, 255, 0.6),
+                0 0 8px rgba(146, 176, 255, 0.6);
+        }
+
+        .header-mode {
+            font-family: var(--font-body);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            font-size: 9px;
+            opacity: 0.8;
+        }
+
+        /* =========================================================================
+           CONTENU PRINCIPAL
+           ========================================================================= */
+
+        .terminal-body {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            background:
+                radial-gradient(circle at top left, rgba(79, 124, 255, 0.12), transparent 55%),
+                radial-gradient(circle at bottom right, rgba(255, 77, 106, 0.10), transparent 55%),
+                linear-gradient(145deg, #050608, #020305 70%);
+        }
+
+        @media (max-width: 900px) {
+            .terminal-body {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .column-main {
+            border-right: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        @media (max-width: 900px) {
+            .column-main {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+        }
+
+        .column-main-inner {
+            padding: 18px 18px 20px 18px;
+        }
+
+        @media (min-width: 900px) {
+            .column-main-inner {
+                padding: 24px 24px 24px 24px;
+            }
+        }
+
+        .column-side {
+            background: radial-gradient(circle at top, rgba(5, 12, 25, 0.95), rgba(2, 3, 5, 0.98));
+            padding: 18px 16px 18px 14px;
+        }
+
+        @media (min-width: 900px) {
+            .column-side {
+                padding: 24px 20px 24px 18px;
+            }
+        }
+
+        /* =========================================================================
+           TITRES & INTRO
+           ========================================================================= */
+
+        .title-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .title-main-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .title-main {
+            font-family: var(--font-title);
+            font-size: 18px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--txt-primary);
+            text-shadow:
+                0 0 14px rgba(146, 176, 255, 0.25),
+                0 0 40px rgba(53, 134, 255, 0.35);
+        }
+
+        .title-sub {
+            font-family: var(--font-body);
+            font-size: 12px;
+            color: var(--txt-secondary);
+        }
+
+        .title-sub span.call-code {
+            color: var(--accent-soft);
+        }
+
+        .title-sub small {
+            display: inline-block;
+            margin-left: 4px;
+            color: var(--txt-muted);
+        }
+
+        .title-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--txt-muted);
+            gap: 3px;
+        }
+
+        .title-right-label {
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-family: var(--font-body);
+        }
+
+        .title-right-value {
+            font-family: var(--font-body);
+            opacity: 0.9;
+        }
+
+        .title-right-value span.dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #92b0ff, #4f7cff);
+            box-shadow:
+                0 0 0 1px rgba(146, 176, 255, 0.5),
+                0 0 6px rgba(146, 176, 255, 0.8);
+            margin-right: 4px;
+        }
+
+        .intro-block {
+            margin-bottom: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: linear-gradient(
+                120deg,
+                rgba(5, 8, 18, 0.96),
+                rgba(4, 6, 12, 0.96)
+            );
+            padding: 10px 12px 10px 12px;
+        }
+
+        .intro-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--txt-secondary);
+            font-size: 11px;
+        }
+
+        .intro-line-label {
+            font-family: var(--font-body);
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            font-size: 9px;
+            color: var(--txt-muted);
+        }
+
+        .intro-divider {
+            flex: 1;
+            height: 1px;
+            background-image: linear-gradient(
+                to right,
+                rgba(79, 124, 255, 0.0),
+                rgba(79, 124, 255, 0.45),
+                rgba(79, 124, 255, 0.0)
+            );
+        }
+
+        .intro-text {
+            flex: 7;
+        }
+
+        .intro-text span.prompt-label {
+            color: var(--accent-soft);
+        }
+
+        /* =========================================================================
+           ZONE DE SAISIE DU MOT DE PASSE
+           ========================================================================= */
+
+        .form-shell {
+            margin-bottom: 16px;
+        }
+
+        .field-label-line {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .field-label-main {
+            font-size: 11px;
+            color: var(--txt-secondary);
+            font-family: var(--font-body);
+        }
+
+        .field-label-main span.chevron {
+            color: var(--accent-soft);
+        }
+
+        .field-label-main span.keyword {
+            color: var(--accent-soft);
+        }
+
+        .field-label-hint {
+            font-size: 10px;
+            color: var(--txt-muted);
+        }
+
+        .field-label-hint span.mode-flag {
+            color: var(--status-red);
+        }
+
+        .password-field-wrapper {
+            position: relative;
+            border-radius: var(--radius-md);
+            background: radial-gradient(circle at top left, #050609, #020305);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.7),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+            overflow: hidden;
+        }
+
+        .password-field-topline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 9px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            background: linear-gradient(
+                90deg,
+                rgba(15, 18, 26, 0.96),
+                rgba(7, 9, 15, 0.96)
+            );
+        }
+
+        .password-field-topline-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            color: var(--txt-muted);
+        }
+
+        .topline-title {
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            font-family: var(--font-body);
+            color: var(--txt-secondary);
+        }
+
+        .topline-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff4d6a, #b3243c);
+            box-shadow: 0 0 6px rgba(255, 77, 106, 0.7);
+        }
+
+        .password-field-topline-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            color: var(--txt-muted);
+        }
+
+        .mode-tag {
+            border-radius: 999px;
+            padding: 2px 7px;
+            border: 1px solid rgba(146, 176, 255, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(17, 21, 33, 0.85);
+        }
+
+        .mode-tag span.bullet {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffea5a, #ff944d);
+            box-shadow: 0 0 6px rgba(255, 186, 90, 0.8);
+        }
+
+        .mode-tag span.text {
+            letter-spacing: 0.21em;
+            text-transform: uppercase;
+            font-size: 8px;
+        }
+
+        .password-input-row {
+            display: flex;
+            align-items: stretch;
+            padding: 7px 7px 8px 7px;
+            gap: 6px;
+        }
+
+        .prompt-prefix {
+            align-self: center;
+            font-size: 12px;
+            color: var(--accent-soft);
+            padding: 2px 0 0 2px;
+        }
+
+        .password-input-shell {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .password-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--txt-primary);
+            font-family: var(--font-body);
+            font-size: 14px;
+            letter-spacing: 0.04em;
+            padding: 2px 2px 3px 0;
+        }
+
+        .password-input::placeholder {
+            color: rgba(137, 146, 164, 0.6);
+        }
+
+        .password-input-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 10px;
+            color: var(--txt-muted);
+        }
+
+        .password-input-meta span.len {
+            color: var(--txt-secondary);
+        }
+
+        .password-input-meta span.flag-warning {
+            color: var(--status-red);
+        }
+
+        .btn-shell {
+            display: flex;
+            flex-direction: column;
+            justify-content: stretch;
+            gap: 4px;
+            min-width: 96px;
+        }
+
+        .scan-button {
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(146, 176, 255, 0.5);
+            background: radial-gradient(circle at top, rgba(103, 143, 255, 0.35), rgba(28, 39, 84, 0.9));
+            color: var(--txt-primary);
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            padding: 7px 8px 6px 8px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow:
+                0 0 16px rgba(146, 176, 255, 0.6),
+                0 0 0 1px rgba(12, 16, 42, 0.9),
+                0 5px 18px rgba(0, 0, 0, 0.85);
+            transition:
+                transform var(--transition-fast),
+                box-shadow var(--transition-fast),
+                background var(--transition-fast);
+        }
+
+        .scan-button span.icon {
+            font-size: 12px;
+        }
+
+        .scan-button span.text {
+            font-size: 9px;
+        }
+
+        .scan-button:hover {
+            transform: translateY(-1px);
+            box-shadow:
+                0 0 22px rgba(146, 176, 255, 0.9),
+                0 0 0 1px rgba(26, 44, 100, 0.9),
+                0 7px 20px rgba(0, 0, 0, 0.9);
+        }
+
+        .scan-button:active {
+            transform: translateY(0);
+            box-shadow:
+                0 0 16px rgba(146, 176, 255, 0.7),
+                0 0 0 1px rgba(12, 16, 42, 0.9),
+                0 2px 10px rgba(0, 0, 0, 0.9);
+        }
+
+        .btn-secondary {
+            border-radius: var(--radius-sm);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            background: rgba(4, 6, 12, 0.96);
+            color: var(--txt-muted);
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 4px 7px 3px 7px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn-secondary span.key {
+            color: var(--txt-secondary);
+        }
+
+        /* =========================================================================
+           BARRES D’ÉTAT & RÉSULTAT GLOBAL
+           ========================================================================= */
+
+        .result-overview-shell {
+            margin-top: 14px;
+            border-radius: 10px;
+            padding: 10px 10px 9px 10px;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(7, 12, 25, 0.96),
+                    rgba(3, 5, 10, 0.98)
+                );
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .result-overview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .result-overview-title {
+            font-family: var(--font-body);
+            font-size: 11px;
+            color: var(--txt-secondary);
+        }
+
+        .result-overview-title span.keyword {
+            color: var(--accent-soft);
+        }
+
+        .result-overview-badges {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-chip {
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            border-width: 1px;
+            border-style: solid;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-body);
+        }
+
+        .badge-chip span.dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .badge-chip.perfect {
+            color: var(--status-blue);
+            border-color: rgba(79, 195, 255, 0.6);
+            background: rgba(23, 44, 70, 0.9);
+        }
+
+        .badge-chip.safe {
+            color: var(--status-green);
+            border-color: rgba(41, 204, 122, 0.65);
+            background: rgba(19, 46, 31, 0.9);
+        }
+
+        .badge-chip.normal {
+            color: var(--status-yellow);
+            border-color: rgba(255, 234, 90, 0.65);
+            background: rgba(50, 45, 12, 0.92);
+        }
+
+        .badge-chip.danger {
+            color: var(--status-orange);
+            border-color: rgba(255, 148, 77, 0.65);
+            background: rgba(51, 31, 9, 0.92);
+        }
+
+        .badge-chip.risk {
+            color: var(--status-red);
+            border-color: rgba(255, 77, 106, 0.75);
+            background: rgba(52, 14, 21, 0.95);
+        }
+
+        .badge-chip.perfect span.dot {
+            background: radial-gradient(circle at 30% 30%, #e5f7ff, #4fc3ff);
+            box-shadow: 0 0 8px rgba(79, 195, 255, 0.8);
+        }
+
+        .badge-chip.safe span.dot {
+            background: radial-gradient(circle at 30% 30%, #dcffe9, #29cc7a);
+            box-shadow: 0 0 8px rgba(41, 204, 122, 0.8);
+        }
+
+        .badge-chip.normal span.dot {
+            background: radial-gradient(circle at 30% 30%, #fffdd2, #ffea5a);
+            box-shadow: 0 0 8px rgba(255, 234, 90, 0.9);
+        }
+
+        .badge-chip.danger span.dot {
+            background: radial-gradient(circle at 30% 30%, #ffe2c7, #ff944d);
+            box-shadow: 0 0 8px rgba(255, 148, 77, 0.9);
+        }
+
+        .badge-chip.risk span.dot {
+            background: radial-gradient(circle at 30% 30%, #ffd2de, #ff4d6a);
+            box-shadow: 0 0 8px rgba(255, 77, 106, 0.95);
+        }
+
+        .result-bar-shell {
+            margin-bottom: 6px;
+        }
+
+        .result-bar-track {
+            position: relative;
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 77, 106, 0.2),
+                rgba(255, 148, 77, 0.20),
+                rgba(255, 234, 90, 0.18),
+                rgba(41, 204, 122, 0.22),
+                rgba(79, 195, 255, 0.25)
+            );
+            overflow: hidden;
+        }
+
+        .result-bar-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 8px;
+            border-radius: 999px;
+            width: 0%;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 77, 106, 0.95),
+                rgba(255, 148, 77, 0.95),
+                rgba(255, 234, 90, 0.96),
+                rgba(41, 204, 122, 0.98),
+                rgba(79, 195, 255, 1.0)
+            );
+            box-shadow:
+                0 0 10px rgba(255, 255, 255, 0.55),
+                0 0 20px rgba(79, 195, 255, 0.9);
+            transition: width 220ms ease-out;
+        }
+
+        .result-bar-scale {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 9px;
+            color: var(--txt-muted);
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .result-bar-scale span {
+            opacity: 0.85;
+        }
+
+        .result-summary-line {
+            margin-top: 4px;
+            font-size: 11px;
+            color: var(--txt-secondary);
+        }
+
+        .result-summary-line span.label {
+            color: var(--txt-muted);
+        }
+
+        .result-summary-line span.value {
+            font-weight: 600;
+        }
+
+        /* =========================================================================
+           ANALYSE DÉTAILLÉE – LIGNE PAR LIGNE
+           ========================================================================= */
+
+        .detail-panel-shell {
+            margin-top: 14px;
+            border-radius: 10px;
+            background:
+                radial-gradient(circle at top right, rgba(10, 46, 84, 0.45), transparent 55%),
+                linear-gradient(145deg, #04060c, #050609);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px 10px 10px 10px;
+        }
+
+        .detail-title {
+            font-size: 11px;
+            color: var(--txt-secondary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .detail-title span.label {
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .detail-title span.icon {
+            color: var(--accent-soft);
+            font-size: 11px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 5px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 5px 6px;
+            border-radius: 7px;
+            background: radial-gradient(circle at left, rgba(25, 30, 44, 0.9), rgba(4, 5, 10, 0.96));
+        }
+
+        .detail-row-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--txt-secondary);
+        }
+
+        .detail-icon-bullet {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: radial-gradient(circle at 30% 30%, #0f172a, #020305);
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .detail-label {
+            font-family: var(--font-body);
+        }
+
+        .detail-hint {
+            font-size: 10px;
+            color: var(--txt-muted);
+        }
+
+        .detail-row-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+        }
+
+        .detail-value {
+            color: var(--txt-secondary);
+        }
+
+        .detail-status {
+            min-width: 82px;
+            text-align: center;
+            border-radius: 999px;
+            border-width: 1px;
+            border-style: solid;
+            padding: 2px 6px 1px 6px;
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-family: var(--font-body);
+        }
+
+        .detail-status span.dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        .status-perfect {
+            color: var(--status-blue);
+            border-color: rgba(79, 195, 255, 0.7);
+            background: rgba(7, 31, 48, 0.95);
+        }
+
+        .status-perfect span.dot {
+            background: radial-gradient(circle at 30% 30%, #e3f7ff, #4fc3ff);
+            box-shadow: 0 0 7px rgba(79, 195, 255, 0.9);
+        }
+
+        .status-safe {
+            color: var(--status-green);
+            border-color: rgba(41, 204, 122, 0.75);
+            background: rgba(9, 40, 24, 0.96);
+        }
+
+        .status-safe span.dot {
+            background: radial-gradient(circle at 30% 30%, #e6fff2, #29cc7a);
+            box-shadow: 0 0 7px rgba(41, 204, 122, 0.9);
+        }
+
+        .status-normal {
+            color: var(--status-yellow);
+            border-color: rgba(255, 234, 90, 0.75);
+            background: rgba(43, 42, 16, 0.96);
+        }
+
+        .status-normal span.dot {
+            background: radial-gradient(circle at 30% 30%, #fffdd1, #ffea5a);
+            box-shadow: 0 0 7px rgba(255, 234, 90, 0.92);
+        }
+
+        .status-danger {
+            color: var(--status-orange);
+            border-color: rgba(255, 148, 77, 0.8);
+            background: rgba(52, 29, 7, 0.96);
+        }
+
+        .status-danger span.dot {
+            background: radial-gradient(circle at 30% 30%, #ffe2c7, #ff944d);
+            box-shadow: 0 0 7px rgba(255, 148, 77, 0.95);
+        }
+
+        .status-risk {
+            color: var(--status-red);
+            border-color: rgba(255, 77, 106, 0.9);
+            background: rgba(61, 14, 25, 0.98);
+        }
+
+        .status-risk span.dot {
+            background: radial-gradient(circle at 30% 30%, #ffd2de, #ff4d6a);
+            box-shadow: 0 0 7px rgba(255, 77, 106, 1.0);
+        }
+
+        /* =========================================================================
+           PANNEAU LATÉRAL – LÉGENDE & TEMPS DE CRACK
+           ========================================================================= */
+
+        .side-section {
+            margin-bottom: 16px;
+        }
+
+        .side-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .side-title {
+            font-family: var(--font-title);
+            font-size: 11px;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: var(--txt-secondary);
+            margin-bottom: 8px;
+        }
+
+        .side-subtitle {
+            font-size: 11px;
+            color: var(--txt-muted);
+            margin-bottom: 6px;
+        }
+
+        .legend-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 10px;
+            color: var(--txt-secondary);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 4px 6px;
+            border-radius: 7px;
+            background: linear-gradient(
+                90deg,
+                rgba(4, 8, 16, 0.98),
+                rgba(5, 9, 20, 0.96)
+            );
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .legend-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.7),
+                0 0 16px rgba(0, 0, 0, 0.85);
+        }
+
+        .legend-color.blue {
+            background: linear-gradient(135deg, #aee5ff, #4fc3ff);
+            box-shadow: 0 0 14px rgba(79, 195, 255, 0.9);
+        }
+
+        .legend-color.green {
+            background: linear-gradient(135deg, #d6ffea, #29cc7a);
+            box-shadow: 0 0 14px rgba(41, 204, 122, 0.9);
+        }
+
+        .legend-color.yellow {
+            background: linear-gradient(135deg, #fffdd1, #ffea5a);
+            box-shadow: 0 0 14px rgba(255, 234, 90, 0.95);
+        }
+
+        .legend-color.orange {
+            background: linear-gradient(135deg, #ffe2c7, #ff944d);
+            box-shadow: 0 0 14px rgba(255, 148, 77, 0.95);
+        }
+
+        .legend-color.red {
+            background: linear-gradient(135deg, #ffd2de, #ff4d6a);
+            box-shadow: 0 0 14px rgba(255, 77, 106, 1.0);
+        }
+
+        .legend-level {
+            font-family: var(--font-body);
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            font-size: 9px;
+        }
+
+        .legend-description {
+            font-size: 10px;
+            color: var(--txt-muted);
+        }
+
+        .cracktime-panel {
+            border-radius: 9px;
+            padding: 7px 8px 7px 8px;
+            background:
+                radial-gradient(circle at top, rgba(79, 124, 255, 0.25), transparent 60%),
+                linear-gradient(145deg, #04050b, #05060c);
+            border: 1px solid rgba(79, 124, 255, 0.3);
+        }
+
+        .cracktime-title {
+            font-size: 11px;
+            color: var(--txt-secondary);
+            margin-bottom: 4px;
+        }
+
+        .cracktime-title span.keyword {
+            color: var(--accent-soft);
+        }
+
+        .cracktime-value {
+            font-family: var(--font-body);
+            font-size: 11px;
+            color: var(--txt-primary);
+            margin-bottom: 3px;
+        }
+
+        .cracktime-value span.mode {
+            color: var(--txt-muted);
+            font-size: 10px;
+        }
+
+        .cracktime-hint {
+            font-size: 10px;
+            color: var(--txt-muted);
+        }
+
+        .cracktime-hint span.pessimistic {
+            color: var(--status-red);
+        }
+
+        .footnote-panel {
+            margin-top: 10px;
+            font-size: 9px;
+            color: var(--txt-muted);
+            border-radius: 8px;
+            padding: 6px 7px;
+            background: rgba(3, 5, 10, 0.96);
+            border: 1px dashed rgba(255, 255, 255, 0.09);
+        }
+
+        .footnote-panel strong {
+            font-weight: 600;
+        }
+
+        /* =========================================================================
+           BAS DE FENÊTRE – FOOTER
+           ========================================================================= */
+
+        .terminal-footer {
+            padding: 6px 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            background: radial-gradient(circle at top, rgba(6, 7, 12, 0.98), rgba(3, 4, 7, 0.98));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 9px;
+            color: var(--txt-muted);
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-left-label {
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-family: var(--font-body);
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-tag {
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            padding: 2px 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer-tag span.dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffea5a, #ff944d);
+            box-shadow: 0 0 6px rgba(255, 186, 90, 0.8);
+        }
+
+        .footer-tag span.text {
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        /* =========================================================================
+           ÉTATS DE COULEUR DYNAMIQUES
+           ========================================================================= */
+
+        .pill-highlight {
+            color: var(--status-red);
+        }
+
+        .pill-highlight.safe {
+            color: var(--status-green);
+        }
+
+        .pill-highlight.perfect {
+            color: var(--status-blue);
+        }
+
+        .pill-highlight.normal {
+            color: var(--status-yellow);
+        }
+
+        .pill-highlight.danger {
+            color: var(--status-orange);
+        }
+
+        /* =========================================================================
+           RESPONSIVE TUNING
+           ========================================================================= */
+
+        @media (max-width: 640px) {
+            .title-line {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .title-right {
+                align-items: flex-start;
+            }
+
+            .password-input-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-shell {
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page-shell">
+    <main class="terminal-frame">
+        <!-- ============================================================= -->
+        <!-- FENÊTRE PRINCIPALE                                            -->
+        <!-- ============================================================= -->
+        <section class="terminal-window" aria-label="PassGuard Terminal">
+            <!-- ========================================================= -->
+            <!-- EN-TÊTE STYLE CONSOLE                                     -->
+            <!-- ========================================================= -->
+            <header class="terminal-header">
+                <div class="header-left">
+                    <div class="traffic-lights" aria-hidden="true">
+                        <div class="traffic-dot red"></div>
+                        <div class="traffic-dot yellow"></div>
+                        <div class="traffic-dot green"></div>
+                    </div>
+                    <div class="header-identity">
+                        <div class="header-logo" aria-hidden="true">
+                            <!-- Icône carrée -->
+                            <img src="827scall Logo (Carré).png" alt="Logo 8 February 2027's Call">
+                        </div>
+                        <div class="header-text-block">
+                            <span class="header-title">8 February 2027's Call</span>
+                            <span class="header-subtitle">PASSGUARD &mdash; Audit pessimiste de mot de passe</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="header-pill">
+                        <span class="header-pill-dot"></span>
+                        <span class="header-mode">Console noir &amp; monospace</span>
+                    </div>
+                    <span>SESSION: LOCAL_ONLY | LOG=OFF</span>
+                </div>
+            </header>
+
+            <!-- ========================================================= -->
+            <!-- CORPS PRINCIPAL                                            -->
+            <!-- ========================================================= -->
+            <div class="terminal-body">
+                <!-- ================== COLONNE GAUCHE ==================== -->
+                <section class="column-main" aria-label="Zone de saisie et résultat">
+                    <div class="column-main-inner">
+
+                        <!-- Titre -->
+                        <div class="title-line">
+                            <div class="title-main-block">
+                                <h1 class="title-main">passguard / password scan</h1>
+                                <p class="title-sub">
+                                    Communauté <span class="call-code">8 February 2027's Call</span>
+                                    <small>&mdash; Mot de passe analysé en mode pessimiste</small>
+                                </p>
+                            </div>
+                            <div class="title-right">
+                                <div class="title-right-label">scan state</div>
+                                <div class="title-right-value">
+                                    <span class="dot"></span>
+                                    idle
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Intro style console -->
+                        <section class="intro-block" aria-label="Message d'introduction">
+                            <div class="intro-line">
+                                <span class="intro-line-label">passguard&gt;</span>
+                                <div class="intro-text">
+                                    <span class="prompt-label">Tape ton mot de passe</span>, puis lance un scan.
+                                    Aucun enregistrement, aucun cloud. Juste un miroir brutal sur sa fragilité.
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Zone de saisie du mot de passe -->
+                        <section class="form-shell" aria-label="Formulaire de test de mot de passe">
+                            <div class="field-label-line">
+                                <div class="field-label-main">
+                                    <span class="chevron">&gt;</span>
+                                    password <span class="keyword">input</span>
+                                </div>
+                                <div class="field-label-hint">
+                                    Mode <span class="mode-flag">PÉSSIMISTE</span> activé.
+                                    Les résultats seront volontairement durs.
+                                </div>
+                            </div>
+
+                            <div class="password-field-wrapper">
+                                <!-- Bandeau supérieur -->
+                                <div class="password-field-topline">
+                                    <div class="password-field-topline-left">
+                                        <span class="topline-title">INPUT / MOT_DE_PASSE</span>
+                                        <span class="topline-dot"></span>
+                                        <span>scan: offline, client-side only</span>
+                                    </div>
+                                    <div class="password-field-topline-right">
+                                        <div class="mode-tag" aria-label="Mode pessimiste activé">
+                                            <span class="bullet"></span>
+                                            <span class="text">pessimistic estimator</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ligne de saisie -->
+                                <div class="password-input-row">
+                                    <span class="prompt-prefix">passguard&gt;</span>
+                                    <div class="password-input-shell">
+                                        <input
+                                            id="passwordInput"
+                                            class="password-input"
+                                            type="password"
+                                            autocomplete="off"
+                                            autocorrect="off"
+                                            autocapitalize="off"
+                                            spellcheck="false"
+                                            placeholder="Entre ici ton mot de passe à tester..."
+                                            aria-label="Mot de passe à analyser"
+                                        >
+                                        <div class="password-input-meta">
+                                            <span id="lengthInfo">longueur: 0 caractères</span>
+                                            <span id="warningInfo" class="flag-warning" style="display:none;">
+                                                Mot de passe très court. Attends-toi au rouge.
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="btn-shell">
+                                        <button id="scanButton" class="scan-button" type="button">
+                                            <span class="icon">▌▌</span>
+                                            <span class="text">scan</span>
+                                        </button>
+                                        <button id="clearButton" class="btn-secondary" type="button">
+                                            <span class="key">ESC</span>
+                                            <span>reset</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Résumé du résultat -->
+                        <section class="result-overview-shell" aria-label="Résumé de la sûreté">
+                            <div class="result-overview-header">
+                                <h2 class="result-overview-title">
+                                    Statut global:
+                                    <span id="globalStatusLabel" class="keyword pill-highlight risk">
+                                        EN ATTENTE
+                                    </span>
+                                </h2>
+
+                                <div class="result-overview-badges">
+                                    <!-- Cette pastille changera de classe en fonction du niveau -->
+                                    <div id="badgeLevel" class="badge-chip risk">
+                                        <span class="dot"></span>
+                                        <span id="badgeLevelText">A RISQUE</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="result-bar-shell">
+                                <div class="result-bar-track">
+                                    <div id="resultBarFill" class="result-bar-fill"></div>
+                                </div>
+                                <div class="result-bar-scale">
+                                    <span>A RISQUE</span>
+                                    <span>DANGEREUX</span>
+                                    <span>NORMAL</span>
+                                    <span>SAFE</span>
+                                    <span>PERFECT</span>
+                                </div>
+                            </div>
+
+                            <p class="result-summary-line">
+                                <span class="label">Lecture pessimiste:</span>
+                                &nbsp;
+                                <span id="summaryText" class="value">
+                                    Aucun mot de passe fourni pour l’instant.
+                                </span>
+                            </p>
+                        </section>
+
+                        <!-- Détail du scan -->
+                        <section class="detail-panel-shell" aria-label="Analyse détaillée">
+                            <div class="detail-title">
+                                <span class="label">Détail du scan</span>
+                                <span class="icon">▼</span>
+                            </div>
+
+                            <div class="detail-grid">
+                                <!-- Ligne: longueur brute -->
+                                <div class="detail-row">
+                                    <div class="detail-row-left">
+                                        <div class="detail-icon-bullet"></div>
+                                        <div>
+                                            <div class="detail-label">Longueur</div>
+                                            <div class="detail-hint">Nombre brut de caractères</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-row-right">
+                                        <span id="lengthDetail" class="detail-value">0</span>
+                                        <div id="lengthStatus" class="detail-status status-risk">
+                                            <span class="dot"></span>
+                                            <span>À RISQUE</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ligne: diversité de caractères -->
+                                <div class="detail-row">
+                                    <div class="detail-row-left">
+                                        <div class="detail-icon-bullet"></div>
+                                        <div>
+                                            <div class="detail-label">Diversité</div>
+                                            <div class="detail-hint">Minuscules, majuscules, chiffres, symboles</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-row-right">
+                                        <span id="charsetDetail" class="detail-value">aucune catégorie détectée</span>
+                                        <div id="charsetStatus" class="detail-status status-risk">
+                                            <span class="dot"></span>
+                                            <span>À RISQUE</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ligne: motifs simples -->
+                                <div class="detail-row">
+                                    <div class="detail-row-left">
+                                        <div class="detail-icon-bullet"></div>
+                                        <div>
+                                            <div class="detail-label">Motifs faciles</div>
+                                            <div class="detail-hint">Claviers, suites, répétitions, mots courants</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-row-right">
+                                        <span id="patternDetail" class="detail-value">en attente de scan</span>
+                                        <div id="patternStatus" class="detail-status status-normal">
+                                            <span class="dot"></span>
+                                            <span>NORMAL</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ligne: estimation brute (bits d'entropie) -->
+                                <div class="detail-row">
+                                    <div class="detail-row-left">
+                                        <div class="detail-icon-bullet"></div>
+                                        <div>
+                                            <div class="detail-label">Entropie estimée</div>
+                                            <div class="detail-hint">Bits d'entropie, estimation pessimiste</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-row-right">
+                                        <span id="entropyDetail" class="detail-value">0 bits</span>
+                                        <div id="entropyStatus" class="detail-status status-danger">
+                                            <span class="dot"></span>
+                                            <span>DANGEUX</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ligne: temps de crack -->
+                                <div class="detail-row">
+                                    <div class="detail-row-left">
+                                        <div class="detail-icon-bullet"></div>
+                                        <div>
+                                            <div class="detail-label">Temps de crack</div>
+                                            <div class="detail-hint">Force brute hors dictionnaires</div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-row-right">
+                                        <span id="timeDetail" class="detail-value">—</span>
+                                        <div id="timeStatus" class="detail-status status-risk">
+                                            <span class="dot"></span>
+                                            <span>À RISQUE</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+                </section>
+
+                <!-- ================== COLONNE DROITE ===================== -->
+                <aside class="column-side" aria-label="Légende et rappel de sécurité">
+                    <!-- Légende des couleurs -->
+                    <section class="side-section">
+                        <h2 class="side-title">legend</h2>
+                        <p class="side-subtitle">
+                            Les couleurs indiquent le niveau de danger pour chaque détail du scan, en mode pessimiste.
+                        </p>
+
+                        <div class="legend-list">
+                            <div class="legend-item">
+                                <div class="legend-label">
+                                    <div class="legend-color blue"></div>
+                                    <span class="legend-level">perfect</span>
+                                </div>
+                                <div class="legend-description">
+                                    Mot de passe rare, long et imprévisible.
+                                </div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-label">
+                                    <div class="legend-color green"></div>
+                                    <span class="legend-level">safe</span>
+                                </div>
+                                <div class="legend-description">
+                                    Très bon, mais brute-force possible avec des moyens sérieux.
+                                </div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-label">
+                                    <div class="legend-color yellow"></div>
+                                    <span class="legend-level">normal</span>
+                                </div>
+                                <div class="legend-description">
+                                    Correct pour des comptes peu sensibles, insuffisant pour le reste.
+                                </div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-label">
+                                    <div class="legend-color.orange"></div>
+                                    <span class="legend-level">dangereux</span>
+                                </div>
+                                <div class="legend-description">
+                                    Facile à casser ou à deviner, même sans gros moyens.
+                                </div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-label">
+                                    <div class="legend-color red"></div>
+                                    <span class="legend-level">a risque</span>
+                                </div>
+                                <div class="legend-description">
+                                    À changer immédiatement, surtout s’il est réutilisé.
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Temps de crack -->
+                    <section class="side-section">
+                        <h2 class="side-title">crack time</h2>
+                        <p class="side-subtitle">
+                            Estimation pessimiste basée sur une attaque offline
+                            &mdash; GPU, botnet, ou fuite de base de données.
+                        </p>
+
+                        <div class="cracktime-panel">
+                            <p class="cracktime-title">
+                                Temps approximatif:
+                                <span class="keyword">brute force</span>
+                            </p>
+                            <p id="cracktimeMain" class="cracktime-value">
+                                En attente de mot de passe...
+                            </p>
+                            <p class="cracktime-hint">
+                                Le calcul suppose un attaquant déterminé, avec
+                                <span class="pessimistic">des moyens supérieurs à la moyenne</span>.
+                                Ne prends jamais cela comme une garantie.
+                            </p>
+                        </div>
+
+                        <div class="footnote-panel">
+                            <p>
+                                <strong>Avertissement:</strong>
+                                Cette page n’envoie pas ton mot de passe sur un serveur.
+                                Tout se fait dans ton navigateur, en local.
+                            </p>
+                            <p>
+                                Utilise-la pour prendre conscience de la fragilité de tes mots de passe,
+                                pas pour t’auto-saboter.
+                            </p>
+                        </div>
+                    </section>
+                </aside>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- PIED DE PAGE                                               -->
+            <!-- ========================================================= -->
+            <footer class="terminal-footer">
+                <div class="footer-left">
+                    <span class="footer-left-label">8f27-call // passguard</span>
+                    <span>|</span>
+                    <span>build: local_draft</span>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-tag">
+                        <span class="dot"></span>
+                        <span class="text">no logs • no sync • no cloud</span>
+                    </div>
+                    <span>FUTURE VAL CORP &copy; 2027</span>
+                </div>
+            </footer>
+        </section>
+    </main>
+</div>
+
+<!-- ===================================================================== -->
+<!-- SCRIPT D’ANALYSE DE MOT DE PASSE (PESSIMISTE, CLIENT-SIDE, NO CLOUD)  -->
+<!-- ===================================================================== -->
+<script>
+    // ---------------------------------------------------------------------
+    // Grille de complexité: on regarde quelles catégories sont présentes.
+    // ---------------------------------------------------------------------
+    function analyzeCharacterSets(password) {
+        const result = {
+            length: password.length,
+            hasLower: false,
+            hasUpper: false,
+            hasDigit: false,
+            hasSymbol: false,
+            charsetSize: 0
+        };
+
+        for (let i = 0; i < password.length; i++) {
+            const c = password[i];
+
+            if (/[a-z]/.test(c)) result.hasLower = true;
+            else if (/[A-Z]/.test(c)) result.hasUpper = true;
+            else if (/[0-9]/.test(c)) result.hasDigit = true;
+            else result.hasSymbol = true;
+        }
+
+        if (result.hasLower) result.charsetSize += 26;
+        if (result.hasUpper) result.charsetSize += 26;
+        if (result.hasDigit) result.charsetSize += 10;
+        if (result.hasSymbol) result.charsetSize += 33; // estimation classique
+
+        return result;
+    }
+
+    // ---------------------------------------------------------------------
+    // Détection de motifs simples: suites, répétitions, claviers, etc.
+    // Ce n'est pas complet, volontairement minimaliste & pessimiste.
+    // ---------------------------------------------------------------------
+    function detectSimplePatterns(password) {
+        if (!password) {
+            return {
+                patternScorePenalty: 0,
+                description: "aucun mot de passe fourni",
+                status: "risk"
+            };
+        }
+
+        const lower = password.toLowerCase();
+
+        // list de mots courants très basiques (échantillon symbolique)
+        const commonWords = [
+            "password", "motdepasse", "azerty", "qwerty",
+            "admin", "user", "login", "root", "god",
+            "love", "secret", "test", "welcome", "1234"
+        ];
+
+        // suites numériques évidentes
+        const simpleSequences = [
+            "1234", "12345", "123456", "0123", "2345",
+            "abcd", "abcdef", "azerty", "qwerty"
+        ];
+
+        let penalty = 0;
+        let descParts = [];
+
+        // détecte répétition d'un même caractère
+        const allSame = password.length > 0 && password.split("").every(c => c === password[0]);
+        if (allSame) {
+            penalty += 20;
+            descParts.push("répétition d'un même caractère");
+        }
+
+        // détecte suites simples
+        for (const seq of simpleSequences) {
+            if (lower.includes(seq)) {
+                penalty += 15;
+                descParts.push("suite évidente (" + seq + ")");
+                break;
+            }
+        }
+
+        // détecte quelques mots communs
+        for (const word of commonWords) {
+            if (lower.includes(word)) {
+                penalty += 20;
+                descParts.push("mot courant (" + word + ")");
+                break;
+            }
+        }
+
+        // détecte motifs clavier approximatifs
+        const keyboardPatterns = [
+            "azerty", "qwerty", "asdf", "zxcv"
+        ];
+
+        for (const k of keyboardPatterns) {
+            if (lower.includes(k)) {
+                penalty += 15;
+                descParts.push("motif clavier (" + k + ")");
+                break;
+            }
+        }
+
+        // répétitions internes simples (ex: ababab, 121212)
+        const halfLen = Math.floor(password.length / 2);
+        if (password.length >= 6) {
+            const firstHalf = password.substring(0, halfLen);
+            const secondHalf = password.substring(halfLen, halfLen * 2);
+            if (firstHalf === secondHalf) {
+                penalty += 10;
+                descParts.push("répétition d'un bloc");
+            }
+        }
+
+        let status;
+        if (penalty >= 35) {
+            status = "risk";
+        } else if (penalty >= 20) {
+            status = "danger";
+        } else if (penalty >= 10) {
+            status = "normal";
+        } else {
+            status = "safe";
+        }
+
+        if (descParts.length === 0) {
+            descParts.push("aucun motif trivial majeur détecté");
+        }
+
+        return {
+            patternScorePenalty: penalty,
+            description: descParts.join(" ; "),
+            status: status
+        };
+    }
+
+    // ---------------------------------------------------------------------
+    // Entropie approximative (bits) selon longueur et taille d'alphabet.
+    // On réduit volontairement un peu la valeur (pessimisme).
+    // ---------------------------------------------------------------------
+    function estimateEntropyBits(length, charsetSize, patternPenalty) {
+        if (length === 0 || charsetSize === 0) return 0;
+
+        // bits = log2(charsetSize^length) = length * log2(charsetSize)
+        const bits = length * Math.log2(charsetSize);
+
+        // Pessimisme: retrancher une marge liée à la détection de motifs
+        const penalty = Math.min(patternPenalty, bits * 0.5);
+
+        const effectiveBits = Math.max(0, bits - penalty);
+        return effectiveBits;
+    }
+
+    // ---------------------------------------------------------------------
+    // Temps de crack approximatif, en secondes, pour un certain nombre
+    // de tentatives par seconde (offline brute force).
+    // ---------------------------------------------------------------------
+    function estimateCrackTimeSeconds(entropyBits, guessesPerSecond) {
+        if (entropyBits <= 0) return 0;
+        // Nombre total de combinaisons = 2^entropyBits
+        const totalCombos = Math.pow(2, entropyBits);
+
+        // On prend la moitié comme moyenne (pessimisme modéré)
+        const expectedCombos = totalCombos / 2;
+
+        const seconds = expectedCombos / guessesPerSecond;
+        if (!isFinite(seconds)) return Number.MAX_VALUE;
+        return seconds;
+    }
+
+    // ---------------------------------------------------------------------
+    // Formatage humain des durées (secondes -> texte).
+    // ---------------------------------------------------------------------
+    function formatDuration(seconds) {
+        if (seconds <= 0) {
+            return "instantané";
+        }
+
+        const minute = 60;
+        const hour = 60 * minute;
+        const day = 24 * hour;
+        const month = 30 * day;
+        const year = 365 * day;
+        const century = 100 * year;
+
+        if (seconds < minute) {
+            return "moins d'une minute";
+        } else if (seconds < hour) {
+            const m = Math.round(seconds / minute);
+            return "environ " + m + " minute" + (m > 1 ? "s" : "");
+        } else if (seconds < day) {
+            const h = Math.round(seconds / hour);
+            return "environ " + h + " heure" + (h > 1 ? "s" : "");
+        } else if (seconds < month) {
+            const d = Math.round(seconds / day);
+            return "environ " + d + " jour" + (d > 1 ? "s" : "");
+        } else if (seconds < year) {
+            const mo = Math.round(seconds / month);
+            return "environ " + mo + " mois";
+        } else if (seconds < century) {
+            const y = Math.round(seconds / year);
+            return "environ " + y + " an" + (y > 1 ? "s" : "");
+        } else {
+            const c = Math.round(seconds / century);
+            return "plus de " + c + " siècle" + (c > 1 ? "s" : "");
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Convertit un niveau de 0 à 100 en catégorie de couleur.
+    // 0-20: A RISQUE (rouge)
+    // 20-40: DANGEREUX (orange)
+    // 40-60: NORMAL (jaune)
+    // 60-85: SAFE (vert)
+    // 85-100: PERFECT (bleu)
+    // ---------------------------------------------------------------------
+    function levelToCategory(level) {
+        if (level >= 85) return "perfect";
+        if (level >= 60) return "safe";
+        if (level >= 40) return "normal";
+        if (level >= 20) return "danger";
+        return "risk";
+    }
+
+    function categoryLabel(category) {
+        switch (category) {
+            case "perfect": return "PERFECT";
+            case "safe": return "SAFE";
+            case "normal": return "NORMAL";
+            case "danger": return "DANGEREUX";
+            case "risk":
+            default: return "A RISQUE";
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Évaluation principale du mot de passe.
+    // ---------------------------------------------------------------------
+    function evaluatePassword(password) {
+        const basic = analyzeCharacterSets(password);
+        const patterns = detectSimplePatterns(password);
+
+        // Entropie brute
+        const entropyBits = estimateEntropyBits(
+            basic.length,
+            basic.charsetSize || 1,
+            patterns.patternScorePenalty
+        );
+
+        // Hypothèse pessimiste: 10^10 essais par seconde (GPU/botnet)
+        const guessesPerSecond = 1e10;
+        const crackSeconds = estimateCrackTimeSeconds(entropyBits, guessesPerSecond);
+
+        // Score global (0-100) basé sur entropie + longueur + diversité
+        let score = 0;
+
+        // Base: entropie
+        if (entropyBits <= 10) score = 5;
+        else if (entropyBits <= 30) score = 15;
+        else if (entropyBits <= 45) score = 30;
+        else if (entropyBits <= 60) score = 50;
+        else if (entropyBits <= 80) score = 70;
+        else if (entropyBits <= 100) score = 85;
+        else score = 95;
+
+        // Bonus de diversité
+        let diversityCount = 0;
+        if (basic.hasLower) diversityCount++;
+        if (basic.hasUpper) diversityCount++;
+        if (basic.hasDigit) diversityCount++;
+        if (basic.hasSymbol) diversityCount++;
+
+        score += (diversityCount - 1) * 3; // bonus léger
+        score = Math.min(score, 100);
+
+        // Pénalité patterns
+        score = Math.max(0, score - Math.min(patterns.patternScorePenalty / 2, 25));
+
+        // Pénalité dure pour < 8 caractères
+        if (basic.length < 8) {
+            score = Math.min(score, 20);
+        }
+
+        const category = levelToCategory(score);
+
+        return {
+            length: basic.length,
+            hasLower: basic.hasLower,
+            hasUpper: basic.hasUpper,
+            hasDigit: basic.hasDigit,
+            hasSymbol: basic.hasSymbol,
+            charsetSize: basic.charsetSize,
+            patternDescription: patterns.description,
+            patternStatus: patterns.status,
+            entropyBits: entropyBits,
+            crackSeconds: crackSeconds,
+            score: score,
+            category: category
+        };
+    }
+
+    // ---------------------------------------------------------------------
+    // Mise à jour de l’interface
+    // ---------------------------------------------------------------------
+    function updateUI(evaluation) {
+        const lengthInfo = document.getElementById("lengthInfo");
+        const warningInfo = document.getElementById("warningInfo");
+        const globalStatusLabel = document.getElementById("globalStatusLabel");
+        const badgeLevel = document.getElementById("badgeLevel");
+        const badgeLevelText = document.getElementById("badgeLevelText");
+        const resultBarFill = document.getElementById("resultBarFill");
+        const summaryText = document.getElementById("summaryText");
+
+        const lengthDetail = document.getElementById("lengthDetail");
+        const lengthStatus = document.getElementById("lengthStatus");
+        const charsetDetail = document.getElementById("charsetDetail");
+        const charsetStatus = document.getElementById("charsetStatus");
+        const patternDetail = document.getElementById("patternDetail");
+        const patternStatus = document.getElementById("patternStatus");
+        const entropyDetail = document.getElementById("entropyDetail");
+        const entropyStatus = document.getElementById("entropyStatus");
+        const timeDetail = document.getElementById("timeDetail");
+        const timeStatus = document.getElementById("timeStatus");
+        const cracktimeMain = document.getElementById("cracktimeMain");
+
+        // Longueur
+        lengthInfo.textContent = "longueur: " + evaluation.length + " caractère" + (evaluation.length > 1 ? "s" : "");
+        if (evaluation.length > 0 && evaluation.length < 8) {
+            warningInfo.style.display = "inline";
+        } else {
+            warningInfo.style.display = "none";
+        }
+
+        // Catégorie globale
+        const category = evaluation.category;
+        const catLabel = categoryLabel(category);
+
+        globalStatusLabel.textContent = catLabel;
+        globalStatusLabel.className = "keyword pill-highlight " + category;
+
+        // Pastille principale
+        badgeLevel.className = "badge-chip " + category;
+        badgeLevelText.textContent = catLabel;
+
+        // Barre de progression
+        resultBarFill.style.width = evaluation.score + "%";
+
+        // Résumé global pessimiste
+        let summary = "";
+        if (evaluation.length === 0) {
+            summary = "Aucun mot de passe fourni pour l’instant.";
+        } else {
+            if (category === "perfect") {
+                summary = "Mot de passe très solide. Mais n’oublie pas qu’aucune forteresse n’est éternelle.";
+            } else if (category === "safe") {
+                summary = "Globalement solide. Un attaquant sérieux mettra du temps, mais pas forcément l’éternité.";
+            } else if (category === "normal") {
+                summary = "Correct, mais beaucoup trop fragile pour un compte vraiment important.";
+            } else if (category === "danger") {
+                summary = "Profil dangereux: motifs ou longueur facilitent un crack en temps limité.";
+            } else {
+                summary = "À risque majeur. Si tu l’utilises déjà, change-le dès que possible.";
+            }
+        }
+        summaryText.textContent = summary;
+
+        // Détails: Longueur
+        lengthDetail.textContent = evaluation.length;
+
+        let lengthCategory = "risk";
+        if (evaluation.length >= 16) lengthCategory = "safe";
+        if (evaluation.length >= 24) lengthCategory = "perfect";
+        if (evaluation.length >= 10 && evaluation.length < 16) lengthCategory = "normal";
+        if (evaluation.length >= 8 && evaluation.length < 10) lengthCategory = "danger";
+
+        lengthStatus.className = "detail-status status-" + levelToCategoryCategory(lengthCategory);
+        lengthStatus.querySelector("span:last-child").textContent = categoryLabel(lengthCategory);
+
+        // Détails: Diversité
+        const catParts = [];
+        if (evaluation.hasLower) catParts.push("minuscules");
+        if (evaluation.hasUpper) catParts.push("majuscules");
+        if (evaluation.hasDigit) catParts.push("chiffres");
+        if (evaluation.hasSymbol) catParts.push("symboles");
+
+        if (catParts.length === 0) {
+            charsetDetail.textContent = "aucune catégorie détectée";
+        } else {
+            charsetDetail.textContent = catParts.join(" + ");
+        }
+
+        let diversityCategory = "risk";
+        if (catParts.length === 1) diversityCategory = "danger";
+        if (catParts.length === 2) diversityCategory = "normal";
+        if (catParts.length === 3) diversityCategory = "safe";
+        if (catParts.length >= 4) diversityCategory = "perfect";
+
+        charsetStatus.className = "detail-status status-" + levelToCategoryCategory(diversityCategory);
+        charsetStatus.querySelector("span:last-child").textContent = categoryLabel(diversityCategory);
+
+        // Détails: Motifs
+        patternDetail.textContent = evaluation.patternDescription;
+
+        let patternCategory = evaluation.patternStatus; // risk / danger / normal / safe
+        patternStatus.className = "detail-status status-" + levelToCategoryCategory(patternCategory);
+        patternStatus.querySelector("span:last-child").textContent = categoryLabel(patternCategory);
+
+        // Détails: Entropie
+        const entropyRounded = Math.round(evaluation.entropyBits);
+        entropyDetail.textContent = entropyRounded + " bits";
+
+        let entropyCategory = "risk";
+        if (entropyRounded >= 80) entropyCategory = "perfect";
+        else if (entropyRounded >= 60) entropyCategory = "safe";
+        else if (entropyRounded >= 40) entropyCategory = "normal";
+        else if (entropyRounded >= 25) entropyCategory = "danger";
+
+        entropyStatus.className = "detail-status status-" + levelToCategoryCategory(entropyCategory);
+        entropyStatus.querySelector("span:last-child").textContent = categoryLabel(entropyCategory);
+
+        // Détails: Temps de crack
+        const timeHuman = formatDuration(evaluation.crackSeconds);
+        timeDetail.textContent = timeHuman;
+
+        let timeCategory = "risk";
+        if (evaluation.crackSeconds >= (365 * 24 * 3600)) {
+            timeCategory = "safe";
+        }
+        if (evaluation.crackSeconds >= (50 * 365 * 24 * 3600)) {
+            timeCategory = "perfect";
+        }
+        if (evaluation.crackSeconds >= (24 * 3600) && evaluation.crackSeconds < (365 * 24 * 3600)) {
+            timeCategory = "normal";
+        }
+        if (evaluation.crackSeconds >= (3600) && evaluation.crackSeconds < (24 * 3600)) {
+            timeCategory = "danger";
+        }
+
+        timeStatus.className = "detail-status status-" + levelToCategoryCategory(timeCategory);
+        timeStatus.querySelector("span:last-child").textContent = categoryLabel(timeCategory);
+
+        // Panneau cracktime principal
+        if (evaluation.length === 0) {
+            cracktimeMain.textContent = "En attente de mot de passe...";
+        } else {
+            cracktimeMain.innerHTML =
+                timeHuman + " <span class='mode'>(estimation pessimiste, brute force)</span>";
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Convertit (perfect|safe|normal|danger|risk) en suffixe CSS.
+    // ---------------------------------------------------------------------
+    function levelToCategoryCategory(cat) {
+        // juste un alias pour éviter la confusion
+        switch (cat) {
+            case "perfect":
+            case "safe":
+            case "normal":
+            case "danger":
+            case "risk":
+                return cat;
+            default:
+                return "risk";
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Gestion des événements
+    // ---------------------------------------------------------------------
+    document.addEventListener("DOMContentLoaded", function() {
+        const passwordInput = document.getElementById("passwordInput");
+        const scanButton = document.getElementById("scanButton");
+        const clearButton = document.getElementById("clearButton");
+
+        function performScan() {
+            const password = passwordInput.value || "";
+            const evaluation = evaluatePassword(password);
+            updateUI(evaluation);
+        }
+
+        scanButton.addEventListener("click", function() {
+            performScan();
+        });
+
+        passwordInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                performScan();
+            }
+        });
+
+        passwordInput.addEventListener("input", function() {
+            const lengthInfo = document.getElementById("lengthInfo");
+            const warningInfo = document.getElementById("warningInfo");
+            const length = passwordInput.value.length;
+            lengthInfo.textContent = "longueur: " + length + " caractère" + (length > 1 ? "s" : "");
+            if (length > 0 && length < 8) {
+                warningInfo.style.display = "inline";
+            } else {
+                warningInfo.style.display = "none";
+            }
+        });
+
+        clearButton.addEventListener("click", function() {
+            passwordInput.value = "";
+            const evaluation = evaluatePassword("");
+            updateUI(evaluation);
+        });
+
+        // État initial
+        const initialEval = evaluatePassword("");
+        updateUI(initialEval);
+    });
+</script>
+</body>
+</html>

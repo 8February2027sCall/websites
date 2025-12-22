@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html
+    lang="fr"
+>
+<head>
+
+    <!--
+        ###############################################################
+        #   NetSpeedCheck — 8 February 2027's Call                    #
+        #   Version : v1.0                                            #
+        #   Auteur : Valentin (FUTURE VAL CORP)                       #
+        #   Description :                                             #
+        #   Page de test de connexion style invite de commande noir   #
+        ###############################################################
+    -->
+
+    <meta
+        charset="utf-8"
+    >
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        NetSpeedCheck — 8 February 2027's Call
+    </title>
+
+    <!--
+        Icône de l’onglet / favicon
+        Place le fichier "827scall Logo (Carré).png" à la racine
+        ou adapte le chemin si nécessaire.
+    -->
+    <link
+        rel="icon"
+        type="image/png"
+        href="827scall Logo (Carré).png"
+    >
+
+    <!--
+        Police titres : "Inndam Extended"
+        NOTE :
+        - Si tu as la police en local, tu peux l’installer sur la machine.
+        - Sinon, ajoute un @font-face pointant vers ton fichier .woff2/.ttf.
+        - Ici on laisse un bloc prêt à être complété.
+    -->
+    <style>
+        /* ======================= POLICES ======================= */
+
+        /*
+        @font-face {
+            font-family: 'Inndam Extended';
+            src: url('fonts/InndamExtended.woff2') format('woff2'),
+                 url('fonts/InndamExtended.woff')  format('woff'),
+                 url('fonts/InndamExtended.ttf')   format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        */
+
+        /* ======================= RESET SIMPLE ======================= */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background-color: #000000;
+            color: #d8f6ff;
+        }
+
+        body {
+            /* Police de base : monospace (style code) */
+            font-family: monospace, "Courier New", Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console";
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* ======================= MISE EN PAGE GLOBALE ======================= */
+
+        .ns-root {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #000000;
+            color: #d8f6ff;
+        }
+
+        .ns-shell {
+            flex: 1 0 auto;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px 16px 40px 16px;
+            background-color: #000000;
+        }
+
+        .ns-footer {
+            flex-shrink: 0;
+            border-top: 1px solid #1b1b1b;
+            padding: 6px 16px 10px 16px;
+            font-size: 11px;
+            color: #777777;
+            background-color: #000000;
+        }
+
+        /* ======================= EN-TÊTE ======================= */
+
+        header.ns-header {
+            border-bottom: 1px solid #1b1b1b;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .ns-header-line {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .ns-header-logo {
+            width: 32px;
+            height: 32px;
+            background-image: url("827scall Logo (Carré).png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-shrink: 0;
+        }
+
+        .ns-header-text-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .ns-main-title {
+            /* Police titres : Inndam Extended */
+            font-family: "Inndam Extended", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 20px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #4f9fff;
+        }
+
+        .ns-sub-title {
+            font-size: 12px;
+            color: #8aa1ff;
+        }
+
+        .ns-header-meta {
+            font-size: 11px;
+            color: #666666;
+        }
+
+        /* ======================= ZONE CONSOLE ======================= */
+
+        .ns-console-frame {
+            border: 1px solid #171717;
+            background-color: #050505;
+            padding: 14px 12px 12px 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 0 0 1px #000000 inset;
+        }
+
+        .ns-console-title-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(to right, #030303, #101010);
+            padding: 4px 6px;
+            border: 1px solid #262626;
+            margin: -6px -4px 10px -4px;
+        }
+
+        .ns-console-title {
+            font-size: 11px;
+            color: #c0c0c0;
+        }
+
+        .ns-console-window-buttons {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ns-console-window-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            border: 1px solid #3c3c3c;
+            background-color: #111111;
+        }
+
+        .ns-console-body {
+            font-size: 13px;
+            color: #e2f1ff;
+            white-space: pre-wrap;
+        }
+
+        .ns-console-body-line {
+            display: block;
+        }
+
+        .ns-console-body-line-muted {
+            color: #777777;
+        }
+
+        .ns-console-body-line-system {
+            color: #58d68d;
+        }
+
+        .ns-console-body-line-warning {
+            color: #f5e663;
+        }
+
+        .ns-console-body-line-error {
+            color: #ff6b6b;
+        }
+
+        /* ======================= ZONE INTERACTION ======================= */
+
+        .ns-section {
+            border: 1px solid #141414;
+            background-color: #020202;
+            padding: 14px 12px;
+            margin-bottom: 16px;
+        }
+
+        .ns-section-title {
+            font-family: "Inndam Extended", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.14em;
+            color: #8aa1ff;
+            margin-bottom: 8px;
+        }
+
+        .ns-section-subtitle {
+            font-size: 11px;
+            color: #777777;
+            margin-bottom: 10px;
+        }
+
+        .ns-button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .ns-button {
+            border: 1px solid #2b2b2b;
+            background-color: #050505;
+            color: #e2f1ff;
+            padding: 6px 12px;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            transition: background-color 0.08s ease-out, border-color 0.08s ease-out, color 0.08s ease-out, transform 0.04s ease-out;
+        }
+
+        .ns-button:hover {
+            background-color: #111111;
+            border-color: #5c7cff;
+            color: #ffffff;
+        }
+
+        .ns-button:active {
+            transform: translateY(1px);
+            background-color: #0b0b0b;
+        }
+
+        .ns-button-ghost {
+            border-style: dashed;
+            color: #9a9a9a;
+        }
+
+        .ns-button-disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* ======================= STATUT DE CONNEXION ======================= */
+
+        .ns-status-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .ns-status-label {
+            font-size: 11px;
+            color: #888888;
+        }
+
+        .ns-status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 7px;
+            border-radius: 4px;
+            border: 1px solid #222222;
+            background-color: #050505;
+            font-size: 11px;
+        }
+
+        .ns-status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            border: 1px solid #333333;
+            background-color: #111111;
+        }
+
+        .ns-status-text {
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        /* Couleurs état */
+
+        .ns-status-blue .ns-status-dot {
+            background-color: #2b6cff;
+            border-color: #5c8cff;
+        }
+
+        .ns-status-blue .ns-status-text {
+            color: #6ea8ff;
+        }
+
+        .ns-status-green .ns-status-dot {
+            background-color: #2ecc71;
+            border-color: #4ee08a;
+        }
+
+        .ns-status-green .ns-status-text {
+            color: #74ffb0;
+        }
+
+        .ns-status-yellow .ns-status-dot {
+            background-color: #f4d03f;
+            border-color: #f7e46f;
+        }
+
+        .ns-status-yellow .ns-status-text {
+            color: #f8e98b;
+        }
+
+        .ns-status-orange .ns-status-dot {
+            background-color: #e67e22;
+            border-color: #f39c3b;
+        }
+
+        .ns-status-orange .ns-status-text {
+            color: #ffba6a;
+        }
+
+        .ns-status-red .ns-status-dot {
+            background-color: #e74c3c;
+            border-color: #ff7465;
+        }
+
+        .ns-status-red .ns-status-text {
+            color: #ff8677;
+        }
+
+        /* ======================= RÉSULTATS DÉTAILLÉS ======================= */
+
+        .ns-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .ns-result-card {
+            border: 1px solid #191919;
+            background-color: #050505;
+            padding: 8px 7px;
+            font-size: 11px;
+        }
+
+        .ns-result-label {
+            color: #777777;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .ns-result-value {
+            color: #e2f1ff;
+            word-wrap: break-word;
+        }
+
+        .ns-result-value-muted {
+            color: #666666;
+        }
+
+        .ns-result-value-warning {
+            color: #f5e663;
+        }
+
+        .ns-result-value-error {
+            color: #ff6b6b;
+        }
+
+        /* ======================= LOGS ======================= */
+
+        .ns-logs-area {
+            border: 1px solid #141414;
+            background-color: #020202;
+            padding: 8px 7px;
+            font-size: 11px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .ns-log-line {
+            white-space: pre;
+        }
+
+        .ns-log-line-prefix {
+            color: #555555;
+        }
+
+        .ns-log-line-info {
+            color: #d8f6ff;
+        }
+
+        .ns-log-line-success {
+            color: #79ffb2;
+        }
+
+        .ns-log-line-warn {
+            color: #f5e663;
+        }
+
+        .ns-log-line-error {
+            color: #ff6b6b;
+        }
+
+        .ns-log-line-debug {
+            color: #8e8e8e;
+        }
+
+        /* ======================= INDICATIONS DE LÉGENDE ======================= */
+
+        .ns-legend {
+            margin-top: 6px;
+            font-size: 11px;
+            color: #666666;
+        }
+
+        .ns-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: 12px;
+        }
+
+        .ns-legend-swatch {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            border: 1px solid #303030;
+        }
+
+        .ns-legend-blue {
+            background-color: #2b6cff;
+            border-color: #5c8cff;
+        }
+
+        .ns-legend-green {
+            background-color: #2ecc71;
+            border-color: #4ee08a;
+        }
+
+        .ns-legend-yellow {
+            background-color: #f4d03f;
+            border-color: #f7e46f;
+        }
+
+        .ns-legend-orange {
+            background-color: #e67e22;
+            border-color: #f39c3b;
+        }
+
+        .ns-legend-red {
+            background-color: #e74c3c;
+            border-color: #ff7465;
+        }
+
+        /* ======================= PETITES CLASSES UTILITAIRES ======================= */
+
+        .ns-mt-4 {
+            margin-top: 4px;
+        }
+
+        .ns-mt-6 {
+            margin-top: 6px;
+        }
+
+        .ns-mt-8 {
+            margin-top: 8px;
+        }
+
+        .ns-mt-10 {
+            margin-top: 10px;
+        }
+
+        .ns-muted {
+            color: #777777;
+        }
+
+        .ns-inline-code {
+            font-family: inherit;
+            background-color: #060606;
+            border: 1px solid #171717;
+            padding: 0 3px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div
+    class="ns-root"
+>
+
+    <!-- ======================= SHELL PRINCIPALE ======================= -->
+    <main
+        class="ns-shell"
+        aria-label="NetSpeedCheck – 8 February 2027's Call"
+    >
+
+        <!-- ======================= EN-TÊTE ======================= -->
+        <header
+            class="ns-header"
+        >
+
+            <div
+                class="ns-header-line"
+            >
+                <div
+                    class="ns-header-logo"
+                    aria-hidden="true"
+                ></div>
+
+                <div
+                    class="ns-header-text-block"
+                >
+                    <div
+                        class="ns-main-title"
+                    >
+                        8 February 2027&apos;s Call
+                    </div>
+
+                    <div
+                        class="ns-sub-title"
+                    >
+                        NetSpeedCheck &mdash; Console de vérification de connexion
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="ns-header-meta"
+            >
+                Chemin actuel&nbsp;: <span class="ns-inline-code">C:\827SCall\NetSpeedCheck\</span>
+            </div>
+
+        </header>
+
+        <!-- ======================= BLOC CONSOLE D'INTRO ======================= -->
+        <section
+            class="ns-console-frame"
+            aria-label="Console d’accueil NetSpeedCheck"
+        >
+
+            <div
+                class="ns-console-title-bar"
+            >
+                <div
+                    class="ns-console-title"
+                >
+                    C:\Windows\System32\cmd.exe — 8 February 2027&apos;s Call — NetSpeedCheck
+                </div>
+
+                <div
+                    class="ns-console-window-buttons"
+                    aria-hidden="true"
+                >
+                    <div class="ns-console-window-dot"></div>
+                    <div class="ns-console-window-dot"></div>
+                    <div class="ns-console-window-dot"></div>
+                </div>
+            </div>
+
+            <div
+                class="ns-console-body"
+            >
+                <span class="ns-console-body-line ns-console-body-line-muted">
+                    Copyright (c) FUTURE VAL CORP — 8 February 2027&apos;s Call
+                </span>
+                <span class="ns-console-body-line ns-console-body-line-muted">
+                    Console de diagnostic de connexion — &quot;NetSpeedCheck&quot; (version 1.0)
+                </span>
+                <span class="ns-console-body-line">
+                    &nbsp;
+                </span>
+                <span class="ns-console-body-line ns-console-body-line-system">
+                    [SYSTEM]  Initialisation du module de test de connexion...
+                </span>
+                <span class="ns-console-body-line ns-console-body-line-system">
+                    [SYSTEM]  Préparation des routes de mesure (latence, disponibilité, stabilité)...
+                </span>
+                <span class="ns-console-body-line ns-console-body-line-system">
+                    [SYSTEM]  En attente d&apos;un ordre de test utilisateur.
+                </span>
+                <span class="ns-console-body-line">
+                    &nbsp;
+                </span>
+                <span class="ns-console-body-line ns-console-body-line-warning">
+                    [NOTE]    Aucun test automatique n&apos;est lancé sans action explicite.
+                </span>
+                <span class="ns-console-body-line ns-console-body-line-warning">
+                    [NOTE]    Cliquez sur un bouton de test pour commencer l&apos;analyse.
+                </span>
+            </div>
+
+        </section>
+
+        <!-- ======================= SECTION TESTS ======================= -->
+        <section
+            class="ns-section"
+            aria-label="Zone de test de connexion"
+        >
+
+            <div
+                class="ns-section-title"
+            >
+                NetSpeedCheck — Mode console
+            </div>
+
+            <div
+                class="ns-section-subtitle"
+            >
+                Testez votre connexion internet depuis la communauté &quot;8 February 2027&apos;s Call&quot;.
+                Le test tente d&apos;évaluer la latence et la stabilité via plusieurs requêtes en ligne.
+            </div>
+
+            <!-- BOUTONS DE TEST -->
+            <div
+                class="ns-button-row"
+            >
+                <button
+                    type="button"
+                    id="btnTestRapide"
+                    class="ns-button"
+                >
+                    Test rapide
+                </button>
+
+                <button
+                    type="button"
+                    id="btnTestComplet"
+                    class="ns-button"
+                >
+                    Test complet
+                </button>
+
+                <button
+                    type="button"
+                    id="btnTestLeger"
+                    class="ns-button ns-button-ghost"
+                >
+                    Test léger (ping unique)
+                </button>
+
+                <button
+                    type="button"
+                    id="btnNetStatus"
+                    class="ns-button ns-button-ghost"
+                >
+                    Vérifier l’état &quot;navigator.onLine&quot;
+                </button>
+            </div>
+
+            <!-- STATUT GLOBAL (COULEUR) -->
+            <div
+                class="ns-status-row"
+            >
+                <div
+                    class="ns-status-label"
+                >
+                    Statut de la connexion&nbsp;:
+                </div>
+
+                <div
+                    id="statusChip"
+                    class="ns-status-chip"
+                >
+                    <span
+                        class="ns-status-dot"
+                        id="statusDot"
+                    ></span>
+                    <span
+                        class="ns-status-text"
+                        id="statusText"
+                    >
+                        En attente de test
+                    </span>
+                </div>
+            </div>
+
+            <!-- RÉSULTATS CHIFFRÉS -->
+            <div
+                class="ns-results-grid"
+                aria-label="Résultats détaillés de connexion"
+            >
+
+                <div
+                    class="ns-result-card"
+                >
+                    <div
+                        class="ns-result-label"
+                    >
+                        Mode de test
+                    </div>
+
+                    <div
+                        class="ns-result-value"
+                        id="resultMode"
+                    >
+                        Aucun test lancé.
+                    </div>
+                </div>
+
+                <div
+                    class="ns-result-card"
+                >
+                    <div
+                        class="ns-result-label"
+                    >
+                        Requêtes réussies
+                    </div>
+
+                    <div
+                        class="ns-result-value"
+                        id="resultSuccessCount"
+                    >
+                        0 / 0
+                    </div>
+                </div>
+
+                <div
+                    class="ns-result-card"
+                >
+                    <div
+                        class="ns-result-label"
+                    >
+                        Latence moyenne
+                    </div>
+
+                    <div
+                        class="ns-result-value"
+                        id="resultAverageLatency"
+                    >
+                        n/a
+                    </div>
+                </div>
+
+                <div
+                    class="ns-result-card"
+                >
+                    <div
+                        class="ns-result-label"
+                    >
+                        Latence minimale
+                    </div>
+
+                    <div
+                        class="ns-result-value"
+                        id="resultMinLatency"
+                    >
+                        n/a
+                    </div>
+                </div>
+
+                <div
+                    class="ns-result-card"
+                >
+                    <div
+                        class="ns-result-label"
+                    >
+                        Latence maximale
+                    </div>
+
+                    <div
+                        class="ns-result-value"
+                        id="resultMaxLatency"
+                    >
+                        n/a
+                    </div>
+                </div>
+
+                <div
+                    class="ns-result-card"
+                >
+                    <div
+                        class="ns-result-label"
+                    >
+                        Message système
+                    </div>
+
+                    <div
+                        class="ns-result-value"
+                        id="resultMessage"
+                    >
+                        Aucun message.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- LÉGENDE DES COULEURS -->
+            <div
+                class="ns-legend"
+            >
+                <span
+                    class="ns-legend-item"
+                >
+                    <span
+                        class="ns-legend-swatch ns-legend-blue"
+                    ></span>
+                    <span>
+                        Bleu&nbsp;: TRÈS BIEN
+                    </span>
+                </span>
+
+                <span
+                    class="ns-legend-item"
+                >
+                    <span
+                        class="ns-legend-swatch ns-legend-green"
+                    ></span>
+                    <span>
+                        Vert&nbsp;: BIEN
+                    </span>
+                </span>
+
+                <span
+                    class="ns-legend-item"
+                >
+                    <span
+                        class="ns-legend-swatch ns-legend-yellow"
+                    ></span>
+                    <span>
+                        Jaune&nbsp;: MOYEN
+                    </span>
+                </span>
+
+                <span
+                    class="ns-legend-item"
+                >
+                    <span
+                        class="ns-legend-swatch ns-legend-orange"
+                    ></span>
+                    <span>
+                        Orange&nbsp;: INSUFFISANT
+                    </span>
+                </span>
+
+                <span
+                    class="ns-legend-item"
+                >
+                    <span
+                        class="ns-legend-swatch ns-legend-red"
+                    ></span>
+                    <span>
+                        Rouge&nbsp;: PAS DE CONNEXION
+                    </span>
+                </span>
+            </div>
+
+        </section>
+
+        <!-- ======================= SECTION LOGS ======================= -->
+        <section
+            class="ns-section"
+            aria-label="Journal des opérations NetSpeedCheck"
+        >
+
+            <div
+                class="ns-section-title"
+            >
+                Journal de diagnostic
+            </div>
+
+            <div
+                class="ns-section-subtitle"
+            >
+                Toutes les actions sont inscrites ci-dessous, comme dans une invite de commande.
+            </div>
+
+            <div
+                id="logsArea"
+                class="ns-logs-area ns-mt-6"
+                aria-live="polite"
+            >
+
+                <!-- Lignes de log insérées dynamiquement en JavaScript -->
+
+                <div
+                    class="ns-log-line ns-log-line-info"
+                >
+                    <span class="ns-log-line-prefix">
+                        [BOOT]
+                    </span>
+                    &nbsp;NetSpeedCheck v1.0 // 8 February 2027&apos;s Call // Initialisation terminée.
+                </div>
+
+                <div
+                    class="ns-log-line ns-log-line-debug"
+                >
+                    <span class="ns-log-line-prefix">
+                        [INFO]
+                    </span>
+                    &nbsp;En attente d&apos;un test (test rapide / test complet / test léger).
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ======================= PIED-DE-PAGE ======================= -->
+    <footer
+        class="ns-footer"
+    >
+        <div>
+            NetSpeedCheck &mdash; Communauté &quot;8 February 2027&apos;s Call&quot; — Interface noire type console.
+        </div>
+        <div>
+            Aucun test n&apos;est exécuté sans votre action directe. Les mesures restent locales au navigateur.
+        </div>
+    </footer>
+
+</div>
+
+<!-- ======================= LOGIQUE JAVASCRIPT ======================= -->
+<script>
+    // #################################################################
+    // #  NetSpeedCheck — 8 February 2027's Call                      #
+    // #  Module JS de test de connexion                              #
+    // #################################################################
+
+    // ----------------------------------------------------------------
+    // Utilitaires DOM
+    // ----------------------------------------------------------------
+
+    const elStatusChip         = document.getElementById("statusChip");
+    const elStatusDot          = document.getElementById("statusDot");
+    const elStatusText         = document.getElementById("statusText");
+
+    const elResultMode         = document.getElementById("resultMode");
+    const elResultSuccessCount = document.getElementById("resultSuccessCount");
+    const elResultAverage      = document.getElementById("resultAverageLatency");
+    const elResultMin          = document.getElementById("resultMinLatency");
+    const elResultMax          = document.getElementById("resultMaxLatency");
+    const elResultMessage      = document.getElementById("resultMessage");
+
+    const elLogsArea           = document.getElementById("logsArea");
+
+    const btnTestRapide        = document.getElementById("btnTestRapide");
+    const btnTestComplet       = document.getElementById("btnTestComplet");
+    const btnTestLeger         = document.getElementById("btnTestLeger");
+    const btnNetStatus         = document.getElementById("btnNetStatus");
+
+    // ----------------------------------------------------------------
+    // Configuration des tests
+    // ----------------------------------------------------------------
+
+    const NetSpeedConfig = {
+        testRapide: {
+            name: "Test rapide",
+            attempts: 3,
+            timeoutMs: 4000
+        },
+        testComplet: {
+            name: "Test complet",
+            attempts: 6,
+            timeoutMs: 5000
+        },
+        testLeger: {
+            name: "Test léger",
+            attempts: 1,
+            timeoutMs: 3000
+        },
+        // URL de test : petite ressource généralement rapide
+        // Tu peux la changer pour pointer vers un serveur à toi.
+        testUrl: "https://www.cloudflare.com/cdn-cgi/trace"
+    };
+
+    // ----------------------------------------------------------------
+    // Journalisation
+    // ----------------------------------------------------------------
+
+    function appendLogLine(level, message) {
+        const line   = document.createElement("div");
+        const prefix = document.createElement("span");
+
+        line.classList.add("ns-log-line");
+
+        switch (level) {
+            case "info":
+                line.classList.add("ns-log-line-info");
+                prefix.textContent = "[INFO]";
+                break;
+            case "success":
+                line.classList.add("ns-log-line-success");
+                prefix.textContent = "[OK  ]";
+                break;
+            case "warn":
+                line.classList.add("ns-log-line-warn");
+                prefix.textContent = "[WARN]";
+                break;
+            case "error":
+                line.classList.add("ns-log-line-error");
+                prefix.textContent = "[FAIL]";
+                break;
+            case "debug":
+            default:
+                line.classList.add("ns-log-line-debug");
+                prefix.textContent = "[DBG ]";
+                break;
+        }
+
+        prefix.classList.add("ns-log-line-prefix");
+
+        line.appendChild(prefix);
+        line.appendChild(document.createTextNode("  " + message));
+
+        elLogsArea.appendChild(line);
+        elLogsArea.scrollTop = elLogsArea.scrollHeight;
+    }
+
+    // ----------------------------------------------------------------
+    // Gestion de l'état visuel du statut
+    // ----------------------------------------------------------------
+
+    function resetStatusClasses() {
+        elStatusChip.classList.remove(
+            "ns-status-blue",
+            "ns-status-green",
+            "ns-status-yellow",
+            "ns-status-orange",
+            "ns-status-red"
+        );
+    }
+
+    function updateStatusVisual(colorKey, text) {
+        resetStatusClasses();
+
+        switch (colorKey) {
+            case "blue":
+                elStatusChip.classList.add("ns-status-blue");
+                break;
+            case "green":
+                elStatusChip.classList.add("ns-status-green");
+                break;
+            case "yellow":
+                elStatusChip.classList.add("ns-status-yellow");
+                break;
+            case "orange":
+                elStatusChip.classList.add("ns-status-orange");
+                break;
+            case "red":
+                elStatusChip.classList.add("ns-status-red");
+                break;
+            default:
+                // Pas de classe (statut neutre)
+                break;
+        }
+
+        elStatusText.textContent = text;
+    }
+
+    function setStatusNeutral(text) {
+        resetStatusClasses();
+        elStatusText.textContent = text;
+    }
+
+    // ----------------------------------------------------------------
+    // Résultats
+    // ----------------------------------------------------------------
+
+    function updateResultsSummary(opts) {
+        elResultMode.textContent = opts.mode || "n/a";
+
+        if (typeof opts.successCount === "number" && typeof opts.totalCount === "number") {
+            elResultSuccessCount.textContent = opts.successCount + " / " + opts.totalCount;
+        } else {
+            elResultSuccessCount.textContent = "0 / 0";
+        }
+
+        elResultAverage.textContent = opts.averageLatency != null
+            ? opts.averageLatency.toFixed(1) + " ms"
+            : "n/a";
+
+        elResultMin.textContent = opts.minLatency != null
+            ? opts.minLatency.toFixed(1) + " ms"
+            : "n/a";
+
+        elResultMax.textContent = opts.maxLatency != null
+            ? opts.maxLatency.toFixed(1) + " ms"
+            : "n/a";
+
+        elResultMessage.textContent = opts.message || "Aucun message.";
+        elResultMessage.classList.remove("ns-result-value-warning", "ns-result-value-error");
+
+        if (opts.messageLevel === "warning") {
+            elResultMessage.classList.add("ns-result-value-warning");
+        } else if (opts.messageLevel === "error") {
+            elResultMessage.classList.add("ns-result-value-error");
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // Calcul du statut couleur en fonction de la latence
+    // ----------------------------------------------------------------
+
+    function evaluateConnectionStatus(isOnline, successCount, totalCount, averageLatency) {
+        // Si pas en ligne (selon le navigateur) ou aucune requête réussie
+        if (!isOnline || successCount === 0) {
+            return {
+                colorKey: "red",
+                label: "PAS DE CONNEXION"
+            };
+        }
+
+        if (typeof averageLatency !== "number" || !isFinite(averageLatency)) {
+            // Connexion vague, mais mesures inutilisables
+            return {
+                colorKey: "orange",
+                label: "INSUFFISANT"
+            };
+        }
+
+        // Seuils custom :
+        // < 80 ms  => TRÈS BIEN (Bleu)
+        // < 150 ms => BIEN (Vert)
+        // < 300 ms => MOYEN (Jaune)
+        // < 600 ms => INSUFFISANT (Orange)
+        // >= 600 ms => considéré comme très mauvais / quasi inutilisable (Orange ou Rouge selon ton choix)
+        if (averageLatency < 80) {
+            return {
+                colorKey: "blue",
+                label: "TRÈS BIEN"
+            };
+        }
+
+        if (averageLatency < 150) {
+            return {
+                colorKey: "green",
+                label: "BIEN"
+            };
+        }
+
+        if (averageLatency < 300) {
+            return {
+                colorKey: "yellow",
+                label: "MOYEN"
+            };
+        }
+
+        if (averageLatency < 600) {
+            return {
+                colorKey: "orange",
+                label: "INSUFFISANT"
+            };
+        }
+
+        return {
+            colorKey: "orange",
+            label: "INSUFFISANT"
+        };
+    }
+
+    // ----------------------------------------------------------------
+    // Utilitaire : fetch avec timeout
+    // ----------------------------------------------------------------
+
+    function fetchWithTimeout(resource, options) {
+        const { timeout } = options;
+
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+
+        return fetch(resource, {
+            ...options,
+            signal: controller.signal
+        }).finally(() => {
+            clearTimeout(id);
+        });
+    }
+
+    // ----------------------------------------------------------------
+    // Exécution d’un scénario de test
+    // ----------------------------------------------------------------
+
+    let isTestRunning = false;
+
+    async function runTestScenario(scenarioKey) {
+        if (isTestRunning) {
+            appendLogLine("warn", "Un test est déjà en cours. Patientez avant d’en lancer un autre.");
+            return;
+        }
+
+        const scenario = NetSpeedConfig[scenarioKey];
+        if (!scenario) {
+            appendLogLine("error", "Scénario de test inconnu : " + scenarioKey);
+            return;
+        }
+
+        isTestRunning = true;
+
+        const attempts = scenario.attempts;
+        const timeoutMs = scenario.timeoutMs;
+        const testUrl = NetSpeedConfig.testUrl;
+
+        // Désactivation visuelle des boutons pendant le test
+        setButtonsDisabled(true);
+
+        setStatusNeutral("Test en cours...");
+        appendLogLine("info", "=== " + scenario.name + " — " + attempts + " requête(s) ===");
+        appendLogLine("debug", "URL de test : " + testUrl);
+
+        const latencies = [];
+        let successCount = 0;
+        let failureCount = 0;
+
+        for (let i = 0; i < attempts; i++) {
+            const index = i + 1;
+            const label = "Requête " + index + " / " + attempts;
+
+            appendLogLine("debug", label + " — lancement...");
+
+            const startTime = performance.now();
+
+            try {
+                const response = await fetchWithTimeout(testUrl, {
+                    method: "GET",
+                    cache: "no-store",
+                    mode: "cors",
+                    timeout: timeoutMs
+                });
+
+                const endTime = performance.now();
+                const latency = endTime - startTime;
+
+                if (!response.ok) {
+                    failureCount++;
+                    appendLogLine("warn", label + " — statut HTTP " + response.status + " (latence " + latency.toFixed(1) + " ms)");
+                } else {
+                    successCount++;
+                    latencies.push(latency);
+                    appendLogLine("success", label + " — OK (" + latency.toFixed(1) + " ms)");
+                }
+            } catch (error) {
+                failureCount++;
+                const endTime = performance.now();
+                const latency = endTime - startTime;
+
+                if (error && error.name === "AbortError") {
+                    appendLogLine("error", label + " — Timeout (" + timeoutMs + " ms) — latence " + latency.toFixed(1) + " ms");
+                } else {
+                    appendLogLine("error", label + " — Erreur réseau : " + (error && error.message ? error.message : "inconnue") + " — latence " + latency.toFixed(1) + " ms");
+                }
+            }
+        }
+
+        // Calcul des statistiques
+        let averageLatency = null;
+        let minLatency = null;
+        let maxLatency = null;
+
+        if (latencies.length > 0) {
+            let sum = 0;
+            minLatency = latencies[0];
+            maxLatency = latencies[0];
+
+            for (let i = 0; i < latencies.length; i++) {
+                const v = latencies[i];
+                sum += v;
+                if (v < minLatency) minLatency = v;
+                if (v > maxLatency) maxLatency = v;
+            }
+
+            averageLatency = sum / latencies.length;
+        }
+
+        const isOnline = navigator.onLine;
+
+        appendLogLine("debug", "navigator.onLine = " + String(isOnline));
+        appendLogLine("info", "Requêtes réussies : " + successCount + " / " + attempts);
+
+        if (averageLatency != null) {
+            appendLogLine("info", "Latence moyenne : " + averageLatency.toFixed(1) + " ms (min: " + minLatency.toFixed(1) + " ms, max: " + maxLatency.toFixed(1) + " ms)");
+        } else {
+            appendLogLine("warn", "Impossible de calculer une latence moyenne (aucune requête réussie).");
+        }
+
+        // Déterminer la couleur et le texte du statut
+        const status = evaluateConnectionStatus(isOnline, successCount, attempts, averageLatency);
+
+        updateStatusVisual(status.colorKey, status.label);
+
+        // Préparation du message de synthèse
+        let message = "";
+        let messageLevel = "info";
+
+        if (!isOnline) {
+            message = "Le navigateur indique que vous êtes hors ligne (navigator.onLine = false).";
+            messageLevel = "error";
+        } else if (successCount === 0) {
+            message = "Aucune requête n&apos;a abouti. Problème de connexion possible.";
+            messageLevel = "error";
+        } else if (status.colorKey === "blue") {
+            message = "Connexion très fluide pour la plupart des usages.";
+            messageLevel = "info";
+        } else if (status.colorKey === "green") {
+            message = "Connexion globalement bonne. Navigation et streaming légers confortables.";
+            messageLevel = "info";
+        } else if (status.colorKey === "yellow") {
+            message = "Connexion moyenne. Les contenus lourds peuvent être plus lents.";
+            messageLevel = "warning";
+        } else if (status.colorKey === "orange") {
+            message = "Connexion insuffisante ou instable. Risque de coupures.";
+            messageLevel = "warning";
+        } else if (status.colorKey === "red") {
+            message = "Aucune connexion détectée ou blocage réseau.";
+            messageLevel = "error";
+        }
+
+        updateResultsSummary({
+            mode: scenario.name,
+            successCount: successCount,
+            totalCount: attempts,
+            averageLatency: averageLatency,
+            minLatency: minLatency,
+            maxLatency: maxLatency,
+            message: message,
+            messageLevel: messageLevel
+        });
+
+        appendLogLine("info", "=== Fin du " + scenario.name + " ===");
+
+        isTestRunning = false;
+        setButtonsDisabled(false);
+    }
+
+    // ----------------------------------------------------------------
+    // Mise à jour de l’état des boutons
+    // ----------------------------------------------------------------
+
+    function setButtonsDisabled(disabled) {
+        const group = [btnTestRapide, btnTestComplet, btnTestLeger, btnNetStatus];
+
+        group.forEach(function (btn) {
+            if (!btn) return;
+
+            btn.disabled = disabled;
+
+            if (disabled) {
+                btn.classList.add("ns-button-disabled");
+            } else {
+                btn.classList.remove("ns-button-disabled");
+            }
+        });
+    }
+
+    // ----------------------------------------------------------------
+    // Vérification simple de navigator.onLine
+    // ----------------------------------------------------------------
+
+    function checkNavigatorOnlineStatus() {
+        const isOnline = navigator.onLine;
+        const msg = "navigator.onLine = " + String(isOnline) + " (indicateur basique du navigateur).";
+
+        if (isOnline) {
+            appendLogLine("success", msg + " Le navigateur pense que la connexion est disponible.");
+        } else {
+            appendLogLine("error", msg + " Le navigateur pense que vous êtes hors connexion.");
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // Gestionnaires d’événements sur les boutons
+    // ----------------------------------------------------------------
+
+    if (btnTestRapide) {
+        btnTestRapide.addEventListener("click", function () {
+            runTestScenario("testRapide");
+        });
+    }
+
+    if (btnTestComplet) {
+        btnTestComplet.addEventListener("click", function () {
+            runTestScenario("testComplet");
+        });
+    }
+
+    if (btnTestLeger) {
+        btnTestLeger.addEventListener("click", function () {
+            runTestScenario("testLeger");
+        });
+    }
+
+    if (btnNetStatus) {
+        btnNetStatus.addEventListener("click", function () {
+            checkNavigatorOnlineStatus();
+        });
+    }
+
+    // ----------------------------------------------------------------
+    // Informations initiales
+    // ----------------------------------------------------------------
+
+    appendLogLine("debug", "Initialisation du module JavaScript NetSpeedCheck...");
+    appendLogLine("info", "Prêt pour les tests. Choisissez un mode de test pour commencer.");
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- =============================================================== -->
+    <!--  8 February 2027's Call - LeakFinder Email Scanner              -->
+    <!--  Auteur    : FUTURE VAL CORP / Valentin                        -->
+    <!--  Concept   : Page en style terminal noir, pessimiste           -->
+    <!--  Objet     : Vérifier un email : SAFE / NORMAL / INDÉSIRABLE   -->
+    <!-- =============================================================== -->
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        LeakFinder • 8 February 2027's Call
+    </title>
+
+    <!-- =============================================================== -->
+    <!--  Favicon / Icône                                                -->
+    <!-- =============================================================== -->
+    <!-- Remplace le href par le chemin réel de ton logo carré          -->
+    <link rel="icon"
+          type="image/png"
+          href="827scall Logo (Carré).png">
+
+    <!-- =============================================================== -->
+    <!--  Font: Inndam Extended (Titres)                                 -->
+    <!--  NOTE : Adapter src: url(...) vers ton fichier de police réel  -->
+    <!-- =============================================================== -->
+    <style>
+        @font-face {
+            font-family: "Inndam Extended";
+            src: url("Inndam-Extended.woff2") format("woff2"),
+                 url("Inndam-Extended.woff") format("woff");
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
+
+    <!-- =============================================================== -->
+    <!--  Styles généraux                                                -->
+    <!-- =============================================================== -->
+    <style>
+        /* ----------------------------------------------------------- */
+        /*  Reset minimal                                               */
+        /* ----------------------------------------------------------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background-color: #020202;
+            color: #d6f5e4;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Layout principal                                            */
+        /* ----------------------------------------------------------- */
+        .lf-root {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 16px;
+            background: radial-gradient(circle at 0 0, #0a2015 0, #020202 45%, #000000 100%);
+        }
+
+        .lf-shell-window {
+            border: 1px solid #1e4a33;
+            background-color: #000000;
+            box-shadow: 0 0 0 1px #000000, 0 0 24px rgba(0, 0, 0, 0.85);
+            max-width: 960px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Barre de titre / pseudo fenêtre                             */
+        /* ----------------------------------------------------------- */
+        .lf-shell-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: linear-gradient(90deg, #07170f, #052013);
+            border-bottom: 1px solid #123222;
+        }
+
+        .lf-shell-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lf-shell-bullets {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lf-shell-bullet {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            border: 1px solid #02170b;
+        }
+
+        .lf-shell-bullet--close {
+            background-color: #a91224;
+        }
+
+        .lf-shell-bullet--min {
+            background-color: #c88f0c;
+        }
+
+        .lf-shell-bullet--max {
+            background-color: #188b31;
+        }
+
+        .lf-shell-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #d7f9e8;
+            opacity: 0.86;
+        }
+
+        .lf-shell-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lf-shell-header-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 2px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-image: url("827scall Logo (Carré).png");
+            box-shadow: 0 0 8px rgba(94, 233, 173, 0.35);
+        }
+
+        .lf-shell-header-status {
+            font-size: 10px;
+            color: #65f0b0;
+            opacity: 0.8;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Corps de la console                                         */
+        /* ----------------------------------------------------------- */
+        .lf-shell-body {
+            padding: 16px 16px 18px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow: auto;
+            max-height: calc(100vh - 80px);
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Bloc bannière / identité                                    */
+        /* ----------------------------------------------------------- */
+        .lf-banner {
+            border-bottom: 1px dashed #175a3a;
+            padding-bottom: 10px;
+        }
+
+        .lf-banner-line {
+            color: #7fffd4;
+            white-space: pre-wrap;
+        }
+
+        .lf-banner-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.20em;
+            color: #a5ffe0;
+        }
+
+        .lf-banner-subtitle {
+            font-size: 11px;
+            color: #59c797;
+            margin-top: 4px;
+        }
+
+        .lf-banner-community {
+            font-size: 10px;
+            color: #9acfb6;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Bloc informations système                                   */
+        /* ----------------------------------------------------------- */
+        .lf-sysinfo {
+            font-size: 11px;
+            color: #a3d9bf;
+        }
+
+        .lf-sysinfo-line {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .lf-sysinfo-label {
+            color: #4edca2;
+        }
+
+        .lf-sysinfo-separator {
+            color: #214c37;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Bloc instructions / aide                                    */
+        /* ----------------------------------------------------------- */
+        .lf-help {
+            font-size: 11px;
+            color: #b1f5d0;
+        }
+
+        .lf-help-line {
+            margin-bottom: 2px;
+        }
+
+        .lf-help-keyword {
+            color: #7dffb0;
+        }
+
+        .lf-help-example {
+            color: #6293ff;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Formulaire / commande                                       */
+        /* ----------------------------------------------------------- */
+        .lf-command-block {
+            margin-top: 6px;
+            border-top: 1px dashed #13412a;
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .lf-command-line {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .lf-command-prefix {
+            color: #4cffb1;
+        }
+
+        .lf-command-label {
+            color: #87ffcd;
+        }
+
+        .lf-command-input {
+            flex: 1 1 220px;
+            min-width: 180px;
+            background-color: #020202;
+            color: #e6fff6;
+            border: 1px solid #145837;
+            padding: 4px 6px;
+            font-family: monospace;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .lf-command-input::placeholder {
+            color: #375b48;
+        }
+
+        .lf-command-input:focus {
+            border-color: #49f5b7;
+            box-shadow: 0 0 0 1px #145837;
+        }
+
+        .lf-command-button {
+            background-color: #082d1d;
+            color: #74ffd2;
+            border: 1px solid #1c8a58;
+            padding: 4px 10px;
+            font-family: monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: background-color 0.12s ease-out, transform 0.06s ease-out, box-shadow 0.12s ease-out;
+        }
+
+        .lf-command-button:hover {
+            background-color: #0f4830;
+            box-shadow: 0 0 0 1px #1c8a58;
+        }
+
+        .lf-command-button:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        .lf-command-button[disabled] {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        .lf-command-note {
+            font-size: 10px;
+            color: #59816e;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Section résultat                                            */
+        /* ----------------------------------------------------------- */
+        .lf-result-wrapper {
+            border-top: 1px dashed #103b28;
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .lf-result-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #8ef3c7;
+        }
+
+        .lf-result-status-line {
+            font-size: 13px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .lf-result-status-label {
+            color: #7dffb0;
+        }
+
+        .lf-result-status-pill {
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+        }
+
+        .lf-pill-safe {
+            color: #73ffba;
+            border-color: #2aa464;
+            background-color: rgba(14, 80, 43, 0.8);
+        }
+
+        .lf-pill-normal {
+            color: #ffe786;
+            border-color: #c49a1b;
+            background-color: rgba(75, 61, 9, 0.7);
+        }
+
+        .lf-pill-undesirable {
+            color: #ffd29a;
+            border-color: #e07a28;
+            background-color: rgba(93, 47, 10, 0.85);
+        }
+
+        .lf-pill-spam {
+            color: #ffb5b5;
+            border-color: #de2d3a;
+            background-color: rgba(68, 7, 16, 0.9);
+        }
+
+        .lf-result-email {
+            color: #d3fff0;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Détails du scan                                             */
+        /* ----------------------------------------------------------- */
+        .lf-detail-block {
+            margin-top: 4px;
+            border-left: 1px solid #123222;
+            padding-left: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .lf-detail-line {
+            font-size: 11px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .lf-detail-label {
+            color: #59c797;
+        }
+
+        .lf-detail-tag {
+            font-size: 10px;
+            padding: 0 6px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+        }
+
+        .lf-tag-safe {
+            color: #98ffd9;
+            border-color: #2f9b63;
+            background-color: rgba(0, 36, 18, 0.9);
+        }
+
+        .lf-tag-normal {
+            color: #fff6b8;
+            border-color: #aa7e0f;
+            background-color: rgba(37, 29, 3, 0.9);
+        }
+
+        .lf-tag-undesirable {
+            color: #ffd4a0;
+            border-color: #e07a28;
+            background-color: rgba(51, 24, 2, 0.9);
+        }
+
+        .lf-tag-spam {
+            color: #ffb3b3;
+            border-color: #c82531;
+            background-color: rgba(35, 0, 4, 0.9);
+        }
+
+        .lf-detail-value {
+            color: #9ad3b5;
+        }
+
+        .lf-detail-risk {
+            color: #ffb9a8;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Historique des scans                                        */
+        /* ----------------------------------------------------------- */
+        .lf-history {
+            border-top: 1px dashed #103b28;
+            padding-top: 8px;
+            margin-top: 2px;
+            font-size: 11px;
+            color: #7da594;
+        }
+
+        .lf-history-title {
+            margin-bottom: 2px;
+        }
+
+        .lf-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .lf-history-line {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .lf-history-email {
+            color: #c9fbe6;
+        }
+
+        .lf-history-status {
+            color: #ffb3b3;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Légende / codes couleurs                                    */
+        /* ----------------------------------------------------------- */
+        .lf-legend {
+            border-top: 1px dashed #0f3824;
+            padding-top: 8px;
+            font-size: 10px;
+            color: #6eae8f;
+        }
+
+        .lf-legend-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 3px;
+        }
+
+        .lf-legend-label {
+            min-width: 80px;
+        }
+
+        .lf-legend-badge {
+            display: inline-block;
+            padding: 0 6px;
+            border-radius: 999px;
+            border: 1px solid #1c8a58;
+            color: #91ffd7;
+            font-size: 10px;
+        }
+
+        .lf-legend-badge--safe {
+            border-color: #2aa464;
+            color: #7bffc5;
+        }
+
+        .lf-legend-badge--normal {
+            border-color: #c49a1b;
+            color: #ffe786;
+        }
+
+        .lf-legend-badge--undesirable {
+            border-color: #e07a28;
+            color: #ffd29a;
+        }
+
+        .lf-legend-badge--spam {
+            border-color: #de2d3a;
+            color: #ffb5b5;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Pied de page / note légale                                  */
+        /* ----------------------------------------------------------- */
+        .lf-footer {
+            margin-top: 4px;
+            font-size: 9px;
+            color: #506c5f;
+            border-top: 1px dotted #0b2a1a;
+            padding-top: 6px;
+        }
+
+        .lf-footer-line {
+            margin-bottom: 2px;
+        }
+
+        .lf-footer-strong {
+            color: #7cfac4;
+        }
+
+        .lf-footer-warning {
+            color: #ffb3b3;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  États / messages                                            */
+        /* ----------------------------------------------------------- */
+        .lf-inline-error {
+            font-size: 10px;
+            color: #ff9292;
+        }
+
+        .lf-inline-muted {
+            font-size: 10px;
+            color: #56796a;
+        }
+
+        /* ----------------------------------------------------------- */
+        /*  Responsiveness                                              */
+        /* ----------------------------------------------------------- */
+        @media (max-width: 640px) {
+            .lf-shell-body {
+                padding: 12px;
+            }
+
+            .lf-shell-header {
+                padding: 6px 8px;
+            }
+
+            .lf-banner-title {
+                font-size: 15px;
+                letter-spacing: 0.14em;
+            }
+
+            .lf-command-input {
+                flex: 1 1 100%;
+            }
+
+            .lf-command-button {
+                width: 100%;
+                text-align: center;
+            }
+
+            .lf-detail-block {
+                border-left: none;
+                border-top: 1px solid #123222;
+                padding-left: 0;
+                padding-top: 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- =============================================================== -->
+    <!--  Conteneur principal                                           -->
+    <!-- =============================================================== -->
+    <div class="lf-root">
+        <div class="lf-shell-window">
+            <!-- ======================================================= -->
+            <!--  En-tête type fenêtre                                   -->
+            <!-- ======================================================= -->
+            <div class="lf-shell-header">
+                <div class="lf-shell-header-left">
+                    <div class="lf-shell-bullets">
+                        <div class="lf-shell-bullet lf-shell-bullet--close"></div>
+                        <div class="lf-shell-bullet lf-shell-bullet--min"></div>
+                        <div class="lf-shell-bullet lf-shell-bullet--max"></div>
+                    </div>
+                    <div class="lf-shell-title">
+                        LeakFinder — 8 February 2027's Call
+                    </div>
+                </div>
+
+                <div class="lf-shell-header-right">
+                    <div class="lf-shell-header-status">
+                        827S-CALL:// EMAIL RISK SCAN READY
+                    </div>
+                    <div class="lf-shell-header-icon"></div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!--  Corps pseudo terminal                                   -->
+            <!-- ======================================================= -->
+            <div class="lf-shell-body">
+
+                <!-- =================================================== -->
+                <!--  Bannière / Identité                                 -->
+                <!-- =================================================== -->
+                <div class="lf-banner">
+                    <div class="lf-banner-line">
+                        > INIT 8-FEB-2027'S CALL :: LEAKFINDER
+                    </div>
+                    <div class="lf-banner-title">
+                        LEAKFINDER EMAIL SCANNER
+                    </div>
+                    <div class="lf-banner-subtitle">
+                        Analyse pessimiste des emails pour survivants lucides.
+                    </div>
+                    <div class="lf-banner-community">
+                        Communauté : "8 February 2027's Call" — Scan minimal, suspicion maximale.
+                    </div>
+                </div>
+
+                <!-- =================================================== -->
+                <!--  Infos système (fictives)                            -->
+                <!-- =================================================== -->
+                <div class="lf-sysinfo">
+                    <div class="lf-sysinfo-line">
+                        <span class="lf-sysinfo-label">
+                            [system]:
+                        </span>
+                        <span>
+                            LEAKFINDER v0.8.27
+                        </span>
+                        <span class="lf-sysinfo-separator">
+                            |
+                        </span>
+                        <span>
+                            MODE : pessimistic-scan
+                        </span>
+                        <span class="lf-sysinfo-separator">
+                            |
+                        </span>
+                        <span>
+                            OUTPUT : color-coded risk
+                        </span>
+                    </div>
+                    <div class="lf-sysinfo-line">
+                        <span class="lf-sysinfo-label">
+                            [scope]:
+                        </span>
+                        <span>
+                            Vérification de patrons simples, domaines fréquents, signaux d'abus et de spam.
+                        </span>
+                    </div>
+                    <div class="lf-sysinfo-line">
+                        <span class="lf-sysinfo-label">
+                            [limits]:
+                        </span>
+                        <span>
+                            Aucune promesse. Tu restes responsable de tes clics, réponses et fuites.
+                        </span>
+                    </div>
+                </div>
+
+                <!-- =================================================== -->
+                <!--  Aide / Instructions                                 -->
+                <!-- =================================================== -->
+                <div class="lf-help">
+                    <div class="lf-help-line">
+                        <span class="lf-help-keyword">
+                            > usage:
+                        </span>
+                        <span>
+                            Tape un email dans le champ, puis valide pour lancer un scan.
+                        </span>
+                    </div>
+                    <div class="lf-help-line">
+                        <span class="lf-help-keyword">
+                            > exemple:
+                        </span>
+                        <span class="lf-help-example">
+                            utilisateur@outlook.fr
+                        </span>
+                        <span>
+                            ou
+                        </span>
+                        <span class="lf-help-example">
+                            pseudo@gmail.com
+                        </span>
+                    </div>
+                    <div class="lf-help-line">
+                        <span class="lf-help-keyword">
+                            > logique:
+                        </span>
+                        <span>
+                            outlook.fr = classé VERIFIÉ (vert),
+                        </span>
+                        <span>
+                            gmail.com = NORMAL (jaune),
+                        </span>
+                        <span>
+                            autres domaines = tendance ORANGE / ROUGE.
+                        </span>
+                    </div>
+                </div>
+
+                <!-- =================================================== -->
+                <!--  Commande : champ email + bouton                     -->
+                <!-- =================================================== -->
+                <div class="lf-command-block">
+                    <div class="lf-command-line">
+                        <span class="lf-command-prefix">
+                            827S-CALL://
+                        </span>
+                        <span class="lf-command-label">
+                            email >
+                        </span>
+                        <input
+                            id="lf-email-input"
+                            class="lf-command-input"
+                            type="email"
+                            autocomplete="off"
+                            spellcheck="false"
+                            placeholder="entre ici l'email à scanner (ex: nom.prenom@outlook.fr)"
+                        />
+                        <button
+                            id="lf-scan-btn"
+                            class="lf-command-button"
+                            type="button">
+                            SCAN
+                        </button>
+                    </div>
+                    <div id="lf-inline-msg" class="lf-command-note">
+                        Tape un email et appuie sur [SCAN] ou [Entrée].
+                    </div>
+                </div>
+
+                <!-- =================================================== -->
+                <!--  Résultat du scan                                   -->
+                <!-- =================================================== -->
+                <div class="lf-result-wrapper" id="lf-result-wrapper">
+                    <div class="lf-result-title">
+                        // SCAN RESULT
+                    </div>
+
+                    <div class="lf-result-status-line">
+                        <span class="lf-result-status-label">
+                            status:
+                        </span>
+                        <span class="lf-result-status-pill lf-pill-normal" id="lf-result-pill">
+                            EN ATTENTE DE SCAN
+                        </span>
+                        <span class="lf-result-email" id="lf-result-email">
+                            (aucun email scanné pour l'instant)
+                        </span>
+                    </div>
+
+                    <div class="lf-detail-block" id="lf-detail-block">
+                        <div class="lf-detail-line">
+                            <span class="lf-detail-label">
+                                domaine:
+                            </span>
+                            <span class="lf-detail-value" id="lf-detail-domain">
+                                —
+                            </span>
+                        </div>
+
+                        <div class="lf-detail-line">
+                            <span class="lf-detail-label">
+                                classification:
+                            </span>
+                            <span class="lf-detail-tag lf-tag-normal" id="lf-detail-class-tag">
+                                NORMAL
+                            </span>
+                            <span class="lf-detail-risk" id="lf-detail-class-text">
+                                email non scanné, aucune conclusion pour l'instant.
+                            </span>
+                        </div>
+
+                        <div class="lf-detail-line">
+                            <span class="lf-detail-label">
+                                signaux:
+                            </span>
+                            <span class="lf-detail-value" id="lf-detail-signals">
+                                En attente de data.
+                            </span>
+                        </div>
+
+                        <div class="lf-detail-line">
+                            <span class="lf-detail-label">
+                                conseil:
+                            </span>
+                            <span class="lf-detail-value" id="lf-detail-advice">
+                                Reste en méfiance par défaut. Rien n'est jamais totalement safe.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =================================================== -->
+                <!--  Historique des scans                                -->
+                <!-- =================================================== -->
+                <div class="lf-history" id="lf-history">
+                    <div class="lf-history-title">
+                        // HISTORY (dernier scans de cette session)
+                    </div>
+                    <div class="lf-history-list" id="lf-history-list">
+                        <div class="lf-history-line">
+                            <span>
+                                (vide)
+                            </span>
+                            <span>
+                                — aucun email scanné pour l’instant.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =================================================== -->
+                <!--  Légende couleurs                                    -->
+                <!-- =================================================== -->
+                <div class="lf-legend">
+                    <div class="lf-legend-row">
+                        <span class="lf-legend-label">
+                            [vert]:
+                        </span>
+                        <span class="lf-legend-badge lf-legend-badge--safe">
+                            VERIFIED
+                        </span>
+                        <span>
+                            Domaine très fréquent, usage courant, pas d’alerte majeure détectée. Risque ≠ 0, juste plus habituel.
+                        </span>
+                    </div>
+
+                    <div class="lf-legend-row">
+                        <span class="lf-legend-label">
+                            [jaune]:
+                        </span>
+                        <span class="lf-legend-badge lf-legend-badge--normal">
+                            NORMAL
+                        </span>
+                        <span>
+                            Utilisation considérée standard. Reste attentif à l’objet, au contenu, aux pièces jointes.
+                        </span>
+                    </div>
+
+                    <div class="lf-legend-row">
+                        <span class="lf-legend-label">
+                            [orange]:
+                        </span>
+                        <span class="lf-legend-badge lf-legend-badge--undesirable">
+                            INDÉSIRABLE
+                        </span>
+                        <span>
+                            Domaine douteux, structure étrange ou signaux marketing agressifs. Méfiance, ne clique rien de sensible.
+                        </span>
+                    </div>
+
+                    <div class="lf-legend-row">
+                        <span class="lf-legend-label">
+                            [rouge]:
+                        </span>
+                        <span class="lf-legend-badge lf-legend-badge--spam">
+                            SPAM / DÉMARCHAGE POTENTIEL
+                        </span>
+                        <span>
+                            Risque fort de spam, phishing, fausse marque ou collecte abusive. Reste sur la défensive.
+                        </span>
+                    </div>
+                </div>
+
+                <!-- =================================================== -->
+                <!--  Note légale / Avertissement                          -->
+                <!-- =================================================== -->
+                <div class="lf-footer">
+                    <div class="lf-footer-line">
+                        <span class="lf-footer-strong">
+                            AVERTISSEMENT :
+                        </span>
+                        <span>
+                            Ce scanner est un outil d'orientation pessimiste, basé sur des règles simples et publiques.
+                        </span>
+                    </div>
+                    <div class="lf-footer-line">
+                        <span class="lf-footer-warning">
+                            Aucun diagnostic absolu :
+                        </span>
+                        <span>
+                            un email vert peut cacher une attaque, un email rouge peut être légitime.
+                        </span>
+                    </div>
+                    <div class="lf-footer-line">
+                        Tu restes l’ultime firewall : ton attention, ta méfiance, tes choix.
+                    </div>
+                    <div class="lf-footer-line">
+                        Communauté "8 February 2027's Call" — FUTURE VAL CORP.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================================================== -->
+    <!--  Script : logique de scan pessimiste                            -->
+    <!-- =============================================================== -->
+    <script>
+        // ---------------------------------------------------------------
+        //  Sélecteurs principaux
+        // ---------------------------------------------------------------
+        const lfEmailInput = document.getElementById("lf-email-input");
+        const lfScanBtn = document.getElementById("lf-scan-btn");
+        const lfInlineMsg = document.getElementById("lf-inline-msg");
+
+        const lfResultPill = document.getElementById("lf-result-pill");
+        const lfResultEmail = document.getElementById("lf-result-email");
+
+        const lfDetailDomain = document.getElementById("lf-detail-domain");
+        const lfDetailClassTag = document.getElementById("lf-detail-class-tag");
+        const lfDetailClassText = document.getElementById("lf-detail-class-text");
+        const lfDetailSignals = document.getElementById("lf-detail-signals");
+        const lfDetailAdvice = document.getElementById("lf-detail-advice");
+
+        const lfHistoryList = document.getElementById("lf-history-list");
+
+        // ---------------------------------------------------------------
+        //  Historique simple en mémoire (session)                        -->
+        // ---------------------------------------------------------------
+        const lfHistory = [];
+
+        // ---------------------------------------------------------------
+        //  Helper : nettoyer classes de statut                          -->
+        // ---------------------------------------------------------------
+        function lfResetPillClasses() {
+            lfResultPill.classList.remove("lf-pill-safe");
+            lfResultPill.classList.remove("lf-pill-normal");
+            lfResultPill.classList.remove("lf-pill-undesirable");
+            lfResultPill.classList.remove("lf-pill-spam");
+        }
+
+        function lfResetClassTagClasses() {
+            lfDetailClassTag.classList.remove("lf-tag-safe");
+            lfDetailClassTag.classList.remove("lf-tag-normal");
+            lfDetailClassTag.classList.remove("lf-tag-undesirable");
+            lfDetailClassTag.classList.remove("lf-tag-spam");
+        }
+
+        // ---------------------------------------------------------------
+        //  Helper : format basique                                      -->
+        // ---------------------------------------------------------------
+        function lfNormalizeEmail(email) {
+            if (!email) {
+                return "";
+            }
+            return email.trim();
+        }
+
+        function lfExtractDomain(email) {
+            const atIndex = email.lastIndexOf("@");
+            if (atIndex === -1) {
+                return "";
+            }
+            return email.slice(atIndex + 1).toLowerCase();
+        }
+
+        // ---------------------------------------------------------------
+        //  Fonction principale : classification                          -->
+        //  Règles demandées :                                           -->
+        //  - @outlook.fr  => VERIFIÉ (vert)                             -->
+        //  - @gmail.com   => NORMAL (jaune)                             -->
+        //  - @autres      => ORANGE / ROUGE (pessimiste)                -->
+        // ---------------------------------------------------------------
+        function lfClassifyEmail(email) {
+            const normalized = lfNormalizeEmail(email);
+
+            if (!normalized) {
+                return {
+                    level: "invalid",
+                    label: "INVALIDE",
+                    pillClass: "lf-pill-spam",
+                    tagClass: "lf-tag-spam",
+                    domain: "",
+                    signals: "Aucun email fourni.",
+                    advice: "Saisis un email complet. Ne colle jamais un email sensible devant des inconnus.",
+                };
+            }
+
+            // Email très simpliste : un '@' minimum et des caractères basiques
+            const simplePattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+            const matchesPattern = simplePattern.test(normalized);
+            const domain = lfExtractDomain(normalized);
+
+            if (!matchesPattern || !domain) {
+                return {
+                    level: "invalid",
+                    label: "INVALIDE",
+                    pillClass: "lf-pill-spam",
+                    tagClass: "lf-tag-spam",
+                    domain,
+                    signals: "Format d'email incohérent ou incomplet.",
+                    advice: "Vérifie l'orthographe, évite de cliquer sur des emails mal formés.",
+                };
+            }
+
+            // -----------------------------------------------------------
+            //  Cas 1 : outlook.fr (vert / VERIFIED)                      -->
+            // -----------------------------------------------------------
+            if (domain === "outlook.fr") {
+                return {
+                    level: "safe",
+                    label: "VERIFIED",
+                    pillClass: "lf-pill-safe",
+                    tagClass: "lf-tag-safe",
+                    domain,
+                    signals: "Domaine Microsoft connu, usage courant, mais trackers possibles.",
+                    advice: "Même en vert, vérifie l'expéditeur réel, l'objet, et n'ouvre pas les pièces jointes à l'aveugle.",
+                };
+            }
+
+            // -----------------------------------------------------------
+            //  Cas 2 : gmail.com (jaune / NORMAL)                        -->
+            // -----------------------------------------------------------
+            if (domain === "gmail.com") {
+                return {
+                    level: "normal",
+                    label: "NORMAL",
+                    pillClass: "lf-pill-normal",
+                    tagClass: "lf-tag-normal",
+                    domain,
+                    signals: "Domaine Google très répandu. Mélange de comptes légitimes, bots, newsletters et spam.",
+                    advice: "Traite tout email inattendu comme suspect, surtout si ça demande des infos perso ou bancaires.",
+                };
+            }
+
+            // -----------------------------------------------------------
+            //  Cas 3 : domaines 'grands classiques' mais non listés      -->
+            //         => léger pessimisme : ORANGE                       -->
+            // -----------------------------------------------------------
+            const commonTrustedPatterns = [
+                "hotmail.com",
+                "outlook.com",
+                "live.com",
+                "msn.com",
+                "yahoo.com",
+                "yahoo.fr",
+                "orange.fr",
+                "wanadoo.fr",
+                "proton.me",
+                "protonmail.com",
+                "icloud.com",
+                "free.fr"
+            ];
+
+            const lowerDomain = domain.toLowerCase();
+            const isCommonTrusted = commonTrustedPatterns.some(function (dom) {
+                return lowerDomain === dom;
+            });
+
+            if (isCommonTrusted) {
+                return {
+                    level: "undesirable",
+                    label: "INDÉSIRABLE (POTENTIEL)",
+                    pillClass: "lf-pill-undesirable",
+                    tagClass: "lf-tag-undesirable",
+                    domain,
+                    signals: "Domaine connu mais fréquemment utilisé pour newsletters, promo, démarchage ou comptes jetables.",
+                    advice: "Ne valide jamais une identité juste parce que le domaine te semble familier.",
+                };
+            }
+
+            // -----------------------------------------------------------
+            //  Cas 4 : extensions suspectes => plus rouge                 -->
+            // -----------------------------------------------------------
+            const redTldPatterns = [
+                ".ru",
+                ".cn",
+                ".top",
+                ".xyz",
+                ".click",
+                ".work",
+                ".support",
+                ".rest",
+                ".loan",
+                ".gq",
+                ".ml",
+                ".tk"
+            ];
+
+            const isRedTld = redTldPatterns.some(function (suffix) {
+                return lowerDomain.endsWith(suffix);
+            });
+
+            if (isRedTld) {
+                return {
+                    level: "spam",
+                    label: "SPAM / DÉMARCHAGE POTENTIEL",
+                    pillClass: "lf-pill-spam",
+                    tagClass: "lf-tag-spam",
+                    domain,
+                    signals: "Extension de domaine fréquemment utilisée pour spam, phishing, campagnes massives ou activité douteuse.",
+                    advice: "Ne clique aucun lien. Si l’email te demande une action urgente, c’est probablement un piège.",
+                };
+            }
+
+            // -----------------------------------------------------------
+            //  Cas 5 : domaines custom / autres => orange ou rouge       -->
+            //  Pessimiste par défaut, mais nuance selon structure        -->
+            // -----------------------------------------------------------
+            const looksCorporate =
+                lowerDomain.includes(".fr") ||
+                lowerDomain.includes(".com") ||
+                lowerDomain.includes(".org") ||
+                lowerDomain.includes(".net");
+
+            const containsSuspiciousWords = [
+                "win",
+                "prize",
+                "free",
+                "urgent",
+                "money",
+                "crypto",
+                "bank",
+                "support",
+                "service",
+                "client",
+                "update",
+                "secure"
+            ].some(function (word) {
+                return lowerDomain.indexOf(word) !== -1;
+            });
+
+            // Rouge si domaine custom + mots suspects
+            if (!isCommonTrusted && containsSuspiciousWords) {
+                return {
+                    level: "spam",
+                    label: "SPAM / FAUSSE MARQUE POTENTIELLE",
+                    pillClass: "lf-pill-spam",
+                    tagClass: "lf-tag-spam",
+                    domain,
+                    signals: "Domaine personnalisé contenant des mots-clés typiques de phishing ou de campagnes frauduleuses.",
+                    advice: "Compare l'orthographe du domaine avec le site officiel. Une seule lettre de décalage = danger.",
+                };
+            }
+
+            // Orange pour le reste (pessimiste)
+            return {
+                level: "undesirable",
+                label: "INDÉSIRABLE / INCONNU",
+                pillClass: "lf-pill-undesirable",
+                tagClass: "lf-tag-undesirable",
+                domain,
+                signals: "Domaine non reconnu par ce scanner. L’inconnu est traité comme potentiellement indésirable.",
+                advice: "Fais-toi une règle : inconnu = pas de clic, pas d’info perso, pas de confiance automatique.",
+            };
+        }
+
+        // ---------------------------------------------------------------
+        //  Mise à jour de l'UI avec le résultat                         -->
+        // ---------------------------------------------------------------
+        function lfUpdateUI(email, result) {
+            lfResetPillClasses();
+            lfResetClassTagClasses();
+
+            lfResultPill.textContent = result.label;
+            lfResultPill.classList.add(result.pillClass);
+
+            lfResultEmail.textContent = email || "(email vide)";
+
+            lfDetailDomain.textContent = result.domain || "—";
+
+            lfDetailClassTag.textContent = result.label;
+            lfDetailClassTag.classList.add(result.tagClass);
+
+            lfDetailClassText.textContent = result.signals;
+            lfDetailSignals.textContent = result.signals;
+            lfDetailAdvice.textContent = result.advice;
+
+            if (result.level === "invalid") {
+                lfInlineMsg.textContent = "Format d'email invalide. Corrige avant de faire confiance à l’expéditeur.";
+                lfInlineMsg.className = "lf-inline-error";
+            } else {
+                lfInlineMsg.textContent = "Scan effectué. Interprète toujours le résultat avec ta propre méfiance.";
+                lfInlineMsg.className = "lf-command-note";
+            }
+        }
+
+        // ---------------------------------------------------------------
+        //  Historique visuel                                            -->
+        // ---------------------------------------------------------------
+        function lfRenderHistory() {
+            lfHistoryList.innerHTML = "";
+
+            if (lfHistory.length === 0) {
+                const line = document.createElement("div");
+                line.className = "lf-history-line";
+                line.innerHTML = "<span>(vide)</span><span>— aucun email scanné pour l’instant.</span>";
+                lfHistoryList.appendChild(line);
+                return;
+            }
+
+            lfHistory.slice(-12).forEach(function (item) {
+                const line = document.createElement("div");
+                line.className = "lf-history-line";
+
+                const emailSpan = document.createElement("span");
+                emailSpan.className = "lf-history-email";
+                emailSpan.textContent = item.email;
+
+                const sepSpan = document.createElement("span");
+                sepSpan.textContent = "=>";
+
+                const statusSpan = document.createElement("span");
+                statusSpan.className = "lf-history-status";
+                statusSpan.textContent = item.label;
+
+                line.appendChild(emailSpan);
+                line.appendChild(sepSpan);
+                line.appendChild(statusSpan);
+
+                lfHistoryList.appendChild(line);
+            });
+        }
+
+        // ---------------------------------------------------------------
+        //  Action : lancer le scan                                      -->
+        // ---------------------------------------------------------------
+        function lfPerformScan() {
+            const rawEmail = lfEmailInput.value || "";
+            const normalizedEmail = lfNormalizeEmail(rawEmail);
+
+            const result = lfClassifyEmail(normalizedEmail);
+
+            lfUpdateUI(normalizedEmail, result);
+
+            // Mise à jour historique
+            lfHistory.push({
+                email: normalizedEmail || "(vide)",
+                level: result.level,
+                label: result.label
+            });
+
+            lfRenderHistory();
+        }
+
+        // ---------------------------------------------------------------
+        //  Événements                                                   -->
+        // ---------------------------------------------------------------
+        lfScanBtn.addEventListener("click", function () {
+            lfPerformScan();
+        });
+
+        lfEmailInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                lfPerformScan();
+            }
+        });
+    </script>
+</body>
+</html>

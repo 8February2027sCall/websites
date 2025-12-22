@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!--
+        ============================================================
+        8 FEBRUARY 2027'S CALL – SAFE CHECK TERMINAL
+        ============================================================
+        Auteur      : FUTURE VAL CORP / Valentin
+        Page        : SafeCheck – Scanner communautaire
+        Style       : Minimal, noir, type invite de commande
+        Objectif    : Permettre d’entrer un lien / fichier suspect,
+                      lancer un scan simulé, et afficher un résultat
+                      lisible, avec codes couleur de niveau de risque.
+        ============================================================
+    -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>8 February 2027's Call - SafeCheck</title>
+
+    <!--
+        FAVICON / ICÔNE DE PAGE
+        "827scall Logo (Carré).png" doit être placé
+        à la racine ou adapté avec le bon chemin.
+    -->
+    <link rel="icon"
+          type="image/png"
+          href="827scall Logo (Carré).png">
+
+    <!--
+        TYPOGRAPHIE
+        - Titre : Inndam Extended (à relier à un vrai fichier .woff2 / .woff)
+        - Corps : monospace système (style code)
+    -->
+
+    <!-- Exemple de @font-face pour Inndam Extended
+         (Remplacer src: url(...) par vos vrais fichiers de police) -->
+    <style>
+        @font-face {
+            font-family: "Inndam Extended";
+            src:
+                /* À ADAPTER : ajouter vos vraies URL de police ici */
+                url("fonts/InndamExtended.woff2") format("woff2"),
+                url("fonts/InndamExtended.woff") format("woff");
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
+
+    <!--
+        STYLES GÉNÉRAUX
+        Noir / Monospace / Style terminal.
+        Le but : rester simple, lisible, sans décoration inutile,
+        mais avec une hiérarchie claire.
+    -->
+    <style>
+        :root {
+            /* Couleurs principales */
+            --bg-main: #010101;
+            --bg-panel: #050505;
+            --bg-input: #0b0b0b;
+            --bg-button: #101010;
+
+            --border-soft: #202020;
+            --border-strong: #404040;
+
+            --txt-primary: #e9e9e9;
+            --txt-secondary: #a0a0a0;
+            --txt-muted: #6a6a6a;
+
+            /* Couleurs d'état */
+            --state-safe: #00c46b;      /* VERT   - SAFE */
+            --state-normal: #f0c000;    /* JAUNE  - NORMAL */
+            --state-danger: #ff7b00;    /* ORANGE - DANGEREUX */
+            --state-risk: #ff3455;      /* ROUGE  - À RISQUE */
+
+            /* Couleurs d'accent / survol */
+            --accent-soft: #1585ff;
+            --accent-soft-alt: #ff3bb8;
+            --accent-frame: #333333;
+
+            /* Espaces / Rythme */
+            --pad-s: 0.35rem;
+            --pad-m: 0.7rem;
+            --pad-l: 1.2rem;
+
+            --radius-xs: 2px;
+            --radius-s: 4px;
+            --radius-m: 6px;
+
+            /* Taille texte */
+            --fs-xs: 0.72rem;
+            --fs-s: 0.78rem;
+            --fs-m: 0.82rem;
+            --fs-l: 0.9rem;
+            --fs-xl: 1.1rem;
+            --fs-title: 1.4rem;
+
+            /* Largeur max contenu */
+            --max-width: 1080px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-main);
+            color: var(--txt-primary);
+            font-family:
+                "SF Mono",
+                "JetBrains Mono",
+                "Fira Code",
+                "Cascadia Code",
+                Menlo,
+                Monaco,
+                Consolas,
+                "Liberation Mono",
+                "Courier New",
+                monospace;
+            font-size: 16px;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            line-height: 1.4;
+        }
+
+        /* Conteneur principal */
+        .page-shell {
+            width: 100%;
+            max-width: var(--max-width);
+            margin-top: 2.5rem;
+            margin-bottom: 2.5rem;
+            padding: 0 var(--pad-m);
+        }
+
+        /* Bandeau supérieur */
+        .top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.25rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .top-header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-square {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            border-radius: var(--radius-xs);
+            overflow: hidden;
+            border: 1px solid var(--border-soft);
+            background-color: #050505;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-square img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .site-title-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .site-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: var(--fs-title);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--txt-primary);
+        }
+
+        .site-subtitle {
+            font-size: var(--fs-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--txt-muted);
+        }
+
+        .header-status {
+            text-align: right;
+            font-size: var(--fs-xs);
+            color: var(--txt-muted);
+        }
+
+        .header-status span {
+            display: block;
+        }
+
+        .header-status .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            margin-right: 0.35rem;
+            background-color: var(--state-safe);
+        }
+
+        .header-status .status-label {
+            text-transform: uppercase;
+            letter-spacing: 0.11em;
+        }
+
+        .header-status .status-env {
+            color: var(--txt-secondary);
+        }
+
+        /* Ligne horizontale de séparation */
+        .divider {
+            width: 100%;
+            height: 1px;
+            border-bottom: 1px solid var(--border-strong);
+            margin-bottom: 1rem;
+        }
+
+        /*
+            ZONE TERMINAL PRINCIPALE
+        */
+        .terminal-shell {
+            border: 1px solid var(--accent-frame);
+            background:
+                radial-gradient(circle at top left, #111 0, #000 50%, #000 100%);
+            border-radius: var(--radius-s);
+            overflow: hidden;
+            box-shadow:
+                0 0 0 1px #000,
+                0 0 0 2px #222,
+                0 24px 70px rgba(0, 0, 0, 0.9);
+        }
+
+        .terminal-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.3rem 0.7rem;
+            background: linear-gradient(90deg, #050505, #101010);
+            border-bottom: 1px solid #1b1b1b;
+        }
+
+        .terminal-top-left {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+        }
+
+        .dot--close {
+            background-color: #ff5f57;
+        }
+
+        .dot--minimize {
+            background-color: #febc2e;
+        }
+
+        .dot--maximize {
+            background-color: #27c93f;
+        }
+
+        .terminal-title {
+            font-size: var(--fs-xs);
+            color: var(--txt-secondary);
+        }
+
+        .terminal-top-right {
+            font-size: var(--fs-xs);
+            color: var(--txt-muted);
+        }
+
+        .terminal-body {
+            padding: 1.1rem 1.4rem 1.4rem 1.4rem;
+            background-color: #020202;
+        }
+
+        /*
+            LIGNES DE PROMPT
+        */
+        .line {
+            font-size: var(--fs-m);
+            color: var(--txt-primary);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .line--muted {
+            color: var(--txt-muted);
+        }
+
+        .line--secondary {
+            color: var(--txt-secondary);
+        }
+
+        .prompt {
+            color: var(--state-safe);
+        }
+
+        .prompt-path {
+            color: var(--accent-soft);
+        }
+
+        .prompt-symbol {
+            color: var(--txt-primary);
+        }
+
+        .blink {
+            display: inline-block;
+            width: 7px;
+            margin-left: 2px;
+            background-color: var(--txt-primary);
+            animation: blink 1.15s steps(1, start) infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /*
+            GRILLE INTERNE : INPUT / RÉSULTATS
+        */
+        .terminal-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+            gap: 1.25rem;
+            margin-top: 1.3rem;
+        }
+
+        @media (max-width: 860px) {
+            .terminal-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        /*
+            PANNEAU FORMULAIRE
+        */
+        .panel {
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-s);
+            background-color: var(--bg-panel);
+            padding: var(--pad-m);
+        }
+
+        .panel--form {
+            background:
+                linear-gradient(135deg, #050505 0, #050505 45%, #030303 100%);
+        }
+
+        .panel--results {
+            background:
+                radial-gradient(circle at top, #080808 0, #030303 55%, #020202 100%);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 0.65rem;
+        }
+
+        .panel-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: var(--fs-xl);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+        }
+
+        .panel-badge {
+            font-size: var(--fs-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--txt-muted);
+        }
+
+        .panel-description {
+            font-size: var(--fs-s);
+            color: var(--txt-secondary);
+            margin-bottom: 0.7rem;
+        }
+
+        /*
+            FORMULAIRE
+        */
+        .scan-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .field-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .field-label {
+            font-size: var(--fs-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--txt-secondary);
+        }
+
+        .field-hint {
+            font-size: var(--fs-xs);
+            color: var(--txt-muted);
+        }
+
+        .input-text,
+        .input-textarea {
+            width: 100%;
+            padding: 0.55rem 0.6rem;
+            background-color: var(--bg-input);
+            border-radius: var(--radius-xs);
+            border: 1px solid var(--border-soft);
+            color: var(--txt-primary);
+            font-size: var(--fs-m);
+            font-family:
+                "SF Mono",
+                "JetBrains Mono",
+                "Fira Code",
+                "Cascadia Code",
+                Menlo,
+                Monaco,
+                Consolas,
+                "Liberation Mono",
+                "Courier New",
+                monospace;
+            outline: none;
+            transition:
+                border-color 0.15s ease-out,
+                box-shadow 0.15s ease-out,
+                background-color 0.15s ease-out;
+        }
+
+        .input-text:focus,
+        .input-textarea:focus {
+            border-color: var(--accent-soft);
+            box-shadow:
+                0 0 0 1px rgba(21, 133, 255, 0.5),
+                0 0 0 2px #000;
+            background-color: #050505;
+        }
+
+        .input-text::placeholder,
+        .input-textarea::placeholder {
+            color: var(--txt-muted);
+        }
+
+        .input-textarea {
+            resize: vertical;
+            min-height: 4.6rem;
+            max-height: 14rem;
+        }
+
+        .file-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-input {
+            flex: 1;
+            padding: 0.45rem 0.4rem;
+            background-color: var(--bg-input);
+            border-radius: var(--radius-xs);
+            border: 1px dashed var(--border-soft);
+            color: var(--txt-secondary);
+            font-size: var(--fs-m);
+        }
+
+        .file-input::-webkit-file-upload-button {
+            border: none;
+            margin-right: 0.7rem;
+            padding: 0.25rem 0.55rem;
+            border-radius: var(--radius-xs);
+            background-color: var(--bg-button);
+            color: var(--txt-secondary);
+            cursor: pointer;
+            font-family:
+                "SF Mono",
+                "JetBrains Mono",
+                "Fira Code",
+                "Cascadia Code",
+                Menlo,
+                Monaco,
+                Consolas,
+                "Liberation Mono",
+                "Courier New",
+                monospace;
+            font-size: var(--fs-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .file-input:hover::-webkit-file-upload-button {
+            background-color: #141414;
+            color: var(--txt-primary);
+        }
+
+        .file-note {
+            font-size: var(--fs-xs);
+            color: var(--txt-muted);
+        }
+
+        .or-separator {
+            font-size: var(--fs-xs);
+            color: var(--txt-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            text-align: center;
+            margin: 0.2rem 0;
+        }
+
+        .bottom-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            gap: 0.75rem;
+        }
+
+        .submit-button {
+            padding: 0.55rem 1.2rem;
+            border-radius: var(--radius-s);
+            border: 1px solid var(--accent-soft);
+            background:
+                radial-gradient(circle at top left, #1a2d4a 0, #04070d 50%, #020307 100%);
+            color: var(--txt-primary);
+            font-size: var(--fs-s);
+            font-family:
+                "SF Mono",
+                "JetBrains Mono",
+                "Fira Code",
+                "Cascadia Code",
+                Menlo,
+                Monaco,
+                Consolas,
+                "Liberation Mono",
+                "Courier New",
+                monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition:
+                background 0.18s ease-out,
+                border-color 0.18s ease-out,
+                transform 0.12s ease-out,
+                box-shadow 0.18s ease-out;
+        }
+
+        .submit-button span {
+            font-size: var(--fs-xs);
+        }
+
+        .submit-button .arrow {
+            font-size: 0.9rem;
+            color: var(--accent-soft);
+        }
+
+        .submit-button:hover {
+            border-color: var(--accent-soft-alt);
+            background:
+                radial-gradient(circle at top left, #2f2145 0, #050306 45%, #020204 100%);
+            transform: translateY(-0.5px);
+            box-shadow: 0 0 18px rgba(255, 59, 184, 0.35);
+        }
+
+        .submit-button:active {
+            transform: translateY(0.5px) scale(0.99);
+            box-shadow: none;
+        }
+
+        .form-meta {
+            font-size: var(--fs-xs);
+            color: var(--txt-muted);
+        }
+
+        /*
+            RÉSULTATS
+        */
+        .results-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .status-line {
+            font-size: var(--fs-s);
+            color: var(--txt-secondary);
+        }
+
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.1rem 0.5rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-soft);
+            background-color: #050505;
+            font-size: var(--fs-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .status-tag-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+        }
+
+        .status-tag-level {
+            color: var(--txt-primary);
+        }
+
+        .status-tag-label {
+            color: var(--txt-muted);
+        }
+
+        .status-summary {
+            font-size: var(--fs-xs);
+            color: var(--txt-muted);
+        }
+
+        .results-main {
+            border-radius: var(--radius-xs);
+            border: 1px solid var(--border-soft);
+            overflow: hidden;
+        }
+
+        .results-header-row {
+            display: grid;
+            grid-template-columns: 0.9fr 0.45fr 0.55fr;
+            gap: 0;
+            background-color: #080808;
+            border-bottom: 1px solid var(--border-soft);
+            padding: 0.35rem 0.6rem;
+            font-size: var(--fs-xs);
+            color: var(--txt-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        @media (max-width: 640px) {
+            .results-header-row {
+                grid-template-columns: 1.2fr 0.6fr;
+            }
+
+            .results-header-row .col--extra {
+                display: none;
+            }
+        }
+
+        .results-body {
+            max-height: 260px;
+            overflow-y: auto;
+            background-color: #050505;
+        }
+
+        .result-row {
+            display: grid;
+            grid-template-columns: 0.9fr 0.45fr 0.55fr;
+            gap: 0;
+            font-size: var(--fs-s);
+            border-bottom: 1px solid #080808;
+        }
+
+        @media (max-width: 640px) {
+            .result-row {
+                grid-template-columns: 1.2fr 0.6fr;
+            }
+
+            .result-row .col--extra {
+                display: none;
+            }
+        }
+
+        .result-cell {
+            padding: 0.35rem 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .result-label {
+            color: var(--txt-secondary);
+        }
+
+        .result-detail {
+            color: var(--txt-primary);
+        }
+
+        .result-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border-radius: 999px;
+            padding: 0.05rem 0.55rem;
+            border-width: 1px;
+            border-style: solid;
+            font-size: var(--fs-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.13em;
+        }
+
+        .result-tag-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+        }
+
+        /*
+            COULEURS DE NIVEAU
+            - SAFE
+            - NORMAL
+            - DANGEROUS
+            - AT RISK
+        */
+
+        /* SAFE – VERT */
+        .state-safe {
+            --badge-color: var(--state-safe);
+            color: var(--state-safe);
+            border-color: rgba(0, 196, 107, 0.7);
+            background-color: rgba(0, 196, 107, 0.05);
+        }
+
+        .state-safe .result-tag-dot {
+            background-color: var(--state-safe);
+        }
+
+        .state-safe-text {
+            color: var(--state-safe);
+        }
+
+        /* NORMAL – JAUNE */
+        .state-normal {
+            --badge-color: var(--state-normal);
+            color: var(--state-normal);
+            border-color: rgba(240, 192, 0, 0.7);
+            background-color: rgba(240, 192, 0, 0.05);
+        }
+
+        .state-normal .result-tag-dot {
+            background-color: var(--state-normal);
+        }
+
+        .state-normal-text {
+            color: var(--state-normal);
+        }
+
+        /* DANGEROUS – ORANGE */
+        .state-danger {
+            --badge-color: var(--state-danger);
+            color: var(--state-danger);
+            border-color: rgba(255, 123, 0, 0.85);
+            background-color: rgba(255, 123, 0, 0.08);
+        }
+
+        .state-danger .result-tag-dot {
+            background-color: var(--state-danger);
+        }
+
+        .state-danger-text {
+            color: var(--state-danger);
+        }
+
+        /* À RISQUE – ROUGE */
+        .state-risk {
+            --badge-color: var(--state-risk);
+            color: var(--state-risk);
+            border-color: rgba(255, 52, 85, 0.85);
+            background-color: rgba(255, 52, 85, 0.1);
+        }
+
+        .state-risk .result-tag-dot {
+            background-color: var(--state-risk);
+        }
+
+        .state-risk-text {
+            color: var(--state-risk);
+        }
+
+        /*
+            ZONE LÉGENDE / RÈGLES DE COULEURS
+        */
+        .legend {
+            margin-top: 0.8rem;
+            border-radius: var(--radius-xs);
+            border: 1px dashed var(--border-soft);
+            padding: 0.55rem 0.65rem;
+            font-size: var(--fs-xs);
+            color: var(--txt-muted);
+        }
+
+        .legend-title {
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            margin-bottom: 0.4rem;
+            color: var(--txt-secondary);
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.45rem 0.85rem;
+        }
+
+        @media (max-width: 640px) {
+            .legend-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.4rem;
+        }
+
+        .legend-bullet {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-label {
+            color: var(--txt-secondary);
+        }
+
+        .legend-text {
+            display: block;
+            color: var(--txt-muted);
+        }
+
+        .legend-bullet--safe {
+            background-color: var(--state-safe);
+        }
+
+        .legend-bullet--normal {
+            background-color: var(--state-normal);
+        }
+
+        .legend-bullet--danger {
+            background-color: var(--state-danger);
+        }
+
+        .legend-bullet--risk {
+            background-color: var(--state-risk);
+        }
+
+        /*
+            FOOTER
+        */
+        .footer {
+            margin-top: 1rem;
+            font-size: var(--fs-xs);
+            color: var(--txt-muted);
+            text-align: center;
+        }
+
+        .footer-line {
+            margin-top: 0.25rem;
+        }
+
+        .footer-strong {
+            color: var(--txt-secondary);
+        }
+
+        /*
+            SCROLLBARS (légers, style terminal)
+        */
+        .results-body::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        .results-body::-webkit-scrollbar-track {
+            background-color: #050505;
+        }
+
+        .results-body::-webkit-scrollbar-thumb {
+            background-color: #222;
+            border-radius: 999px;
+        }
+
+        .results-body::-webkit-scrollbar-thumb:hover {
+            background-color: #333;
+        }
+
+        /*
+            PETITES ANIMATIONS
+        */
+        .scan-pulse {
+            animation: scan-pulse 1.4s ease-out infinite;
+        }
+
+        @keyframes scan-pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(21, 133, 255, 0.45);
+            }
+            70% {
+                box-shadow: 0 0 0 14px rgba(21, 133, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(21, 133, 255, 0);
+            }
+        }
+
+        .fade-in {
+            animation: fade-in 0.25s ease-out;
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(1px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-row {
+            animation: fade-in-row 0.35s ease-out;
+        }
+
+        @keyframes fade-in-row {
+            from {
+                opacity: 0;
+                transform: translateY(2px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /*
+            CLASSES D'ÉTAT GLOBALES
+        */
+        .overall-safe {
+            border-color: rgba(0, 196, 107, 0.8);
+            box-shadow: 0 0 18px rgba(0, 196, 107, 0.25);
+        }
+
+        .overall-normal {
+            border-color: rgba(240, 192, 0, 0.9);
+            box-shadow: 0 0 18px rgba(240, 192, 0, 0.22);
+        }
+
+        .overall-danger {
+            border-color: rgba(255, 123, 0, 0.9);
+            box-shadow: 0 0 22px rgba(255, 123, 0, 0.28);
+        }
+
+        .overall-risk {
+            border-color: rgba(255, 52, 85, 0.95);
+            box-shadow: 0 0 26px rgba(255, 52, 85, 0.35);
+        }
+
+        /*
+            PLACEHOLDER DE SCAN
+        */
+        .empty-placeholder {
+            padding: 0.7rem 0.6rem;
+            font-size: var(--fs-xs);
+            color: var(--txt-muted);
+        }
+
+        /*
+            MARQUEUR POUR LIGNE D'ENTRÉE UTILISATEUR
+        */
+        .prompt-input-line {
+            margin-top: 0.55rem;
+        }
+
+        .prompt-input-line .user-command {
+            color: var(--txt-secondary);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+
+        <!--
+            ========================================================
+            ENTÊTE PRINCIPAL
+            ========================================================
+        -->
+        <header class="top-header">
+            <div class="top-header-left">
+                <div class="logo-square">
+                    <!--
+                        Si l'image n'est pas trouvée,
+                        on garde au moins le fond noir.
+                    -->
+                    <img src="827scall Logo (Carré).png"
+                         alt="827's Call Logo carré">
+                </div>
+
+                <div class="site-title-block">
+                    <div class="site-title">
+                        8 February 2027's Call
+                    </div>
+                    <div class="site-subtitle">
+                        SafeCheck &nbsp;•&nbsp; Community Scanner
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-status">
+                <span>
+                    <span class="status-dot"></span>
+                    <span class="status-label">Node</span>
+                    <span class="status-env">community / safe_check</span>
+                </span>
+                <span>
+                    <span class="status-label">mode</span>
+                    <span class="status-env">read-only / simulated scan</span>
+                </span>
+            </div>
+        </header>
+
+        <div class="divider"></div>
+
+        <!--
+            ========================================================
+            BLOC TERMINAL GLOBAL
+            ========================================================
+        -->
+        <main class="terminal-shell" id="terminal-shell">
+            <!--
+                Barre supérieure de la "fenêtre" type terminal
+            -->
+            <div class="terminal-top-bar">
+                <div class="terminal-top-left">
+                    <div class="dot dot--close"></div>
+                    <div class="dot dot--minimize"></div>
+                    <div class="dot dot--maximize"></div>
+                </div>
+
+                <div class="terminal-title">
+                    827-CALL : SAFE CHECK / COMMUNITY SCAN
+                </div>
+
+                <div class="terminal-top-right">
+                    v0.1 &nbsp;•&nbsp; prototype client-side
+                </div>
+            </div>
+
+            <!--
+                Corps principal du terminal
+            -->
+            <section class="terminal-body">
+
+                <!--
+                    Lignes d'introduction
+                -->
+                <div class="line line--muted">
+                    # 8 February 2027's Call · SafeCheck
+                </div>
+                <div class="line line--muted">
+                    # Ce terminal est un point d'entrée pour partager des fichiers ou liens suspects,
+                    &nbsp;les lire ensemble, et apprendre à reconnaître les signaux de danger.
+                </div>
+                <div class="line line--secondary" style="margin-top: 0.45rem;">
+                    # Note : Cette version est un simulateur côté navigateur.
+                    Aucune donnée n'est envoyée à un serveur distant.
+                </div>
+
+                <div class="line" style="margin-top: 0.7rem;">
+                    <span class="prompt">community@827call</span>
+                    <span class="prompt-path">:/safecheck</span>
+                    <span class="prompt-symbol">$</span>
+                    &nbsp;initialize --scanner minimal --mode community
+                </div>
+
+                <div class="line line--secondary">
+                    &gt; Scanner chargé. Entrée possible : lien suspect, fichier local (optionnel), description.
+                </div>
+
+                <div class="line line--secondary">
+                    &gt; Analyse produite côté client. Code couleur : SAFE / NORMAL / DANGEREUX / À RISQUE.
+                </div>
+
+                <div class="line prompt-input-line">
+                    <span class="prompt">community@827call</span>
+                    <span class="prompt-path">:/safecheck</span>
+                    <span class="prompt-symbol">$</span>
+                    &nbsp;<span class="user-command">scan --open-interface</span><span class="blink"></span>
+                </div>
+
+                <!--
+                    ====================================================
+                    GRILLE : FORMULAIRE & RÉSULTATS
+                    ====================================================
+                -->
+                <section class="terminal-grid">
+
+                    <!--
+                        PANEL GAUCHE : FORMULAIRE DE SCAN
+                    -->
+                    <section class="panel panel--form" aria-label="Zone de saisie pour le scan">
+                        <header class="panel-header">
+                            <div class="panel-title">
+                                Input / Suspect
+                            </div>
+                            <div class="panel-badge">
+                                MODE : READ &nbsp;•&nbsp; COMMUNITY
+                            </div>
+                        </header>
+
+                        <p class="panel-description">
+                            Entrez un lien suspect, ajoutez un fichier (optionnel), décrivez le contexte.
+                            Le scanner analysera certains signaux simples de surface pour vous aider à réfléchir au niveau de risque.
+                        </p>
+
+                        <form class="scan-form" id="scan-form">
+                            <!--
+                                CHAMP : LIEN
+                            -->
+                            <div class="field-group">
+                                <div class="field-label-row">
+                                    <label class="field-label" for="url-input">
+                                        URL SUSPECTE
+                                    </label>
+                                    <div class="field-hint">
+                                        http(s)://, domains, raccourcis, etc.
+                                    </div>
+                                </div>
+
+                                <input
+                                    id="url-input"
+                                    name="url-input"
+                                    class="input-text"
+                                    type="text"
+                                    autocomplete="off"
+                                    spellcheck="false"
+                                    placeholder="Ex : https://exemple-douteux-login.com/security/update?session=..."
+                                >
+                            </div>
+
+                            <!--
+                                CHAMP : FICHIER
+                            -->
+                            <div class="field-group">
+                                <div class="field-label-row">
+                                    <label class="field-label" for="file-input">
+                                        FICHIER LOCAL (OPTIONNEL)
+                                    </label>
+                                    <div class="field-hint">
+                                        Aucun upload réel · lecture locale seulement
+                                    </div>
+                                </div>
+
+                                <div class="file-row">
+                                    <input
+                                        id="file-input"
+                                        name="file-input"
+                                        class="file-input"
+                                        type="file"
+                                    >
+                                </div>
+
+                                <div class="file-note">
+                                    Les champs du fichier peuvent être utilisés pour nommer / décrire ce que vous scannez.
+                                    Ce prototype n'envoie pas votre fichier sur un serveur, il ne fait que lire les métadonnées côté navigateur.
+                                </div>
+                            </div>
+
+                            <!--
+                                CHAMP : DESCRIPTION
+                            -->
+                            <div class="field-group">
+                                <div class="field-label-row">
+                                    <label class="field-label" for="description-input">
+                                        DESCRIPTION / CONTEXTE
+                                    </label>
+                                    <div class="field-hint">
+                                        Qui vous l'a envoyé ? Pourquoi vous doutez ?
+                                    </div>
+                                </div>
+
+                                <textarea
+                                    id="description-input"
+                                    name="description-input"
+                                    class="input-textarea"
+                                    placeholder="Ex : Reçu sur Discord par un inconnu qui insiste pour que je &quot;vérifie un cadeau&quot; ou &quot;test un mod&quot; très rapidement..."
+                                ></textarea>
+                            </div>
+
+                            <!--
+                                LIGNE OR
+                            -->
+                            <div class="or-separator">
+                                — lien OU/ET fichier · à vous de décider —
+                            </div>
+
+                            <!--
+                                BAS DU FORMULAIRE
+                            -->
+                            <div class="bottom-row">
+                                <button
+                                    class="submit-button"
+                                    id="scan-button"
+                                    type="submit"
+                                >
+                                    <span>lancer le scan</span>
+                                    <span class="arrow">&gt;_</span>
+                                </button>
+
+                                <div class="form-meta">
+                                    Aucun compte · Aucun tracking · Intention : pédagogie et réflexion commune.
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+
+                    <!--
+                        PANEL DROIT : RÉSULTATS DU SCAN
+                    -->
+                    <section class="panel panel--results"
+                             aria-label="Résultats du scan">
+                        <header class="panel-header">
+                            <div class="panel-title">
+                                Output / Scan
+                            </div>
+                            <div class="panel-badge" id="overall-level-label">
+                                EN ATTENTE D'UN SCAN
+                            </div>
+                        </header>
+
+                        <div class="results-header">
+                            <div class="status-line">
+                                <span class="status-tag" id="overall-status-tag">
+                                    <span class="status-tag-dot state-normal-text"
+                                          id="overall-status-dot"></span>
+                                    <span class="status-tag-level" id="overall-status-level">
+                                        IDLE
+                                    </span>
+                                    <span class="status-tag-label" id="overall-status-label">
+                                        Aucun élément scanné pour l'instant
+                                    </span>
+                                </span>
+                            </div>
+
+                            <div class="status-summary" id="overall-summary">
+                                En attente. Le premier scan affichera un score de surface et une lecture simple du risque.
+                            </div>
+                        </div>
+
+                        <div class="results-main" id="results-main">
+                            <!--
+                                En-tête du tableau de résultat
+                            -->
+                            <div class="results-header-row">
+                                <div>Surface check</div>
+                                <div>État / Couleur</div>
+                                <div class="col--extra">Détail</div>
+                            </div>
+
+                            <!--
+                                Corps de résultats (rempli par JS)
+                            -->
+                            <div class="results-body" id="results-body">
+                                <div class="empty-placeholder" id="empty-placeholder">
+                                    En attente…
+                                    Les lignes de scan s'afficheront ici :
+                                    domaine, protocole, longueur d'URL, présence de mots-clés suspects,
+                                    et autres signaux de surface simples.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--
+                            LÉGENDE DES COULEURS
+                        -->
+                        <aside class="legend">
+                            <div class="legend-title">
+                                LÉGENDE COULEURS · ÉCHELLE DE RISQUE
+                            </div>
+
+                            <div class="legend-grid">
+                                <div class="legend-item">
+                                    <div class="legend-bullet legend-bullet--safe"></div>
+                                    <div>
+                                        <span class="legend-label">VERT · SAFE</span>
+                                        <span class="legend-text">
+                                            Coherent, attendu. Aucun signal de danger majeur de surface.
+                                            Rester prudent, mais pas d'alerte immédiate.
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="legend-item">
+                                    <div class="legend-bullet legend-bullet--normal"></div>
+                                    <div>
+                                        <span class="legend-label">JAUNE · NORMAL</span>
+                                        <span class="legend-text">
+                                            Peut être légitime, mais des détails méritent un peu d’attention
+                                            (longueur, redirections, contexte social).
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="legend-item">
+                                    <div class="legend-bullet legend-bullet--danger"></div>
+                                    <div>
+                                        <span class="legend-label">ORANGE · DANGEREUX</span>
+                                        <span class="legend-text">
+                                            Signaux contradictoires ou suspects. Exige de freiner, réfléchir,
+                                            vérifier à froid et demander un deuxième avis.
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="legend-item">
+                                    <div class="legend-bullet legend-bullet--risk"></div>
+                                    <div>
+                                        <span class="legend-label">ROUGE · À RISQUE</span>
+                                        <span class="legend-text">
+                                            Indices forts de phishing, vol de compte, exécutable douteux.
+                                            Ne pas ouvrir / ne pas exécuter tant que vous n’êtes pas certain.
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </section>
+                </section>
+            </section>
+        </main>
+
+        <!--
+            ========================================================
+            PIED DE PAGE
+            ========================================================
+        -->
+        <footer class="footer">
+            <div class="footer-line">
+                <span class="footer-strong">8 February 2027's Call</span>
+                – SafeCheck · Prototype de scan orienté pédagogie, sans promesse de protection absolue.
+            </div>
+            <div class="footer-line">
+                Ce code est un point de départ. À vous de l’adapter, l’héberger, l’améliorer, et le relier à de vrais moteurs d’analyse,
+                toujours avec consentement, transparence, et respect des personnes scannées.
+            </div>
+        </footer>
+    </div>
+
+    <!--
+        ============================================================
+        SCRIPT : LOGIQUE DE SCAN (SIMPLIFIÉE, CÔTÉ NAVIGATEUR)
+        ============================================================
+        - Rien n'est envoyé côté serveur.
+        - On calcule des signaux basiques sur l'URL / le fichier.
+        - Le but n'est PAS de remplacer un antivirus ou un audit pro,
+          mais de donner un retour visuel lisible pour la communauté.
+        ============================================================
+    -->
+    <script>
+        (function () {
+            "use strict";
+
+            /*
+                RÉFÉRENCES DOM
+            */
+            const form = document.getElementById("scan-form");
+            const urlInput = document.getElementById("url-input");
+            const fileInput = document.getElementById("file-input");
+            const descInput = document.getElementById("description-input");
+
+            const scanButton = document.getElementById("scan-button");
+            const resultsBody = document.getElementById("results-body");
+            const emptyPlaceholder = document.getElementById("empty-placeholder");
+            const resultsMain = document.getElementById("results-main");
+            const terminalShell = document.getElementById("terminal-shell");
+
+            const overallStatusTag = document.getElementById("overall-status-tag");
+            const overallStatusDot = document.getElementById("overall-status-dot");
+            const overallStatusLevel = document.getElementById("overall-status-level");
+            const overallStatusLabel = document.getElementById("overall-status-label");
+            const overallSummary = document.getElementById("overall-summary");
+            const overallLevelLabel = document.getElementById("overall-level-label");
+
+            /*
+                TABLEAU D'ÉTATS POSSIBLES POUR LA COULEUR GLOBALE
+                (safe / normal / danger / risk)
+            */
+            const LEVELS = {
+                SAFE: "SAFE",
+                NORMAL: "NORMAL",
+                DANGEROUS: "DANGEREUX",
+                RISKY: "À RISQUE"
+            };
+
+            /*
+                UTILITAIRE : NETTOYER LES CLASSES D'ÉTAT GLOBALES
+            */
+            function resetOverallClasses() {
+                resultsMain.classList.remove("overall-safe", "overall-normal", "overall-danger", "overall-risk");
+                terminalShell.classList.remove("overall-safe", "overall-normal", "overall-danger", "overall-risk");
+            }
+
+            /*
+                UTILITAIRE : APPLIQUER L'ÉTAT GLOBAL
+            */
+            function applyOverallLevel(level) {
+                resetOverallClasses();
+
+                let label = "";
+                let cssClass = "";
+                let summary = "";
+
+                switch (level) {
+                    case LEVELS.SAFE:
+                        label = "SAFE · COHÉRENT";
+                        cssClass = "overall-safe";
+                        overallStatusDot.className = "status-tag-dot state-safe-text";
+                        overallStatusLevel.textContent = "SAFE";
+                        overallStatusLabel.textContent = "Surface clean · Rien de choquant détecté";
+                        summary = "La surface de ce lien / fichier semble cohérente. Restez prudent, mais aucun indicateur fort n'est remonté ici.";
+                        break;
+                    case LEVELS.NORMAL:
+                        label = "NORMAL · À SURVEILLER";
+                        cssClass = "overall-normal";
+                        overallStatusDot.className = "status-tag-dot state-normal-text";
+                        overallStatusLevel.textContent = "NORMAL";
+                        overallStatusLabel.textContent = "Quelques points neutres ou ambigus";
+                        summary = "Rien de directement explosif, mais plusieurs éléments méritent un peu d'attention. Contexte, origine, timing : tout compte.";
+                        break;
+                    case LEVELS.DANGEROUS:
+                        label = "DANGEREUX · CHAUD";
+                        cssClass = "overall-danger";
+                        overallStatusDot.className = "status-tag-dot state-danger-text";
+                        overallStatusLevel.textContent = "DANGEREUX";
+                        overallStatusLabel.textContent = "Signaux multiples et incohérents";
+                        summary = "Plusieurs signaux de surface se contredisent ou pointent vers du phishing / de la manipulation. Freine sec, respire, vérifie.";
+                        break;
+                    case LEVELS.RISKY:
+                        label = "À RISQUE · CRITIQUE";
+                        cssClass = "overall-risk";
+                        overallStatusDot.className = "status-tag-dot state-risk-text";
+                        overallStatusLevel.textContent = "À RISQUE";
+                        overallStatusLabel.textContent = "Forte probabilité de piège";
+                        summary = "Le pattern ressemble clairement à un piège : clone de login, exécutable douteux, pression sociale. Ne clique pas mécaniquement.";
+                        break;
+                    default:
+                        label = "EN ATTENTE D'UN SCAN";
+                        cssClass = "";
+                        overallStatusDot.className = "status-tag-dot state-normal-text";
+                        overallStatusLevel.textContent = "IDLE";
+                        overallStatusLabel.textContent = "Aucun élément scanné pour l'instant";
+                        summary = "En attente. Le premier scan affichera un score de surface et une lecture simple du risque.";
+                        break;
+                }
+
+                if (cssClass) {
+                    resultsMain.classList.add(cssClass);
+                    terminalShell.classList.add(cssClass);
+                }
+
+                overallLevelLabel.textContent = label;
+                overallSummary.textContent = summary;
+            }
+
+            /*
+                UTILITAIRE : CRÉER UNE LIGNE DE RÉSULTAT
+                - label : nom de la règle (ex: "Protocole")
+                - level : SAFE / NORMAL / DANGEROUS / RISKY
+                - detailShort : texte court pour la colonne "État"
+                - detailLong : texte plus long pour la dernière colonne
+            */
+            function createResultRow(label, level, detailShort, detailLong) {
+                const row = document.createElement("div");
+                row.className = "result-row fade-in-row";
+
+                const labelCell = document.createElement("div");
+                labelCell.className = "result-cell";
+                labelCell.innerHTML = "<span class='result-label'>" + label + "</span>";
+
+                const stateCell = document.createElement("div");
+                stateCell.className = "result-cell";
+
+                const tag = document.createElement("span");
+                tag.className = "result-tag";
+
+                const dot = document.createElement("span");
+                dot.className = "result-tag-dot";
+
+                const text = document.createElement("span");
+                text.textContent = detailShort;
+
+                // Appliquer classe selon le niveau
+                switch (level) {
+                    case LEVELS.SAFE:
+                        tag.classList.add("state-safe");
+                        break;
+                    case LEVELS.NORMAL:
+                        tag.classList.add("state-normal");
+                        break;
+                    case LEVELS.DANGEREUX:
+                        tag.classList.add("state-danger");
+                        break;
+                    case LEVELS.RISKY:
+                        tag.classList.add("state-risk");
+                        break;
+                }
+
+                tag.appendChild(dot);
+                tag.appendChild(text);
+                stateCell.appendChild(tag);
+
+                const extraCell = document.createElement("div");
+                extraCell.className = "result-cell col--extra";
+                extraCell.innerHTML = "<span class='result-detail'>" + detailLong + "</span>";
+
+                row.appendChild(labelCell);
+                row.appendChild(stateCell);
+                row.appendChild(extraCell);
+
+                return row;
+            }
+
+            /*
+                LOGIQUE PRINCIPALE DE SCAN
+                - score global (0 à 100)
+                - chaque règle ajoute / retire quelques points
+                - puis on traduit en SAFE / NORMAL / DANGEREUX / À RISQUE
+            */
+            function computeScan(urlRaw, file, descriptionRaw) {
+                const results = [];
+                let scoreRisk = 0; // plus le score est élevé, plus c'est risqué
+
+                const url = (urlRaw || "").trim();
+                const description = (descriptionRaw || "").trim();
+
+                let hasUrl = !!url;
+                let hasFile = !!file;
+
+                /*
+                    CAS : RIEN N'EST FOURNI
+                */
+                if (!hasUrl && !hasFile && !description) {
+                    results.push(createResultRow(
+                        "Entrée",
+                        LEVELS.NORMAL,
+                        "vide",
+                        "Vous n'avez entré aucun lien, aucun fichier et aucune description. Rien à analyser, mais c'est déjà une décision."
+                    ));
+
+                    return {
+                        level: LEVELS.NORMAL,
+                        results
+                    };
+                }
+
+                /*
+                    RÈGLE : Présence d'une URL
+                */
+                if (hasUrl) {
+                    results.push(createResultRow(
+                        "URL présente",
+                        LEVELS.NORMAL,
+                        "oui",
+                        "Un lien a été fourni. On va regarder sa forme de surface (protocole, longueur, motifs)."
+                    ));
+                    scoreRisk += 5;
+                } else {
+                    results.push(createResultRow(
+                        "URL présente",
+                        LEVELS.NORMAL,
+                        "non",
+                        "Aucune URL directe. Le risque dépendra surtout du fichier ou du contexte social décrit."
+                    ));
+                    scoreRisk += 0;
+                }
+
+                /*
+                    RÈGLE : Protocole
+                */
+                if (hasUrl) {
+                    let protocolLevel = LEVELS.NORMAL;
+                    let shortText = "inconnu";
+                    let longText = "Le protocole n'est pas clairement reconnu. On reste prudent par défaut.";
+
+                    if (url.startsWith("https://")) {
+                        protocolLevel = LEVELS.SAFE;
+                        shortText = "https";
+                        longText = "Le lien commence par HTTPS. Ce n'est pas une garantie absolue, mais c'est mieux qu'un HTTP simple.";
+                        scoreRisk -= 5;
+                    } else if (url.startsWith("http://")) {
+                        protocolLevel = LEVELS.NORMAL;
+                        shortText = "http";
+                        longText = "Le lien utilise HTTP sans chiffrement. Ce n'est pas automatiquement malveillant, mais moins idéal pour les données sensibles.";
+                        scoreRisk += 8;
+                    } else if (url.startsWith("ftp://") || url.startsWith("sftp://")) {
+                        protocolLevel = LEVELS.DANGEREUX;
+                        shortText = "ftp/sftp";
+                        longText = "Transfert de fichier direct. Attention aux exécutables ou archives inconnues.";
+                        scoreRisk += 18;
+                    } else if (url.startsWith("file://")) {
+                        protocolLevel = LEVELS.DANGEREUX;
+                        shortText = "file://";
+                        longText = "Lien vers un fichier local. Partager ce type de lien peut exposer votre structure locale ou être utilisé pour vous manipuler.";
+                        scoreRisk += 22;
+                    } else if (url.startsWith("steam://") || url.startsWith("discord://")) {
+                        protocolLevel = LEVELS.DANGEREUX;
+                        shortText = "custom protocol";
+                        longText = "Protocoles spéciaux (Steam, Discord, etc.). Peut ouvrir des actions directes dans des apps. Toujours vérifier deux fois.";
+                        scoreRisk += 20;
+                    } else {
+                        protocolLevel = LEVELS.NORMAL;
+                        shortText = "autre";
+                        longText = "Protocole non standard ou raccourci. Il faut regarder le reste du lien et le contexte.";
+                        scoreRisk += 10;
+                    }
+
+                    results.push(createResultRow(
+                        "Protocole",
+                        protocolLevel,
+                        shortText,
+                        longText
+                    ));
+                }
+
+                /*
+                    RÈGLE : Longueur de l'URL
+                */
+                if (hasUrl) {
+                    const length = url.length;
+                    let level = LEVELS.NORMAL;
+                    let shortText = length + " caractères";
+                    let longText = "La longueur de l'URL est dans une zone neutre. C'est un indice parmi d'autres.";
+
+                    if (length <= 20) {
+                        level = LEVELS.SAFE;
+                        longText = "URL plutôt courte. Cela peut être un raccourci légitime ou un domaine simple. On regarde le reste.";
+                        scoreRisk -= 3;
+                    } else if (length <= 120) {
+                        level = LEVELS.NORMAL;
+                        longText = "Longueur classique. Ce n'est ni un drapeau vert ni rouge en soi.";
+                        scoreRisk += 2;
+                    } else if (length <= 250) {
+                        level = LEVELS.DANGEREUX;
+                        longText = "URL déjà assez longue, avec potentiellement beaucoup de paramètres. C'est souvent utilisé pour du tracking ou du phishing sophistiqué.";
+                        scoreRisk += 16;
+                    } else {
+                        level = LEVELS.RISKY;
+                        longText = "URL très longue. C'est typique des liens construits pour cacher des paramètres ou pousser un comportement automatique.";
+                        scoreRisk += 26;
+                    }
+
+                    results.push(createResultRow(
+                        "Longueur URL",
+                        level,
+                        shortText,
+                        longText
+                    ));
+                }
+
+                /*
+                    RÈGLE : Motifs suspects dans l'URL
+                */
+                if (hasUrl) {
+                    const lower = url.toLowerCase();
+                    const suspiciousKeywords = [
+                        "login",
+                        "signin",
+                        "verify",
+                        "verification",
+                        "free",
+                        "gift",
+                        "nitro",
+                        "steam",
+                        "robux",
+                        "crypto",
+                        "wallet",
+                        "airdrop",
+                        "boost",
+                        "security-check",
+                        "password",
+                        "2fa"
+                    ];
+
+                    let hitCount = 0;
+                    suspiciousKeywords.forEach(k => {
+                        if (lower.includes(k)) {
+                            hitCount++;
+                        }
+                    });
+
+                    let level = LEVELS.SAFE;
+                    let shortText = "aucun mot-clé critique";
+                    let longText = "Pas de mot-clé typique de phishing repéré dans l'URL, au moins en surface.";
+
+                    if (hitCount === 1) {
+                        level = LEVELS.NORMAL;
+                        shortText = "1 mot-clé";
+                        longText = "Un mot qui rappelle la sécurité, un cadeau, ou un service connu. Ça peut être légitime ou non.";
+                        scoreRisk += 8;
+                    } else if (hitCount === 2) {
+                        level = LEVELS.DANGEREUX;
+                        shortText = "2 mots-clés";
+                        longText = "Plusieurs mots attirent l'attention (login + cadeau + marque connue, etc.). Classique des campagnes de vol de compte.";
+                        scoreRisk += 18;
+                    } else if (hitCount >= 3) {
+                        level = LEVELS.RISKY;
+                        shortText = hitCount + " mots-clés";
+                        longText = "Beaucoup de mots typiques des pièges : login, cadeaux, crypto, marques… C'est exactement ce que visent les scams.";
+                        scoreRisk += 30;
+                    } else {
+                        scoreRisk += 0;
+                    }
+
+                    results.push(createResultRow(
+                        "Mots-clés URL",
+                        level,
+                        shortText,
+                        longText
+                    ));
+                }
+
+                /*
+                    RÈGLE : Présence d'une pièce jointe / fichier
+                */
+                if (hasFile) {
+                    let level = LEVELS.NORMAL;
+                    let shortText = "pièce jointe";
+                    let longText =
+                        "Vous avez sélectionné un fichier. On ne l'envoie pas sur un serveur, mais on peut déjà réfléchir au type et au contexte.";
+
+                    const name = file.name || "";
+                    const lowerName = name.toLowerCase();
+
+                    // Extensions les plus sensibles
+                    const riskExtensions = [
+                        ".exe",
+                        ".bat",
+                        ".cmd",
+                        ".ps1",
+                        ".vbs",
+                        ".js",
+                        ".jar",
+                        ".scr",
+                        ".msi",
+                        ".apk"
+                    ];
+
+                    const archiveExtensions = [
+                        ".zip",
+                        ".rar",
+                        ".7z",
+                        ".tar",
+                        ".gz"
+                    ];
+
+                    const docExtensions = [
+                        ".doc",
+                        ".docx",
+                        ".xls",
+                        ".xlsx",
+                        ".ppt",
+                        ".pptx",
+                        ".pdf"
+                    ];
+
+                    let matchedRisk = riskExtensions.some(ext => lowerName.endsWith(ext));
+                    let matchedArchive = archiveExtensions.some(ext => lowerName.endsWith(ext));
+                    let matchedDoc = docExtensions.some(ext => lowerName.endsWith(ext));
+
+                    if (matchedRisk) {
+                        level = LEVELS.RISKY;
+                        shortText = name || "exécutable suspect";
+                        longText =
+                            "Extension exécutable (.exe, .bat, .js, etc.). Jamais lancer ce type de fichier provenant d'une personne ou d'un site non sûr.";
+                        scoreRisk += 40;
+                    } else if (matchedArchive) {
+                        level = LEVELS.DANGEREUX;
+                        shortText = name || "archive";
+                        longText =
+                            "Archive compressée (.zip, .rar, etc.). Très utilisé pour cacher des exécutables ou scripts. Nécessite une extrême prudence.";
+                        scoreRisk += 24;
+                    } else if (matchedDoc) {
+                        level = LEVELS.NORMAL;
+                        shortText = name || "document";
+                        longText =
+                            "Document de type Office / PDF. Peut contenir des macros ou liens internes. On reste prudent, surtout si demandé en urgence.";
+                        scoreRisk += 12;
+                    } else {
+                        level = LEVELS.NORMAL;
+                        shortText = name || "fichier (autre)";
+                        longText =
+                            "Type de fichier non explicitement ciblé. Le risque dépend beaucoup de son origine et de ce que l'on vous demande d'en faire.";
+                        scoreRisk += 6;
+                    }
+
+                    results.push(createResultRow(
+                        "Type de fichier",
+                        level,
+                        shortText,
+                        longText
+                    ));
+                } else {
+                    results.push(createResultRow(
+                        "Pièce jointe",
+                        LEVELS.SAFE,
+                        "aucun fichier",
+                        "Pas de fichier à lancer / ouvrir. Une bonne manière de réduire les risques si vous avez un doute sur l'expéditeur."
+                    ));
+                    scoreRisk -= 4;
+                }
+
+                /*
+                    RÈGLE : Contexte dans la description
+                    - Recherchons des mots comme "urgent", "cadeau", "ami d'un ami", "angoisse", etc.
+                */
+                if (description) {
+                    const lowerDesc = description.toLowerCase();
+                    const pressureWords = [
+                        "urgent",
+                        "vite",
+                        "rapidement",
+                        "maintenant",
+                        "tout de suite",
+                        "sinon",
+                        "dernière chance",
+                        "ne dis à personne"
+                    ];
+
+                    const rewardWords = [
+                        "cadeau",
+                        "gratuit",
+                        "free",
+                        "nitro",
+                        "skin",
+                        "loot",
+                        "gift",
+                        "airdrop",
+                        "gains",
+                        "argent"
+                    ];
+
+                    const authorityWords = [
+                        "admin",
+                        "staff",
+                        "support",
+                        "modérateur",
+                        "moderator",
+                        "discord team",
+                        "officiel"
+                    ];
+
+                    let pressureHits = 0;
+                    pressureWords.forEach(w => {
+                        if (lowerDesc.includes(w)) pressureHits++;
+                    });
+
+                    let rewardHits = 0;
+                    rewardWords.forEach(w => {
+                        if (lowerDesc.includes(w)) rewardHits++;
+                    });
+
+                    let authorityHits = 0;
+                    authorityWords.forEach(w => {
+                        if (lowerDesc.includes(w)) authorityHits++;
+                    });
+
+                    let total = pressureHits + rewardHits + authorityHits;
+                    let level = LEVELS.NORMAL;
+                    let shortText = "contexte neutre";
+                    let longText =
+                        "Votre description ne montre pas clairement de pression, de cadeau miraculeux ou d'autorité forcée.";
+
+                    if (total === 0) {
+                        level = LEVELS.SAFE;
+                        shortText = "calme";
+                        longText =
+                            "Aucun mot clé de pression, de cadeau massif ou de faux staff. C'est plus facile de réfléchir à froid.";
+                        scoreRisk -= 8;
+                    } else if (total === 1 || total === 2) {
+                        level = LEVELS.DANGEREUX;
+                        shortText = "pression légère";
+                        longText =
+                            "Un ou deux signaux de pression / récompense / faux staff détectés. C'est typique de beaucoup de scams sociaux.";
+                        scoreRisk += 18;
+                    } else if (total >= 3) {
+                        level = LEVELS.RISKY;
+                        shortText = "pression forte";
+                        longText =
+                            "Plusieurs mots clés qui poussent à faire vite, à croire à un cadeau ou à obéir à une autorité. Pattern classique de manipulation.";
+                        scoreRisk += 28;
+                    }
+
+                    results.push(createResultRow(
+                        "Contexte social",
+                        level,
+                        shortText,
+                        longText
+                    ));
+                } else {
+                    results.push(createResultRow(
+                        "Contexte social",
+                        LEVELS.NORMAL,
+                        "non précisé",
+                        "Vous n'avez rien écrit sur le contexte. Parfois, c'est là que se cachent les signaux (pression, chantage, imitation d'amis…)."
+                    ));
+                    scoreRisk += 5;
+                }
+
+                /*
+                    POST-TRAITEMENT : BORNER LE SCORE
+                */
+                if (scoreRisk < 0) scoreRisk = 0;
+                if (scoreRisk > 100) scoreRisk = 100;
+
+                /*
+                    TRADUCTION SCORE → NIVEAU GÉNÉRAL
+                */
+                let globalLevel = LEVELS.NORMAL;
+                if (scoreRisk <= 20) {
+                    globalLevel = LEVELS.SAFE;
+                } else if (scoreRisk <= 45) {
+                    globalLevel = LEVELS.NORMAL;
+                } else if (scoreRisk <= 75) {
+                    globalLevel = LEVELS.DANGEREUX;
+                } else {
+                    globalLevel = LEVELS.RISKY;
+                }
+
+                // Ligne de synthèse du score
+                results.push(createResultRow(
+                    "Score de surface",
+                    globalLevel,
+                    scoreRisk + " / 100",
+                    "Plus le score est élevé, plus les signaux de surface ressemblent à des patterns de piège. Ce n'est pas une vérité absolue, mais un indicateur pour ralentir et réfléchir."
+                ));
+
+                return {
+                    level: globalLevel,
+                    results
+                };
+            }
+
+            /*
+                GESTIONNAIRE DE SOUMISSION DU FORMULAIRE
+            */
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                const urlValue = urlInput.value;
+                const descValue = descInput.value;
+                const file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+                // Indiquer visuellement que le scan démarre
+                scanButton.disabled = true;
+                scanButton.classList.add("scan-pulse");
+                scanButton.querySelector("span").textContent = "scan en cours…";
+
+                // Petit délai pour donner une impression de travail
+                setTimeout(function () {
+                    // Réinitialiser la zone de résultats
+                    resultsBody.innerHTML = "";
+                    if (emptyPlaceholder) emptyPlaceholder.remove();
+
+                    const { level, results } = computeScan(urlValue, file, descValue);
+
+                    // Ajouter chaque ligne de résultat
+                    results.forEach(function (row) {
+                        resultsBody.appendChild(row);
+                    });
+
+                    // Appliquer le niveau global
+                    applyOverallLevel(level);
+
+                    // Réinitialiser le bouton
+                    scanButton.disabled = false;
+                    scanButton.classList.remove("scan-pulse");
+                    scanButton.querySelector("span").textContent = "lancer un nouveau scan";
+                }, 320); // légère latence symbolique
+            });
+
+            /*
+                INITIALISATION : ÉTAT PAR DÉFAUT
+            */
+            applyOverallLevel(null);
+        })();
+    </script>
+</body>
+</html>
