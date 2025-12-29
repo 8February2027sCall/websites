@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!--
+        ================================================
+        8 February 2027's Call — Intelligent Safe Search
+        Futuristic, privacy-aware, risk-aware search shell
+        ------------------------------------------------
+        Single-file HTML+CSS+JS prototype
+        Lines intentionally long (1000–2000) as requested
+        ================================================
+    -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>8 February 2027's Call — Safe Search</title>
+
+    <!-- Favicon / Icon -->
+    <link rel="icon" type="image/png" href="827scall Logo (Carré).png">
+
+    <!-- Placeholder for custom title font: Inndam Extended -->
+    <!-- Replace the URL below with your actual font file if needed -->
+    <style>
+        @font-face {
+            font-family: "Inndam Extended";
+            src: url("Inndam-Extended.woff2") format("woff2");
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+
+    <!-- Base styles -->
+    <style>
+        /* =========================================
+           CSS RESET (minimal)
+        ========================================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            background: radial-gradient(circle at top, #111827 0, #020617 40%, #000000 100%);
+            color: #e5e7eb;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        input, button {
+            border: none;
+            outline: none;
+            background: none;
+        }
+
+        /* =========================================
+           LAYOUT
+        ========================================== */
+        .page-root {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-shell {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .search-shell {
+            max-width: 960px;
+            width: 100%;
+            background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(3,7,18,0.98));
+            border-radius: 24px;
+            box-shadow:
+                0 0 0 1px rgba(148, 163, 184, 0.25),
+                0 30px 80px rgba(15,23,42,0.85);
+            padding: 32px 32px 28px 32px;
+            backdrop-filter: blur(22px);
+            border-top: 1px solid rgba(148, 163, 184, 0.45);
+            border-left: 1px solid rgba(148, 163, 184, 0.30);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-shell::before {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(59,130,246,0.18) 0, transparent 50%),
+                radial-gradient(circle at 90% 100%, rgba(16,185,129,0.18) 0, transparent 55%),
+                radial-gradient(circle at 50% 100%, rgba(244,114,182,0.16) 0, transparent 50%);
+            opacity: 0.75;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
+        .search-shell-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* =========================================
+           HEADER / LOGO / TITLE
+        ========================================== */
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .brand-block {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background-image: url("827scall Logo (Carré).png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow:
+                0 0 0 1px rgba(148,163,184,0.5),
+                0 12px 30px rgba(15,23,42,0.9);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .brand-title {
+            font-family: "Inndam Extended", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            font-size: 0.88rem;
+            color: #e5e7eb;
+            text-shadow: 0 0 14px rgba(59,130,246,0.7);
+        }
+
+        .brand-subtitle {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.24em;
+            color: #9ca3af;
+        }
+
+        .header-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-end;
+            font-size: 0.70rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: #9ca3af;
+        }
+
+        .header-meta-pill-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .meta-pill {
+            padding: 3px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.55);
+            background: radial-gradient(circle at 0 0, rgba(59,130,246,0.18), rgba(15,23,42,0.9));
+            font-size: 0.62rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #e5e7eb;
+            white-space: nowrap;
+        }
+
+        /* =========================================
+           SEARCH BAR
+        ========================================== */
+        .search-card {
+            margin-top: 8px;
+            padding: 18px 18px 14px 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.65);
+            background: radial-gradient(circle at top left, rgba(15,23,42,0.98), rgba(2,6,23,1));
+            box-shadow:
+                0 0 0 1px rgba(15,23,42,0.7),
+                0 20px 60px rgba(15,23,42,0.9);
+        }
+
+        .search-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .search-caption {
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: #9ca3af;
+        }
+
+        .search-caption-strong {
+            color: #e5e7eb;
+        }
+
+        .search-engine-hint {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: #64748b;
+        }
+
+        .search-engine-hint span {
+            color: #93c5fd;
+        }
+
+        .search-row {
+            display: flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 10px 12px 10px 14px;
+            background: radial-gradient(circle at top left, #020617, #020617);
+            box-shadow:
+                inset 0 0 0 1px rgba(30, 64, 175, 0.65),
+                0 0 0 1px rgba(15,23,42,0.85);
+            gap: 10px;
+        }
+
+        .search-icon-shell {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 30% 0, rgba(59,130,246,0.70), rgba(15,23,42,0.9));
+            box-shadow:
+                0 0 0 1px rgba(96,165,250,0.80),
+                0 0 12px rgba(96,165,250,0.8);
+        }
+
+        .search-icon {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            border: 2px solid #e5e7eb;
+            position: relative;
+        }
+
+        .search-icon::after {
+            content: "";
+            position: absolute;
+            width: 7px;
+            height: 2px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            transform-origin: left center;
+            transform: rotate(40deg) translate(8px, 5px);
+        }
+
+        .search-input-shell {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .search-input {
+            width: 100%;
+            font-family: inherit;
+            font-size: 0.92rem;
+            color: #e5e7eb;
+            background: transparent;
+        }
+
+        .search-input::placeholder {
+            color: #6b7280;
+        }
+
+        .search-help-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.66rem;
+            color: #6b7280;
+        }
+
+        .search-help-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-help-chip {
+            border-radius: 999px;
+            padding: 2px 8px;
+            border: 1px solid rgba(75,85,99,0.8);
+            background: rgba(15,23,42,0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .search-help-chip span {
+            color: #9ca3af;
+        }
+
+        .search-help-text {
+            opacity: 0.85;
+        }
+
+        .search-button-shell {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .search-button {
+            padding: 7px 14px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            border: 1px solid rgba(52,211,153,0.80);
+            background: radial-gradient(circle at top, rgba(52,211,153,0.5), rgba(6,78,59,0.9));
+            color: #ecfdf5;
+            cursor: pointer;
+            transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, background 0.12s ease-out, opacity 0.08s ease-out;
+            white-space: nowrap;
+        }
+
+        .search-button:active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 0 0 0 transparent;
+        }
+
+        .search-button-disabled {
+            cursor: not-allowed;
+            opacity: 0.35;
+            background: radial-gradient(circle at top, rgba(55,65,81,0.7), rgba(15,23,42,0.95));
+            border-color: rgba(75,85,99,0.9);
+        }
+
+        .search-button-label-small {
+            font-size: 0.60rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+        }
+
+        /* =========================================
+           RISK PANEL / ANALYZER
+        ========================================== */
+        .risk-and-history-row {
+            display: grid;
+            grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        @media (max-width: 800px) {
+            .risk-and-history-row {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .risk-panel {
+            border-radius: 18px;
+            padding: 12px 14px 13px 14px;
+            border: 1px solid rgba(148,163,184,0.65);
+            background: radial-gradient(circle at top left, rgba(15,23,42,0.92), rgba(15,23,42,1));
+            box-shadow:
+                0 0 0 1px rgba(15,23,42,0.85),
+                0 16px 40px rgba(15,23,42,0.9);
+        }
+
+        .risk-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .risk-title {
+            font-family: "Inndam Extended", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 0.70rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #e5e7eb;
+        }
+
+        .risk-subtitle {
+            font-size: 0.68rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #9ca3af;
+        }
+
+        .risk-tag {
+            padding: 3px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.6);
+            font-size: 0.62rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #e5e7eb;
+            background: rgba(15,23,42,0.9);
+        }
+
+        .risk-meter-shell {
+            margin-top: 4px;
+        }
+
+        .risk-meter-bar {
+            position: relative;
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: linear-gradient(90deg, #16a34a, #facc15, #f97316, #ef4444, #7f1d1d);
+        }
+
+        .risk-meter-mask {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 0 0, rgba(15,23,42,0.85) 0, transparent 55%);
+            pointer-events: none;
+        }
+
+        .risk-meter-indicator {
+            position: absolute;
+            top: -3px;
+            width: 2px;
+            height: 14px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            box-shadow:
+                0 0 0 1px rgba(15,23,42,0.85),
+                0 0 10px rgba(248,250,252,0.85);
+            transform: translateX(0%);
+        }
+
+        .risk-label-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 0.64rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #9ca3af;
+        }
+
+        .risk-label-strong {
+            color: #e5e7eb;
+        }
+
+        .risk-analysis-text {
+            margin-top: 8px;
+            font-size: 0.74rem;
+            color: #d1d5db;
+            line-height: 1.4;
+            min-height: 44px;
+        }
+
+        .risk-analysis-keywords {
+            margin-top: 6px;
+            font-size: 0.66rem;
+            color: #9ca3af;
+        }
+
+        .risk-keyword-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            margin: 1px 4px 2px 0;
+            border-radius: 999px;
+            border: 1px solid rgba(75,85,99,0.8);
+            background: rgba(15,23,42,0.9);
+        }
+
+        .risk-keyword-pill span {
+            font-size: 0.62rem;
+        }
+
+        .risk-legend {
+            margin-top: 8px;
+            border-top: 1px dashed rgba(55,65,81,0.9);
+            padding-top: 6px;
+            font-size: 0.64rem;
+            color: #6b7280;
+            line-height: 1.55;
+        }
+
+        .risk-legend span {
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        /* =========================================
+           HISTORY PANEL
+        ========================================== */
+        .history-panel {
+            border-radius: 18px;
+            padding: 12px 14px 10px 14px;
+            border: 1px solid rgba(148,163,184,0.65);
+            background: radial-gradient(circle at 20% 0, rgba(15,23,42,0.95), rgba(2,6,23,1));
+            box-shadow:
+                0 0 0 1px rgba(15,23,42,0.85),
+                0 18px 40px rgba(15,23,42,0.9);
+        }
+
+        .history-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .history-title-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .history-title {
+            font-family: "Inndam Extended", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 0.70rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #e5e7eb;
+        }
+
+        .history-subtitle {
+            font-size: 0.68rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #9ca3af;
+        }
+
+        .history-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .history-hint {
+            font-size: 0.64rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .history-clear-btn {
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.7);
+            background: rgba(15,23,42,0.9);
+            color: #e5e7eb;
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            cursor: pointer;
+            transition: background 0.08s ease-out, transform 0.08s ease-out, box-shadow 0.10s ease-out;
+            white-space: nowrap;
+        }
+
+        .history-clear-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 0 0 transparent;
+        }
+
+        .history-list {
+            margin-top: 6px;
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .history-empty-state {
+            font-size: 0.70rem;
+            color: #6b7280;
+            padding-top: 4px;
+        }
+
+        .history-entry {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 4px 4px;
+            border-radius: 10px;
+            border: 1px solid rgba(31,41,55,0.9);
+            background: rgba(15,23,42,0.92);
+            font-size: 0.70rem;
+            color: #d1d5db;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: background 0.08s ease-out, transform 0.06s ease-out, box-shadow 0.12s ease-out;
+        }
+
+        .history-entry:hover {
+            background: radial-gradient(circle at top left, rgba(30,64,175,0.50), rgba(15,23,42,0.98));
+            box-shadow: 0 0 0 1px rgba(37,99,235,0.7);
+            transform: translateY(-0.5px);
+        }
+
+        .history-entry-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .history-query {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.62rem;
+            color: #9ca3af;
+        }
+
+        .history-risk-chip {
+            padding: 1px 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(75,85,99,0.95);
+            font-size: 0.60rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .history-time {
+            opacity: 0.8;
+        }
+
+        .history-go-icon {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.52rem;
+        }
+
+        /* Risk colors for chips */
+        .risk-chip-safe {
+            border-color: rgba(34,197,94,0.85);
+            color: #bbf7d0;
+        }
+
+        .risk-chip-low {
+            border-color: rgba(56,189,248,0.85);
+            color: #bae6fd;
+        }
+
+        .risk-chip-moderate {
+            border-color: rgba(234,179,8,0.85);
+            color: #fef9c3;
+        }
+
+        .risk-chip-high {
+            border-color: rgba(248,113,113,0.90);
+            color: #fecaca;
+        }
+
+        .risk-chip-at-risk {
+            border-color: rgba(127,29,29,0.95);
+            color: #fecaca;
+            background: rgba(127,29,29,0.20);
+        }
+
+        /* =========================================
+           FOOTER / META
+        ========================================== */
+        .footer-shell {
+            padding: 10px 26px 18px 26px;
+            font-size: 0.64rem;
+            color: #6b7280;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .footer-left, .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-pill {
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(55,65,81,0.9);
+            background: rgba(15,23,42,0.96);
+            color: #9ca3af;
+        }
+
+        /* =========================================
+           MODAL (HIGH RISK CONFIRMATION)
+        ========================================== */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.86);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-backdrop-visible {
+            display: flex;
+        }
+
+        .modal-shell {
+            max-width: 420px;
+            width: 100%;
+            margin: 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(248,113,113,0.9);
+            background: radial-gradient(circle at top, rgba(30,64,175,0.65), rgba(15,23,42,1));
+            box-shadow:
+                0 0 0 1px rgba(15,23,42,0.95),
+                0 26px 60px rgba(0,0,0,0.95);
+            padding: 18px 18px 14px 18px;
+        }
+
+        .modal-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .modal-title-block {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .modal-title {
+            font-family: "Inndam Extended", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 0.78rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #fee2e2;
+        }
+
+        .modal-subtitle {
+            font-size: 0.70rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: #fecaca;
+        }
+
+        .modal-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            border: 1px solid rgba(248,113,113,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fee2e2;
+            font-size: 0.80rem;
+            box-shadow:
+                0 0 0 1px rgba(15,23,42,0.95),
+                0 0 16px rgba(248,113,113,0.95);
+        }
+
+        .modal-body {
+            font-size: 0.74rem;
+            color: #fca5a5;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .modal-query-preview {
+            margin-top: 6px;
+            padding: 5px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(248,113,113,0.85);
+            background: rgba(15,23,42,0.95);
+            color: #fecaca;
+            font-size: 0.70rem;
+            word-break: break-word;
+        }
+
+        .modal-footer-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            padding: 5px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.8);
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            cursor: pointer;
+            background: rgba(15,23,42,0.96);
+            color: #e5e7eb;
+            transition: background 0.08s ease-out, transform 0.08s ease-out;
+        }
+
+        .modal-btn:active {
+            transform: translateY(1px);
+        }
+
+        .modal-btn-cancel {
+            border-color: rgba(148,163,184,0.7);
+        }
+
+        .modal-btn-continue {
+            border-color: rgba(248,113,113,0.95);
+            background: radial-gradient(circle at top, rgba(248,113,113,0.80), rgba(127,29,29,0.95));
+            color: #fef2f2;
+        }
+
+        /* =========================================
+           MICRO ANIMATIONS
+        ========================================== */
+        .scan-pulse {
+            animation: scanPulse 0.8s ease-out 1;
+        }
+
+        @keyframes scanPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(56,189,248,0.75);
+            }
+            100% {
+                box-shadow: 0 0 0 10px rgba(56,189,248,0);
+            }
+        }
+
+        .risk-pulse {
+            animation: riskPulse 0.9s ease-out 1;
+        }
+
+        @keyframes riskPulse {
+            0% {
+                transform: translateX(0) scaleY(1.0);
+            }
+            40% {
+                transform: translateX(1px) scaleY(1.25);
+            }
+            100% {
+                transform: translateX(0) scaleY(1.0);
+            }
+        }
+
+        .history-entry-fade {
+            animation: historyFadeIn 0.2s ease-out 1;
+        }
+
+        @keyframes historyFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(1px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page-root">
+    <main class="page-shell">
+        <section class="search-shell">
+            <div class="search-shell-inner">
+
+                <!-- HEADER -->
+                <header class="header-row">
+                    <div class="brand-block">
+                        <div class="brand-logo" aria-hidden="true"></div>
+                        <div class="brand-text">
+                            <div class="brand-title">8 February 2027's Call</div>
+                            <div class="brand-subtitle">Intelligent Safe Search Shell</div>
+                        </div>
+                    </div>
+
+                    <div class="header-meta">
+                        <div class="header-meta-pill-row">
+                            <div class="meta-pill">Risk‑Aware</div>
+                            <div class="meta-pill">RGPD‑Friendly</div>
+                        </div>
+                        <div>Prototype — Navigue vers Google</div>
+                    </div>
+                </header>
+
+                <!-- SEARCH CARD -->
+                <section class="search-card">
+                    <div class="search-top-row">
+                        <div class="search-caption">
+                            <span class="search-caption-strong">Saisis ta requête</span> — nous analysons le risque avant d’ouvrir Google
+                        </div>
+                        <div class="search-engine-hint">
+                            Moteur utilisé : <span>Google</span> (via Microsoft‑style shell)
+                        </div>
+                    </div>
+
+                    <form id="search-form" class="search-row" autocomplete="off">
+                        <div class="search-icon-shell">
+                            <div class="search-icon"></div>
+                        </div>
+
+                        <div class="search-input-shell">
+                            <input
+                                id="search-input"
+                                class="search-input"
+                                type="text"
+                                name="q"
+                                placeholder="Exemple : FUTURE VAL CORP, sécurité informatique, écologie, innovation durable, etc."
+                                autocomplete="off"
+                                spellcheck="false"
+                            />
+
+                            <div class="search-help-row">
+                                <div class="search-help-actions">
+                                    <div class="search-help-chip">
+                                        <span>Entrée</span> = Google
+                                    </div>
+                                    <div class="search-help-chip">
+                                        <span>0.16 s</span> scan sécurité
+                                    </div>
+                                </div>
+                                <div class="search-help-text">
+                                    Analyse automatique après 0.16 s de pause
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="search-button-shell">
+                            <button id="search-button" class="search-button" type="submit">
+                                Rechercher
+                            </button>
+                            <div class="search-button-label-small">Google direct</div>
+                        </div>
+                    </form>
+
+                    <!-- RISK + HISTORY -->
+                    <div class="risk-and-history-row">
+
+                        <!-- RISK PANEL -->
+                        <aside class="risk-panel" aria-live="polite">
+                            <div class="risk-header-row">
+                                <div>
+                                    <div class="risk-title">Niveau de risque</div>
+                                    <div class="risk-subtitle">Analyse sémantique locale (sans envoi de données)</div>
+                                </div>
+                                <div id="risk-tag" class="risk-tag">En attente de saisie</div>
+                            </div>
+
+                            <div class="risk-meter-shell">
+                                <div class="risk-meter-bar">
+                                    <div class="risk-meter-mask"></div>
+                                    <div id="risk-indicator" class="risk-meter-indicator"></div>
+                                </div>
+                                <div class="risk-label-row">
+                                    <span>Safe</span>
+                                    <span>Faible</span>
+                                    <span>Modéré</span>
+                                    <span>Élevé</span>
+                                    <span class="risk-label-strong">À risque</span>
+                                </div>
+                            </div>
+
+                            <div id="risk-analysis-text" class="risk-analysis-text">
+                                Tape un mot ou une phrase. Le moteur scanne les caractères et prépare une estimation de risque avant la navigation.
+                            </div>
+
+                            <div id="risk-analysis-keywords" class="risk-analysis-keywords">
+                                Mots clés détectés : aucun.
+                            </div>
+
+                            <div class="risk-legend">
+                                <span>Vérifié</span> = Marques et thèmes sûrs validés. |
+                                <span>Faible</span> = Contenu neutre du quotidien. |
+                                <span>Modéré</span> = Zones grises (promotions, “gratuit”, etc.). |
+                                <span>Élevé</span> = Surface potentielle de scam / piratage. |
+                                <span>À risque</span> = Recherche non validée (dark‑web, exploit, gore…).
+                            </div>
+                        </aside>
+
+                        <!-- HISTORY PANEL -->
+                        <aside class="history-panel">
+                            <div class="history-header-row">
+                                <div class="history-title-block">
+                                    <div class="history-title">Historique local</div>
+                                    <div class="history-subtitle">Stocké dans ton navigateur uniquement</div>
+                                </div>
+                                <div class="history-actions">
+                                    <div class="history-hint">Cliquer = relancer la recherche</div>
+                                    <button id="history-clear-btn" class="history-clear-btn" type="button">
+                                        Effacer
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="history-list" class="history-list">
+                                <div class="history-empty-state">
+                                    Aucun historique pour l’instant. Tes recherches récentes apparaîtront ici, avec leur niveau de risque associé.
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer-shell">
+        <div class="footer-left">
+            <span>8 February 2027's Call — Shell de navigation</span>
+        </div>
+        <div class="footer-right">
+            <div class="footer-pill">FUTURE VAL CORP.</div>
+        </div>
+    </footer>
+</div>
+
+<!-- MODAL HIGH RISK -->
+<div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-shell">
+        <div class="modal-header-row">
+            <div class="modal-title-block">
+                <div id="modal-title" class="modal-title">Alerte de sécurité — Risque &Eacute;lev&eacute;</div>
+                <div class="modal-subtitle">Confirme la navigation vers Google</div>
+            </div>
+            <div class="modal-icon">!</div>
+        </div>
+
+        <div class="modal-body">
+            Cette recherche contient des termes classés <strong>Élevé</strong> par le système 8 February 2027's Call.
+            Tu peux continuer vers Google, mais vérifie bien les liens, les sources et les promesses “trop belles”.
+            <div id="modal-query-preview" class="modal-query-preview"></div>
+        </div>
+
+        <div class="modal-footer-row">
+            <button id="modal-cancel" class="modal-btn modal-btn-cancel" type="button">
+                Annuler
+            </button>
+            <button id="modal-continue" class="modal-btn modal-btn-continue" type="button">
+                Continuer vers Google
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================
+     JAVASCRIPT
+============================= -->
+<script>
+    // =====================================================
+    // UTILITAIRES GÉNÉRAUX
+    // =====================================================
+
+    /**
+     * Crée un petit utilitaire de debounce.
+     * La callback est appelée seulement après "delay" ms sans nouvelle frappe.
+     */
+    function debounce(fn, delay) {
+        let timeoutId = null;
+        return function () {
+            const context = this;
+            const args = arguments;
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(function () {
+                fn.apply(context, args);
+            }, delay);
+        };
+    }
+
+    /**
+     * Nettoie une chaîne : minuscules + trim.
+     */
+    function normalizeText(str) {
+        return (str || "").toString().toLowerCase().trim();
+    }
+
+    /**
+     * Retourne la date/heure actuelle au format hh:mm:ss.
+     */
+    function getTimeString() {
+        const d = new Date();
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mm = String(d.getMinutes()).padStart(2, "0");
+        const ss = String(d.getSeconds()).padStart(2, "0");
+        return hh + ":" + mm + ":" + ss;
+    }
+
+    /**
+     * Crée un élément DOM avec classes et texte optionnels.
+     */
+    function createElement(tag, className, text) {
+        const el = document.createElement(tag);
+        if (className) el.className = className;
+        if (typeof text === "string") el.textContent = text;
+        return el;
+    }
+
+    // =====================================================
+    // SYSTÈME DE RISQUE
+    // =====================================================
+
+    // Enum simple de niveaux de risque
+    const RISK_LEVEL = {
+        SAFE: "Vérifié (Safe)",
+        LOW: "Faible",
+        MODERATE: "Modéré",
+        HIGH: "Élevé",
+        AT_RISK: "à RISQUE"
+    };
+
+    // Position de l’indicateur de risque (en pourcentage sur la barre)
+    const RISK_POSITION = {
+        [RISK_LEVEL.SAFE]: 3,        // proche du début
+        [RISK_LEVEL.LOW]: 22,
+        [RISK_LEVEL.MODERATE]: 47,
+        [RISK_LEVEL.HIGH]: 72,
+        [RISK_LEVEL.AT_RISK]: 96
+    };
+
+    // Texte explicatif par niveau
+    const RISK_EXPLANATION = {
+        [RISK_LEVEL.SAFE]: "Ta requête semble alignée avec des domaines vérifiés : marques connues, écologie, technologie propre, culture, apprentissage.",
+        [RISK_LEVEL.LOW]: "Risque faible : vocabulaire quotidien ou neutre. Reste tout de même attentif aux sites que tu ouvres.",
+        [RISK_LEVEL.MODERATE]: "Zone modérée : promotions, gratuité, performance miracle. Vérifie bien les sources, les avis, et évite les téléchargements douteux.",
+        [RISK_LEVEL.HIGH]: "Risque élevé : probabilité de tomber sur du spam, des cracks, des hacks, ou des pièges numériques. Tu devras confirmer avant d’ouvrir Google.",
+        [RISK_LEVEL.AT_RISK]: "Recherche à très haut risque : dark‑web, exploits, gore ou contenu dangereux. Le shell bloque la navigation vers Google."
+    };
+
+    // Couleur du tag selon le risque
+    const RISK_TAG_COLORS = {
+        [RISK_LEVEL.SAFE]: "linear-gradient(135deg, #22c55e, #15803d)",
+        [RISK_LEVEL.LOW]: "linear-gradient(135deg, #0ea5e9, #0369a1)",
+        [RISK_LEVEL.MODERATE]: "linear-gradient(135deg, #eab308, #a16207)",
+        [RISK_LEVEL.HIGH]: "linear-gradient(135deg, #f97316, #b45309)",
+        [RISK_LEVEL.AT_RISK]: "linear-gradient(135deg, #b91c1c, #450a0a)"
+    };
+
+    const RISK_TAG_BORDER = {
+        [RISK_LEVEL.SAFE]: "rgba(34,197,94,0.85)",
+        [RISK_LEVEL.LOW]: "rgba(56,189,248,0.90)",
+        [RISK_LEVEL.MODERATE]: "rgba(234,179,8,0.90)",
+        [RISK_LEVEL.HIGH]: "rgba(248,113,113,0.95)",
+        [RISK_LEVEL.AT_RISK]: "rgba(127,29,29,0.95)"
+    };
+
+    // ==========================
+    // LISTES DE MOTS PAR NIVEAU
+    // ==========================
+
+    // Vérifié (Safe)
+    const SAFE_KEYWORDS = [
+        "microsoft", "copilot", "windows", "azure", "github", "visual studio",
+        "hatsune miku", "vocaloid", "crypton future media",
+        "future val corp", "fvc val", "valentin burel", "8 février 2027", "8 fevrier 2027",
+        "nintendo", "playstation", "xbox", "steam", "epic games",
+        "youtube", "wikipedia", "google maps", "gmail", "outlook",
+        "france", "normandie", "le havre", "paris", "lyon", "marseille",
+        "écologie", "ecologie", "technologie", "innovation", "science", "astronomie",
+        "python", "java", "html", "css", "javascript",
+        "roblox", "unity", "unreal engine",
+        "musique", "art", "poésie", "poesie", "cinéma", "cinema", "théâtre", "theatre",
+        "éducation", "education", "histoire", "géographie", "geographie", "mathématiques", "mathematiques",
+        "sécurité", "securite", "rgpd", "cnil", "confidentialité", "confidentialite",
+        "climat", "océan", "ocean", "forêt", "foret", "biodiversité", "biodiversite",
+        "transport", "train", "tramway", "vélo", "velo", "bus",
+        "santé publique", "sante publique", "nutrition", "sport", "yoga",
+        "photographie", "design", "architecture", "sculpture",
+        "énergie solaire", "energie solaire", "énergie éolienne", "energie eolienne", "hydrogène", "hydrogene",
+        "économie", "economie", "finance", "entreprise", "startup",
+        "philosophie", "psychologie", "sociologie",
+        "langues", "français", "francais", "anglais", "japonais", "espagnol",
+        "cuisine", "recette", "pâtisserie", "patisserie", "chocolat",
+        "jeux vidéo", "jeux video", "manga", "anime", "figurines",
+        "ordinateur", "clavier", "souris", "écran", "ecran",
+        "sécurité informatique", "securite informatique", "firewall", "antivirus",
+        "planète", "planete", "univers", "galaxie", "étoile", "etoile",
+        "rivière", "riviere", "montagne",
+        "innovation durable", "technologie verte", "éco‑design", "eco‑design", "eco-design",
+        "créativité", "creativite", "narration", "mythologie", "symbolisme"
+    ];
+
+    // Faible
+    const LOW_KEYWORDS = [
+        "chat", "chien", "maison", "voiture", "météo", "meteo", "recette", "fleur", "arbre",
+        "ordinateur", "clavier", "souris", "chaise", "table", "lampe", "fenêtre", "fenetre",
+        "voyage", "hôtel", "hotel", "restaurant", "musée", "musee", "plage", "montagne",
+        "sport", "football", "tennis", "natation", "course", "vélo", "velo",
+        "musique", "guitare", "piano", "batterie", "chant",
+        "film", "série", "serie", "documentaire", "acteur", "réalisateur", "realisateur",
+        "science", "planète", "planete", "atome", "énergie", "energie", "lumière", "lumierre",
+        "école", "ecole", "université", "universite", "cours", "examen", "professeur",
+        "ville", "pays", "carte", "transport", "train", "avion",
+        "photo", "caméra", "camera", "objectif", "montage", "édition", "edition",
+        "livre", "roman", "poésie", "poesie", "auteur", "bibliothèque", "bibliotheque",
+        "jeu", "puzzle", "stratégie", "strategie", "aventure", "simulation",
+        "couleur", "rouge", "bleu", "vert", "jaune", "violet",
+        "temps", "minute", "heure", "jour", "semaine", "mois",
+        "travail", "bureau", "emploi", "cv", "entretien",
+        "argent", "budget", "économie", "economie", "marché", "marche", "boutique",
+        "nature", "forêt", "foret", "rivière", "riviere", "lac", "océan", "ocean",
+        "technologie", "innovation", "robot", "ia", "logiciel",
+        "internet", "site", "page", "navigateur", "recherche",
+        "cuisine", "dessert", "plat", "ingrédient", "ingredient", "four", "poêle", "poele",
+        "santé", "sante", "sommeil", "alimentation", "eau",
+        "mode", "vêtement", "vetement", "chaussure", "accessoire",
+        "famille", "ami", "voisin", "collègue", "collegue",
+        "histoire", "culture", "tradition", "langue",
+        "énergie", "energie", "chaleur", "froid", "vent", "pluie"
+    ];
+
+    // Modéré
+    const MODERATE_KEYWORDS = [
+        "gratuit", "cadeau", "promotion", "coupon", "réduction", "reduction",
+        "gagner", "loterie", "tirage", "concours",
+        "support technique", "assistance", "dépannage", "depannage",
+        "mise à jour", "mise a jour", "update", "driver", "pilote",
+        "clé d’activation", "clé d'activation", "clé activation", "cle d’activation", "cle activation", "licence", "code promo",
+        "débloquer", "debloquer", "accélérer", "accelerer", "optimiser",
+        "nettoyage pc", "booster pc", "réparation pc", "reparation pc",
+        "cryptomonnaie", "investissement rapide", "rendement",
+        "trading automatique", "bot trading",
+        "prêt rapide", "pret rapide", "crédit facile", "credit facile", "argent immédiat", "argent immediat",
+        "débloquer compte", "debloquer compte", "récupérer mot de passe", "recuperer mot de passe",
+        "service client", "hotline", "numéro gratuit", "numero gratuit",
+        "abonnement", "résiliation", "resiliation", "renouvellement",
+        "télécharger logiciel", "telecharger logiciel", "installer logiciel",
+        "convertisseur vidéo", "convertisseur video", "convertisseur audio",
+        "streaming gratuit", "regarder en ligne",
+        "scan antivirus gratuit", "analyse système", "analyse systeme",
+        "débloquer téléphone", "debloquer telephone", "imei", "réparation mobile", "reparation mobile",
+        "gagner argent", "revenu passif", "business facile",
+        "emploi à domicile", "emploi a domicile", "travail rapide",
+        "voyage pas cher", "billet pas cher",
+        "hébergement gratuit", "hebergement gratuit", "hôtel discount", "hotel discount",
+        "livraison gratuite", "suivi colis",
+        "débloquer fichier", "debloquer fichier", "mot de passe oublié", "mot de passe oublie",
+        "optimiser batterie", "accélérer internet", "accelerer internet"
+    ];
+
+    // Élevé (exemples + "etc." remplacé par quelques familles de mots)
+    const HIGH_KEYWORDS = [
+        "free antivirus", "crack", "cracks", "hack", "hacks", "cheat", "cheats",
+        "keygen", "serial", "serial key", "torrent",
+        "sex", "porno", "porn", "xxx",
+        "virus", "malware", "trojan",
+        "pistol", "gun", "arme", "fusil"
+    ];
+
+    // à RISQUE (exemples + variantes)
+    const AT_RISK_KEYWORDS = [
+        "dark‑web", "dark-web", "dark web",
+        "zero‑day", "zero-day", "0day", "0-day",
+        "exploit",
+        "free money", "argent gratuit",
+        "gore",
+        "deep web"
+    ];
+
+    /**
+     * Analyse une requête et retourne :
+     * - niveau de risque
+     * - liste de mots détectés
+     */
+    function analyzeRisk(query) {
+        const q = normalizeText(query);
+
+        if (!q) {
+            return {
+                level: RISK_LEVEL.SAFE,
+                keywords: [],
+                reason: "Aucun texte saisi."
+            };
+        }
+
+        const detected = [];
+
+        function containsAny(list) {
+            let found = [];
+            for (let i = 0; i < list.length; i++) {
+                const kw = list[i];
+                if (kw && q.includes(kw)) {
+                    found.push(kw);
+                }
+            }
+            return found;
+        }
+
+        // Ordre de gravité : AT_RISK > HIGH > MODERATE > LOW > SAFE
+
+        const atRiskFound = containsAny(AT_RISK_KEYWORDS);
+        if (atRiskFound.length > 0) {
+            return {
+                level: RISK_LEVEL.AT_RISK,
+                keywords: atRiskFound,
+                reason: "Termes critiques détectés (dark‑web, exploits, free money, gore, etc.)."
+            };
+        }
+
+        const highFound = containsAny(HIGH_KEYWORDS);
+        if (highFound.length > 0) {
+            return {
+                level: RISK_LEVEL.HIGH,
+                keywords: highFound,
+                reason: "Termes associés à cracks, hacks, contenu adulte ou malware."
+            };
+        }
+
+        const moderateFound = containsAny(MODERATE_KEYWORDS);
+        if (moderateFound.length > 0) {
+            return {
+                level: RISK_LEVEL.MODERATE,
+                keywords: moderateFound,
+                reason: "Termes liés à promotions, “gratuit”, boost, dépannage, ou promesses rapides."
+            };
+        }
+
+        const lowFound = containsAny(LOW_KEYWORDS);
+        const safeFound = containsAny(SAFE_KEYWORDS);
+
+        if (safeFound.length > 0 && lowFound.length === 0) {
+            return {
+                level: RISK_LEVEL.SAFE,
+                keywords: safeFound,
+                reason: "Mots appartenant à la liste vérifiée (marques, éducation, écologie, technologie, culture, etc.)."
+            };
+        }
+
+        if (lowFound.length > 0 && safeFound.length === 0) {
+            return {
+                level: RISK_LEVEL.LOW,
+                keywords: lowFound,
+                reason: "Mots du quotidien, neutres, correspondant à la liste de risque faible."
+            };
+        }
+
+        if (safeFound.length > 0 && lowFound.length > 0) {
+            return {
+                level: RISK_LEVEL.LOW,
+                keywords: safeFound.concat(lowFound),
+                reason: "Mélange de termes vérifiés et de vocabulaire du quotidien. Profil globalement rassurant."
+            };
+        }
+
+        // Aucune correspondance stricte : on reste prudent mais neutre
+        return {
+            level: RISK_LEVEL.LOW,
+            keywords: [],
+            reason: "Aucun mot clé connu. La requête est considérée comme faiblement risquée par défaut."
+        };
+    }
+
+    // =====================================================
+    // HISTORIQUE — LOCALSTORAGE
+    // =====================================================
+
+    const HISTORY_STORAGE_KEY = "searchHistory827sCall";
+
+    /**
+     * Charge l’historique depuis localStorage.
+     */
+    function loadHistory() {
+        try {
+            const raw = window.localStorage.getItem(HISTORY_STORAGE_KEY);
+            if (!raw) return [];
+            const arr = JSON.parse(raw);
+            if (!Array.isArray(arr)) return [];
+            return arr;
+        } catch (e) {
+            return [];
+        }
+    }
+
+    /**
+     * Sauvegarde l’historique dans localStorage.
+     */
+    function saveHistory(history) {
+        try {
+            window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+        } catch (e) {
+            // ignore
+        }
+    }
+
+    /**
+     * Ajoute une entrée à l’historique (requête + niveau).
+     */
+    function addHistoryEntry(query, level) {
+        if (!query) return;
+        const history = loadHistory();
+        const timestamp = getTimeString();
+
+        // On évite les doublons consécutifs identiques
+        if (history.length > 0 && history[0].query === query && history[0].level === level) {
+            return;
+        }
+
+        history.unshift({
+            query: query,
+            level: level,
+            time: timestamp
+        });
+
+        // Limite pour rester léger
+        const MAX_ENTRIES = 40;
+        if (history.length > MAX_ENTRIES) {
+            history.length = MAX_ENTRIES;
+        }
+
+        saveHistory(history);
+        renderHistory(history);
+    }
+
+    /**
+     * Efface l’historique.
+     */
+    function clearHistory() {
+        try {
+            window.localStorage.removeItem(HISTORY_STORAGE_KEY);
+        } catch (e) {
+            // ignore
+        }
+    }
+
+    /**
+     * Rendu visuel de l’historique.
+     */
+    function renderHistory(history) {
+        const historyList = document.getElementById("history-list");
+        historyList.innerHTML = "";
+
+        if (!history || history.length === 0) {
+            const emptyEl = createElement("div", "history-empty-state",
+                "Aucun historique pour l’instant. Tes recherches récentes apparaîtront ici, avec leur niveau de risque associé."
+            );
+            historyList.appendChild(emptyEl);
+            return;
+        }
+
+        for (let i = 0; i < history.length; i++) {
+            const entry = history[i];
+
+            const entryEl = createElement("div", "history-entry history-entry-fade");
+            const mainEl = createElement("div", "history-entry-main");
+            const queryEl = createElement("div", "history-query", entry.query);
+
+            const metaRow = createElement("div", "history-meta-row");
+
+            const riskChip = createElement("div", "history-risk-chip", entry.level);
+            switch (entry.level) {
+                case RISK_LEVEL.SAFE:
+                    riskChip.classList.add("risk-chip-safe");
+                    break;
+                case RISK_LEVEL.LOW:
+                    riskChip.classList.add("risk-chip-low");
+                    break;
+                case RISK_LEVEL.MODERATE:
+                    riskChip.classList.add("risk-chip-moderate");
+                    break;
+                case RISK_LEVEL.HIGH:
+                    riskChip.classList.add("risk-chip-high");
+                    break;
+                case RISK_LEVEL.AT_RISK:
+                    riskChip.classList.add("risk-chip-at-risk");
+                    break;
+            }
+
+            const timeEl = createElement("div", "history-time", entry.time);
+
+            metaRow.appendChild(riskChip);
+            metaRow.appendChild(timeEl);
+
+            mainEl.appendChild(queryEl);
+            mainEl.appendChild(metaRow);
+
+            const goIcon = createElement("div", "history-go-icon", "↗");
+
+            entryEl.appendChild(mainEl);
+            entryEl.appendChild(goIcon);
+
+            // Cliquer sur l’historique relance la recherche
+            entryEl.addEventListener("click", function () {
+                const input = document.getElementById("search-input");
+                input.value = entry.query;
+                triggerRiskAnalysis(entry.query);
+                submitSearch(entry.query, entry.level, /*fromHistory=*/true);
+            });
+
+            historyList.appendChild(entryEl);
+        }
+    }
+
+    // =====================================================
+    // UI — MISE À JOUR DU RISQUE
+    // =====================================================
+
+    const riskTagEl = document.getElementById("risk-tag");
+    const riskIndicatorEl = document.getElementById("risk-indicator");
+    const riskAnalysisTextEl = document.getElementById("risk-analysis-text");
+    const riskAnalysisKeywordsEl = document.getElementById("risk-analysis-keywords");
+    const searchButtonEl = document.getElementById("search-button");
+
+    /**
+     * Met à jour l’interface selon le résultat d’analyse.
+     */
+    function updateRiskUI(result) {
+        const level = result.level;
+        const keywords = result.keywords || [];
+
+        // Tag texte
+        riskTagEl.textContent = "Niveau : " + level;
+
+        // Tag couleurs
+        const bgGradient = RISK_TAG_COLORS[level] || "linear-gradient(135deg, #6b7280, #374151)";
+        const borderColor = RISK_TAG_BORDER[level] || "rgba(156,163,175,0.9)";
+        riskTagEl.style.background = bgGradient;
+        riskTagEl.style.borderColor = borderColor;
+
+        // Position indicator
+        const pos = RISK_POSITION[level] || 3;
+        riskIndicatorEl.style.left = pos + "%";
+        riskIndicatorEl.classList.remove("risk-pulse");
+        void riskIndicatorEl.offsetWidth;
+        riskIndicatorEl.classList.add("risk-pulse");
+
+        // Texte d’analyse
+        let explanation = RISK_EXPLANATION[level] || "";
+        if (result.reason) {
+            explanation += " " + result.reason;
+        }
+        riskAnalysisTextEl.textContent = explanation;
+
+        // Mots clés
+        if (keywords.length === 0) {
+            riskAnalysisKeywordsEl.textContent = "Mots clés détectés : aucun (analyse basée sur le contexte global).";
+        } else {
+            riskAnalysisKeywordsEl.innerHTML = "";
+            const label = createElement("span", null, "Mots clés détectés : ");
+            riskAnalysisKeywordsEl.appendChild(label);
+
+            for (let i = 0; i < keywords.length; i++) {
+                const pill = createElement("span", "risk-keyword-pill");
+                const span = createElement("span", null, keywords[i]);
+                pill.appendChild(span);
+                riskAnalysisKeywordsEl.appendChild(pill);
+            }
+        }
+
+        // Gestion du bouton Rechercher selon les niveaux
+        if (level === RISK_LEVEL.AT_RISK) {
+            searchButtonEl.classList.add("search-button-disabled");
+            searchButtonEl.setAttribute("aria-disabled", "true");
+        } else {
+            searchButtonEl.classList.remove("search-button-disabled");
+            searchButtonEl.removeAttribute("aria-disabled");
+        }
+    }
+
+    /**
+     * Analyse, puis met à jour la UI après 0.16 s (géré par debounce).
+     */
+    function triggerRiskAnalysis(query) {
+        const result = analyzeRisk(query || "");
+        updateRiskUI(result);
+        return result;
+    }
+
+    // Débouncer de 0.16 seconde
+    const debouncedRiskAnalysis = debounce(function () {
+        const inputVal = document.getElementById("search-input").value;
+        const result = triggerRiskAnalysis(inputVal);
+
+        // Animation sur la barre de recherche
+        const form = document.getElementById("search-form");
+        form.classList.remove("scan-pulse");
+        void form.offsetWidth;
+        form.classList.add("scan-pulse");
+
+        return result;
+    }, 160);
+
+    // =====================================================
+    // NAVIGATION VERS GOOGLE
+    // =====================================================
+
+    const modalBackdropEl = document.getElementById("modal-backdrop");
+    const modalCancelEl = document.getElementById("modal-cancel");
+    const modalContinueEl = document.getElementById("modal-continue");
+    const modalQueryPreviewEl = document.getElementById("modal-query-preview");
+
+    let pendingNavigation = null; // { query, level }
+
+    /**
+     * Ouvre le modal de confirmation pour un risque Élevé.
+     */
+    function openHighRiskModal(query, level) {
+        pendingNavigation = { query: query, level: level };
+        modalQueryPreviewEl.textContent = query;
+        modalBackdropEl.classList.add("modal-backdrop-visible");
+    }
+
+    /**
+     * Ferme le modal et annule l’état.
+     */
+    function closeHighRiskModal() {
+        pendingNavigation = null;
+        modalBackdropEl.classList.remove("modal-backdrop-visible");
+    }
+
+    /**
+     * Envoie la recherche sur Google.
+     */
+    function goToGoogle(query) {
+        if (!query) return;
+        const encoded = encodeURIComponent(query);
+        const url = "https://www.google.com/search?q=" + encoded;
+        window.location.href = url;
+    }
+
+    /**
+     * Gère la logique de soumission (form / enter / historique).
+     */
+    function submitSearch(query, knownLevel, fromHistory) {
+        const q = (query || "").trim();
+        if (!q) {
+            return;
+        }
+
+        // Si on n’a pas le niveau déjà calculé, on le recalcule
+        const result = knownLevel ? { level: knownLevel } : analyzeRisk(q);
+        const level = result.level;
+
+        // Ajout à l’historique (sauf si on vient d’un clic historique et qu’on ne veut pas dupliquer)
+        if (!fromHistory) {
+            addHistoryEntry(q, level);
+        }
+
+        // Cas à RISQUE : navigation bloquée
+        if (level === RISK_LEVEL.AT_RISK) {
+            alert("Recherche bloquée par 8 February 2027's Call : niveau \"à RISQUE\" détecté. Ajuste ta requête.");
+            return;
+        }
+
+        // Cas Élevé : ouverture du modal
+        if (level === RISK_LEVEL.HIGH) {
+            openHighRiskModal(q, level);
+            return;
+        }
+
+        // Autres cas : navigation directe
+        goToGoogle(q);
+    }
+
+    // =====================================================
+    // ÉVÈNEMENTS
+    // =====================================================
+
+    // 1. Saisie dans la barre -> analyse après 0.16 s
+    const searchInputEl = document.getElementById("search-input");
+    searchInputEl.addEventListener("input", function () {
+        debouncedRiskAnalysis();
+    });
+
+    // 2. Soumission du formulaire (bouton ou Enter)
+    const searchFormEl = document.getElementById("search-form");
+    searchFormEl.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const query = searchInputEl.value || "";
+
+        // Vérifie si le bouton est "grisé" (à RISQUE)
+        if (searchButtonEl.classList.contains("search-button-disabled")) {
+            alert("Le bouton Rechercher est désactivé pour cette requête (niveau \"à RISQUE\"). Modifie les mots utilisés.");
+            return;
+        }
+
+        const analysisResult = analyzeRisk(query);
+        updateRiskUI(analysisResult);
+        submitSearch(query, analysisResult.level, false);
+    });
+
+    // 3. Modal — bouton Annuler
+    modalCancelEl.addEventListener("click", function () {
+        closeHighRiskModal();
+    });
+
+    // 4. Modal — bouton Continuer
+    modalContinueEl.addEventListener("click", function () {
+        if (pendingNavigation && pendingNavigation.query) {
+            const q = pendingNavigation.query;
+            closeHighRiskModal();
+            goToGoogle(q);
+        } else {
+            closeHighRiskModal();
+        }
+    });
+
+    // 5. Click sur backdrop => annule
+    modalBackdropEl.addEventListener("click", function (e) {
+        if (e.target === modalBackdropEl) {
+            closeHighRiskModal();
+        }
+    });
+
+    // 6. Touche Escape pour fermer le modal
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && modalBackdropEl.classList.contains("modal-backdrop-visible")) {
+            closeHighRiskModal();
+        }
+    });
+
+    // =====================================================
+    // INITIALISATION
+    // =====================================================
+
+    (function init() {
+        // Charge et affiche l’historique au lancement
+        const history = loadHistory();
+        renderHistory(history);
+
+        // Analyse initiale (champ vide = SAFE / neutre)
+        triggerRiskAnalysis("");
+
+        // Option : focus automatique sur la barre
+        searchInputEl.focus();
+    })();
+</script>
+</body>
+</html>
