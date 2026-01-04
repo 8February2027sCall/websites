@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!--
+        8 February 2027's Call — FVC Converter
+        Auteur : Valentin / FUTURE VAL CORP.
+        Style : Codeur, fond aurore, écriture FVC
+    -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>8 February 2027's Call — FVC Police Text Converter</title>
+
+    <!-- Icône de la page -->
+    <link rel="icon" type="image/png" href="827scall Logo (Carré).png" sizes="150x150">
+
+    <!-- Police titres : Inndam Extended (placeholder, à remplacer par ta vraie source si besoin) -->
+    <style>
+        @font-face {
+            font-family: "Inndam Extended";
+            src: local("Inndam Extended"),
+                 local("Inndam-Extended");
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+
+    <!-- Styles principaux -->
+    <style>
+        /* ===========================
+           RESET DE BASE
+        ============================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family: monospace;
+            background: #02030a;
+            color: #e5f0ff;
+            overflow: hidden;
+        }
+
+        /* ===========================
+           FOND ANIMÉ TYPE AURORE
+        ============================ */
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            inset: -20%;
+            background: radial-gradient(circle at 10% 0%, rgba(0, 255, 200, 0.25), transparent 60%),
+                        radial-gradient(circle at 90% 100%, rgba(120, 180, 255, 0.25), transparent 60%),
+                        radial-gradient(circle at 0% 100%, rgba(255, 0, 180, 0.18), transparent 55%);
+            mix-blend-mode: screen;
+            opacity: 0.8;
+            filter: blur(12px);
+            z-index: -2;
+            animation: auroraShift 26s infinite alternate ease-in-out;
+        }
+
+        body::after {
+            animation-duration: 34s;
+            animation-direction: alternate-reverse;
+            opacity: 0.6;
+            filter: blur(18px);
+        }
+
+        @keyframes auroraShift {
+            0% {
+                transform: translate3d(-4%, -2%, 0) scale(1.02);
+            }
+            25% {
+                transform: translate3d(3%, -4%, 0) scale(1.05);
+            }
+            50% {
+                transform: translate3d(5%, 3%, 0) scale(1.03);
+            }
+            75% {
+                transform: translate3d(-3%, 4%, 0) scale(1.06);
+            }
+            100% {
+                transform: translate3d(2%, -1%, 0) scale(1.04);
+            }
+        }
+
+        /* Overlay sombre pour lisibilité */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at top, rgba(0, 0, 0, 0.35), transparent 55%),
+                        radial-gradient(circle at bottom, rgba(0, 0, 0, 0.6), transparent 60%);
+            z-index: -1;
+        }
+
+        /* ===========================
+           LAYOUT GLOBAL
+        ============================ */
+
+        .page {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 18px 22px;
+            gap: 14px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(180, 220, 255, 0.4);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .title-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .title-main {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #f4fbff;
+        }
+
+        .title-sub {
+            font-family: monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #9fb7ff;
+            opacity: 0.9;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            font-size: 0.7rem;
+            color: #a9b8ff;
+        }
+
+        .header-tag {
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(160, 200, 255, 0.5);
+            background: linear-gradient(120deg, rgba(10, 20, 40, 0.9), rgba(20, 40, 80, 0.9));
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .header-meta {
+            opacity: 0.8;
+        }
+
+        /* ===========================
+           ZONE PRINCIPALE
+        ============================ */
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(180, 210, 255, 0.35);
+            background: radial-gradient(circle at top left, rgba(10, 20, 40, 0.9), rgba(3, 6, 16, 0.96));
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.7),
+                0 18px 40px rgba(0, 0, 0, 0.9);
+            padding: 14px 14px 12px 14px;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(120, 150, 210, 0.4);
+        }
+
+        .main-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #eaf1ff;
+        }
+
+        .main-subtitle {
+            font-size: 0.7rem;
+            color: #9fb7ff;
+            opacity: 0.9;
+        }
+
+        .main-header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            font-size: 0.7rem;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: radial-gradient(circle, #7dffb8, #00c46a);
+            box-shadow: 0 0 8px rgba(0, 255, 160, 0.9);
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .status-text {
+            color: #b9ffdf;
+        }
+
+        .status-sub {
+            color: #7f93ff;
+            opacity: 0.9;
+        }
+
+        /* ===========================
+           PANNEAU DE CONTROLES
+        ============================ */
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 6px 4px 4px 4px;
+            border-bottom: 1px dashed rgba(120, 150, 210, 0.4);
+            font-size: 0.75rem;
+        }
+
+        .controls-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(140, 180, 255, 0.6);
+            background: linear-gradient(120deg, rgba(8, 16, 32, 0.9), rgba(16, 32, 64, 0.9));
+            color: #c7d6ff;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip-label {
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 0.68rem;
+        }
+
+        .chip-value {
+            font-size: 0.7rem;
+            color: #9fb7ff;
+        }
+
+        .chip-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 999px;
+            background: #9fb7ff;
+            opacity: 0.8;
+        }
+
+        .btn {
+            border-radius: 999px;
+            border: 1px solid rgba(160, 210, 255, 0.8);
+            background: radial-gradient(circle at top, rgba(40, 80, 140, 0.9), rgba(10, 20, 40, 0.95));
+            color: #eaf1ff;
+            padding: 4px 10px;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+        }
+
+        .btn:hover {
+            background: radial-gradient(circle at top, rgba(70, 120, 200, 0.95), rgba(20, 40, 80, 0.98));
+            box-shadow: 0 0 12px rgba(120, 180, 255, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0px) scale(0.99);
+            box-shadow: 0 0 4px rgba(120, 180, 255, 0.4);
+        }
+
+        .btn-secondary {
+            border-color: rgba(130, 160, 220, 0.7);
+            background: radial-gradient(circle at top, rgba(20, 40, 80, 0.9), rgba(8, 16, 32, 0.95));
+            color: #c7d6ff;
+        }
+
+        .btn-icon {
+            font-size: 0.8rem;
+        }
+
+        /* ===========================
+           ZONE TEXTE
+        ============================ */
+
+        .editor {
+            flex: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 10px;
+            padding-top: 6px;
+        }
+
+        @media (max-width: 900px) {
+            .editor {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            border: 1px solid rgba(120, 150, 210, 0.6);
+            background: radial-gradient(circle at top left, rgba(8, 16, 32, 0.96), rgba(3, 6, 16, 0.98));
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-bottom: 1px solid rgba(90, 120, 190, 0.7);
+            font-size: 0.72rem;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .panel-title-label {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #eaf1ff;
+            font-size: 0.7rem;
+        }
+
+        .panel-title-sub {
+            color: #9fb7ff;
+            font-size: 0.68rem;
+        }
+
+        .panel-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #8fa0ff;
+        }
+
+        .panel-meta span {
+            font-size: 0.68rem;
+        }
+
+        .panel-body {
+            flex: 1;
+            position: relative;
+        }
+
+        .panel-textarea {
+            width: 100%;
+            height: 100%;
+            resize: none;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #e5f0ff;
+            font-family: monospace;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            padding: 8px 10px 10px 10px;
+            white-space: pre-wrap;
+            overflow: auto;
+            tab-size: 4;
+        }
+
+        .panel-textarea::placeholder {
+            color: rgba(150, 170, 220, 0.7);
+        }
+
+        .panel-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 8px 6px 8px;
+            border-top: 1px solid rgba(90, 120, 190, 0.7);
+            font-size: 0.68rem;
+            color: #8fa0ff;
+        }
+
+        .panel-footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-footer-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .counter {
+            color: #b9c7ff;
+        }
+
+        .hint {
+            color: #7f93ff;
+            opacity: 0.9;
+        }
+
+        .mono-tag {
+            padding: 2px 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(120, 150, 210, 0.7);
+            background: rgba(8, 16, 32, 0.9);
+            color: #c7d6ff;
+        }
+
+        /* ===========================
+           BARRE BASSE
+        ============================ */
+
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-top: 4px;
+            border-top: 1px solid rgba(120, 150, 210, 0.4);
+            font-size: 0.7rem;
+            color: #8fa0ff;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer-sep {
+            width: 1px;
+            height: 12px;
+            background: rgba(120, 150, 210, 0.7);
+        }
+
+        .footer-strong {
+            color: #c7d6ff;
+        }
+
+        .kbd {
+            border-radius: 4px;
+            border: 1px solid rgba(140, 170, 230, 0.8);
+            padding: 1px 4px;
+            font-size: 0.68rem;
+            background: rgba(8, 16, 32, 0.9);
+            color: #dbe5ff;
+        }
+
+        /* ===========================
+           SCROLLBARS
+        ============================ */
+
+        .panel-textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .panel-textarea::-webkit-scrollbar-track {
+            background: rgba(4, 8, 18, 0.9);
+        }
+
+        .panel-textarea::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(120, 180, 255, 0.8), rgba(40, 80, 140, 0.9));
+            border-radius: 999px;
+        }
+
+        .panel-textarea::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(150, 210, 255, 0.9), rgba(60, 100, 170, 0.95));
+        }
+
+        /* ===========================
+           CLASSES UTILITAIRES
+        ============================ */
+
+        .muted {
+            opacity: 0.7;
+        }
+
+        .accent {
+            color: #c7ffea;
+        }
+
+        .accent-strong {
+            color: #eaffff;
+        }
+
+        .small {
+            font-size: 0.68rem;
+        }
+
+        .nowrap {
+            white-space: nowrap;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===========================
+           ANIMATIONS LÉGÈRES
+        ============================ */
+
+        .pulse {
+            animation: pulseGlow 2.4s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.7;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+
+    <div class="page">
+        <!-- ===========================
+             HEADER
+        ============================ -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <!-- Icône 827scall -->
+                    <img src="827scall Logo (Carré).png" alt="8 February 2027's Call Logo">
+                </div>
+                <div class="title-block">
+                    <div class="title-main">8 February 2027's Call</div>
+                    <div class="title-sub">FVC / FUTURE VAL CORP. — Text Converter</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-tag">
+                    <span>ZONE DE TEXTE TOTALE — STYLE CODEUR</span>
+                </div>
+                <div class="header-meta">
+                    FVC Charset v1.0 — Mapping 0–9 &amp; Aa–Zz
+                </div>
+            </div>
+        </header>
+
+        <!-- ===========================
+             MAIN
+        ============================ -->
+        <main class="main">
+            <!-- Bandeau haut -->
+            <div class="main-header">
+                <div>
+                    <div class="main-title">FVC WRITING CONVERSION</div>
+                    <div class="main-subtitle">
+                        Page brute, sans décoration superflue — juste toi, le texte, et la mutation FVC.
+                    </div>
+                </div>
+                <div class="main-header-right">
+                    <div>
+                        <span class="status-dot"></span>
+                        <span class="status-text">Convertisseur actif</span>
+                    </div>
+                    <div class="status-sub">
+                        Les caractères non définis restent inchangés dans le flux.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panneau de contrôles -->
+            <section class="controls">
+                <div class="controls-left">
+                    <div class="chip">
+                        <span class="chip-label">Police titres</span>
+                        <span class="chip-dot"></span>
+                        <span class="chip-value">Inndam Extended</span>
+                    </div>
+                    <div class="chip">
+                        <span class="chip-label">Police base</span>
+                        <span class="chip-dot"></span>
+                        <span class="chip-value">Monospace (code)</span>
+                    </div>
+                    <div class="chip">
+                        <span class="chip-label">Fond</span>
+                        <span class="chip-dot"></span>
+                        <span class="chip-value">Aurore animée</span>
+                    </div>
+                </div>
+                <div class="controls-right">
+                    <button class="btn" id="btnConvert">
+                        <span class="btn-icon">▶</span>
+                        <span>Convertir en FVC</span>
+                    </button>
+                    <button class="btn btn-secondary" id="btnClear">
+                        <span class="btn-icon">✕</span>
+                        <span>Effacer</span>
+                    </button>
+                    <button class="btn btn-secondary" id="btnCopy">
+                        <span class="btn-icon">⧉</span>
+                        <span>Copier sortie</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Zone d'édition -->
+            <section class="editor">
+                <!-- Panel gauche : entrée -->
+                <article class="panel">
+                    <header class="panel-header">
+                        <div class="panel-title">
+                            <span class="panel-title-label">Input</span>
+                            <span class="panel-title-sub">Texte brut à convertir</span>
+                        </div>
+                        <div class="panel-meta">
+                            <span id="inputChars">0 caractères</span>
+                            <span>•</span>
+                            <span class="muted">Entrée libre</span>
+                        </div>
+                    </header>
+                    <div class="panel-body">
+                        <textarea
+                            id="inputText"
+                            class="panel-textarea"
+                            spellcheck="false"
+                            placeholder="Tape ici ton texte à convertir en écriture FVC.&#10;&#10>Les caractères définis seront remplacés :&#10>0–9, Aa–Zz.&#10>Tout le reste reste intact, dans le flux.&#10&#10>Exemple :&#10>8 February 2027's Call → sera transmuté en FVC."
+                        ></textarea>
+                    </div>
+                    <footer class="panel-footer">
+                        <div class="panel-footer-left">
+                            <span class="counter" id="inputLines">0 lignes</span>
+                            <span class="footer-sep"></span>
+                            <span class="hint">Conversion automatique à chaque frappe</span>
+                        </div>
+                        <div class="panel-footer-right">
+                            <span class="mono-tag">Entrée</span>
+                        </div>
+                    </footer>
+                </article>
+
+                <!-- Panel droite : sortie -->
+                <article class="panel">
+                    <header class="panel-header">
+                        <div class="panel-title">
+                            <span class="panel-title-label">Output</span>
+                            <span class="panel-title-sub">Texte converti en FVC</span>
+                        </div>
+                        <div class="panel-meta">
+                            <span id="outputChars">0 caractères</span>
+                            <span>•</span>
+                            <span class="muted">Lecture seule</span>
+                        </div>
+                    </header>
+                    <div class="panel-body">
+                        <textarea
+                            id="outputText"
+                            class="panel-textarea"
+                            spellcheck="false"
+                            readonly
+                            placeholder="La version FVC de ton texte apparaîtra ici.&#10&#10>Les caractères non mappés restent identiques.&#10>Tu peux copier la sortie pour l'utiliser ailleurs."
+                        ></textarea>
+                    </div>
+                    <footer class="panel-footer">
+                        <div class="panel-footer-left">
+                            <span class="counter" id="outputLines">0 lignes</span>
+                            <span class="footer-sep"></span>
+                            <span class="hint">Copie rapide via le bouton ou Ctrl+C</span>
+                        </div>
+                        <div class="panel-footer-right">
+                            <span class="mono-tag">Sortie FVC</span>
+                        </div>
+                    </footer>
+                </article>
+            </section>
+
+            <!-- Footer bas -->
+            <footer class="footer">
+                <div class="footer-left">
+                    <span class="footer-strong">8 February 2027's Call</span>
+                    <span class="footer-sep"></span>
+                    <span>FUTURE VAL CORP. — FVC Writing Layer</span>
+                    <span class="footer-sep"></span>
+                    <span class="muted">Les autres caractères ne changent pas, ils restent dans le texte.</span>
+                </div>
+                <div class="footer-right">
+                    <span class="small">Raccourcis :</span>
+                    <span class="kbd">Ctrl + Enter</span>
+                    <span class="small">Convertir</span>
+                    <span class="kbd">Ctrl + L</span>
+                    <span class="small">Effacer</span>
+                    <span class="kbd">Ctrl + Shift + C</span>
+                    <span class="small">Copier sortie</span>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- ===========================
+         SCRIPT FVC
+    ============================ -->
+    <script>
+        // ===========================
+        // MAPPING FVC
+        // ===========================
+
+        const fvcMap = {
+            // Chiffres
+            "0": "０",
+            "1": "１",
+            "2": "２",
+            "3": "３",
+            "4": "４",
+            "5": "５",
+            "6": "６",
+            "7": "７",
+            "8": "８",
+            "9": "９",
+
+            // Lettres majuscules
+            "A": "ᗩ",
+            "B": "ᗷ",
+            "C": "ᑕ",
+            "D": "ᗪ",
+            "E": "ᗴ",
+            "F": "ᖴ",
+            "G": "Ǥ",
+            "H": "ᕼ",
+            "I": "Ꭵ",
+            "J": "ᒎ",
+            "K": "ᛕ",
+            "L": "ᒪ",
+            "M": "ᗰ",
+            "N": "ᑎ",
+            "O": "𝕆",
+            "P": "ᑭ",
+            "Q": "ℚ",
+            "R": "ᖇ",
+            "S": "𝕊",
+            "T": "丅",
+            "U": "ᑌ",
+            "V": "ᐯ",
+            "W": "ᗯ",
+            "X": "᙭",
+            "Y": "Ƴ",
+            "Z": "乙",
+
+            // Lettres minuscules
+            "a": "ᗩ",
+            "b": "ᗷ",
+            "c": "ᑕ",
+            "d": "ᗪ",
+            "e": "ᗴ",
+            "f": "ᖴ",
+            "g": "Ǥ",
+            "h": "ᕼ",
+            "i": "Ꭵ",
+            "j": "ᒎ",
+            "k": "ᛕ",
+            "l": "ᒪ",
+            "m": "ᗰ",
+            "n": "ᑎ",
+            "o": "𝕆",
+            "p": "ᑭ",
+            "q": "ℚ",
+            "r": "ᖇ",
+            "s": "𝕊",
+            "t": "丅",
+            "u": "ᑌ",
+            "v": "ᐯ",
+            "w": "ᗯ",
+            "x": "᙭",
+            "y": "Ƴ",
+            "z": "乙"
+        };
+
+        // ===========================
+        // ELEMENTS DOM
+        // ===========================
+
+        const inputText = document.getElementById("inputText");
+        const outputText = document.getElementById("outputText");
+
+        const btnConvert = document.getElementById("btnConvert");
+        const btnClear = document.getElementById("btnClear");
+        const btnCopy = document.getElementById("btnCopy");
+
+        const inputChars = document.getElementById("inputChars");
+        const outputChars = document.getElementById("outputChars");
+        const inputLines = document.getElementById("inputLines");
+        const outputLines = document.getElementById("outputLines");
+
+        // ===========================
+        // FONCTION DE CONVERSION
+        // ===========================
+
+        function convertToFVC(text) {
+            let result = "";
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                if (Object.prototype.hasOwnProperty.call(fvcMap, ch)) {
+                    result += fvcMap[ch];
+                } else {
+                    result += ch;
+                }
+            }
+            return result;
+        }
+
+        // ===========================
+        // MISE À JOUR DES COMPTEURS
+        // ===========================
+
+        function updateCounters() {
+            const inputValue = inputText.value;
+            const outputValue = outputText.value;
+
+            inputChars.textContent = inputValue.length + " caractères";
+            outputChars.textContent = outputValue.length + " caractères";
+
+            const inputLineCount = inputValue.length === 0 ? 0 : inputValue.split(/\r\n|\r|\n/).length;
+            const outputLineCount = outputValue.length === 0 ? 0 : outputValue.split(/\r\n|\r|\n/).length;
+
+            inputLines.textContent = inputLineCount + (inputLineCount <= 1 ? " ligne" : " lignes");
+            outputLines.textContent = outputLineCount + (outputLineCount <= 1 ? " ligne" : " lignes");
+        }
+
+        // ===========================
+        // ACTIONS
+        // ===========================
+
+        function performConversion() {
+            const source = inputText.value;
+            const converted = convertToFVC(source);
+            outputText.value = converted;
+            updateCounters();
+        }
+
+        function clearAll() {
+            inputText.value = "";
+            outputText.value = "";
+            updateCounters();
+            inputText.focus();
+        }
+
+        async function copyOutput() {
+            const value = outputText.value;
+            if (!value) return;
+
+            try {
+                await navigator.clipboard.writeText(value);
+                btnCopy.classList.add("pulse");
+                setTimeout(() => btnCopy.classList.remove("pulse"), 800);
+            } catch (e) {
+                // fallback visuel minimal
+                alert("Sortie copiée (ou tente de la copier) — si ça ne marche pas, sélectionne et copie manuellement.");
+            }
+        }
+
+        // ===========================
+        // LISTENERS
+        // ===========================
+
+        // Conversion automatique à chaque frappe
+        inputText.addEventListener("input", () => {
+            performConversion();
+        });
+
+        // Boutons
+        btnConvert.addEventListener("click", () => {
+            performConversion();
+        });
+
+        btnClear.addEventListener("click", () => {
+            clearAll();
+        });
+
+        btnCopy.addEventListener("click", () => {
+            copyOutput();
+        });
+
+        // Raccourcis clavier
+        document.addEventListener("keydown", (event) => {
+            // Ctrl + Enter → Convertir
+            if (event.ctrlKey && event.key === "Enter") {
+                event.preventDefault();
+                performConversion();
+            }
+
+            // Ctrl + L → Effacer
+            if (event.ctrlKey && (event.key === "l" || event.key === "L")) {
+                event.preventDefault();
+                clearAll();
+            }
+
+            // Ctrl + Shift + C → Copier sortie
+            if (event.ctrlKey && event.shiftKey && (event.key === "c" || event.key === "C")) {
+                event.preventDefault();
+                copyOutput();
+            }
+        });
+
+        // ===========================
+        // INIT
+        // ===========================
+
+        // Texte d'exemple pour montrer la conversion dès l'ouverture
+        const exampleText = [
+            "8 February 2027's Call — FUTURE VAL CORP.",
+            "",
+            "Cette page est une zone de texte brute,",
+            "style codeur, avec fond aurore.",
+            "",
+            "Les règles de conversion FVC sont actives :",
+            "- Chiffres : 0 1 2 3 4 5 6 7 8 9",
+            "- Lettres : Aa à Zz",
+            "",
+            "Les autres caractères restent tels quels.",
+            "",
+            "Tape, colle, convertis, copie.",
+            "C'est ta couche FVC."
+        ].join("\n");
+
+        inputText.value = exampleText;
+        performConversion();
+        inputText.focus();
+    </script>
+</body>
+</html>
