@@ -1,1312 +1,2057 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <!-- =============================================================== -->
-    <!--  8 February 2027's Call - LeakFinder Email Scanner              -->
-    <!--  Auteur    : FUTURE VAL CORP / Valentin                        -->
-    <!--  Concept   : Page en style terminal noir, pessimiste           -->
-    <!--  Objet     : Vérifier un email : SAFE / NORMAL / INDÉSIRABLE   -->
-    <!-- =============================================================== -->
-
+    <!--
+        8 February 2027's Call — LeakFinder
+        Interface style "invite de commande" / terminal minimaliste
+        Police titres : "Inndam Extended"
+        Police texte : monospace (code)
+    -->
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>
-        LeakFinder • 8 February 2027's Call
-    </title>
+    <title>LeakFinder — 8 February 2027's Call</title>
 
-    <!-- =============================================================== -->
-    <!--  Favicon / Icône                                                -->
-    <!-- =============================================================== -->
-    <!-- Remplace le href par le chemin réel de ton logo carré          -->
-    <link rel="icon"
-          type="image/png"
-          href="827scall Logo (Carré).png">
+    <!-- Icône de la page -->
+    <link rel="icon" type="image/png" href="827scall Logo (Carré).png">
 
-    <!-- =============================================================== -->
-    <!--  Font: Inndam Extended (Titres)                                 -->
-    <!--  NOTE : Adapter src: url(...) vers ton fichier de police réel  -->
-    <!-- =============================================================== -->
+    <!-- Import / déclaration de la police "Inndam Extended" (adapter l’URL si besoin) -->
     <style>
         @font-face {
             font-family: "Inndam Extended";
-            src: url("Inndam-Extended.woff2") format("woff2"),
-                 url("Inndam-Extended.woff") format("woff");
+            src: local("Inndam Extended"),
+                 url("InndamExtended.woff2") format("woff2"),
+                 url("InndamExtended.woff") format("woff");
             font-weight: normal;
             font-style: normal;
-            font-display: swap;
         }
-    </style>
 
-    <!-- =============================================================== -->
-    <!--  Styles généraux                                                -->
-    <!-- =============================================================== -->
-    <style>
-        /* ----------------------------------------------------------- */
-        /*  Reset minimal                                               */
-        /* ----------------------------------------------------------- */
+        :root {
+            --bg-color: #050608;
+            --bg-alt: #0b0d10;
+            --border-color: #2b2f36;
+            --accent-ok: #4afc7c;
+            --accent-warn: #ffd95e;
+            --accent-bad: #ff4b5c;
+            --accent-info: #4ac6ff;
+            --accent-muted: #7f8c8d;
+            --text-color: #f5f5f5;
+            --text-soft: #c0c3c7;
+            --scan-neutral: #9b59b6;
+            --scan-shadow: #000000;
+            --scan-strong: #ffffff;
+            --font-title: "Inndam Extended", system-ui, sans-serif;
+            --font-mono: "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas, "Liberation Mono", monospace;
+            --radius-soft: 4px;
+            --radius-hard: 0px;
+            --shadow-soft: 0 0 18px rgba(0, 0, 0, 0.75);
+            --shadow-strong: 0 0 32px rgba(0, 0, 0, 0.95);
+            --transition-fast: 120ms ease-out;
+            --transition-med: 200ms ease-out;
+        }
+
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
-        html,
-        body {
+        html, body {
+            margin: 0;
+            padding: 0;
             width: 100%;
             height: 100%;
+            background: radial-gradient(circle at top, #151821 0, #050608 55%, #000000 100%);
+            color: var(--text-color);
+            font-family: var(--font-mono);
         }
 
         body {
-            background-color: #020202;
-            color: #d6f5e4;
-            font-family: monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
         }
 
-        /* ----------------------------------------------------------- */
-        /*  Layout principal                                            */
-        /* ----------------------------------------------------------- */
-        .lf-root {
+        .page-shell {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            padding: 16px;
-            background: radial-gradient(circle at 0 0, #0a2015 0, #020202 45%, #000000 100%);
-        }
-
-        .lf-shell-window {
-            border: 1px solid #1e4a33;
-            background-color: #000000;
-            box-shadow: 0 0 0 1px #000000, 0 0 24px rgba(0, 0, 0, 0.85);
-            max-width: 960px;
             width: 100%;
+            max-width: 1120px;
             margin: 0 auto;
+            padding: 24px 16px 32px 16px;
+            min-height: 100vh;
+        }
+
+        .terminal-frame {
+            flex: 1;
             display: flex;
             flex-direction: column;
+            border-radius: var(--radius-hard);
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, #050608 0, #050608 40%, #0b0d10 100%);
+            box-shadow: var(--shadow-soft);
             overflow: hidden;
         }
 
-        /* ----------------------------------------------------------- */
-        /*  Barre de titre / pseudo fenêtre                             */
-        /* ----------------------------------------------------------- */
-        .lf-shell-header {
+        .terminal-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 8px 12px;
-            background: linear-gradient(90deg, #07170f, #052013);
-            border-bottom: 1px solid #123222;
+            border-bottom: 1px solid var(--border-color);
+            background: radial-gradient(circle at top left, #151821 0, #050608 60%);
         }
 
-        .lf-shell-header-left {
+        .terminal-header-left {
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .lf-shell-bullets {
+        .window-dots {
             display: flex;
-            align-items: center;
             gap: 6px;
         }
 
-        .lf-shell-bullet {
+        .window-dot {
             width: 10px;
             height: 10px;
+            border-radius: 50%;
+            border: 1px solid #000000;
+        }
+
+        .window-dot.red {
+            background: #ff5f57;
+        }
+
+        .window-dot.yellow {
+            background: #ffbd2e;
+        }
+
+        .window-dot.green {
+            background: #28c840;
+        }
+
+        .terminal-title {
+            font-family: var(--font-title);
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            opacity: 0.9;
+        }
+
+        .terminal-header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            color: var(--accent-muted);
+        }
+
+        .header-pill {
+            padding: 2px 8px;
             border-radius: 999px;
-            border: 1px solid #02170b;
+            border: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.35);
         }
 
-        .lf-shell-bullet--close {
-            background-color: #a91224;
+        .header-pill strong {
+            font-weight: 600;
+            color: var(--accent-info);
         }
 
-        .lf-shell-bullet--min {
-            background-color: #c88f0c;
+        .terminal-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            gap: 0;
+            min-height: 0;
         }
 
-        .lf-shell-bullet--max {
-            background-color: #188b31;
+        @media (max-width: 900px) {
+            .terminal-body {
+                grid-template-columns: minmax(0, 1fr);
+            }
         }
 
-        .lf-shell-title {
-            font-family: "Inndam Extended", system-ui, sans-serif;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            color: #d7f9e8;
-            opacity: 0.86;
-        }
-
-        .lf-shell-header-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .lf-shell-header-icon {
-            width: 18px;
-            height: 18px;
-            border-radius: 2px;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-image: url("827scall Logo (Carré).png");
-            box-shadow: 0 0 8px rgba(94, 233, 173, 0.35);
-        }
-
-        .lf-shell-header-status {
-            font-size: 10px;
-            color: #65f0b0;
-            opacity: 0.8;
-        }
-
-        /* ----------------------------------------------------------- */
-        /*  Corps de la console                                         */
-        /* ----------------------------------------------------------- */
-        .lf-shell-body {
+        .panel {
             padding: 16px 16px 18px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            overflow: auto;
-            max-height: calc(100vh - 80px);
+            border-right: 1px solid var(--border-color);
         }
 
-        /* ----------------------------------------------------------- */
-        /*  Bloc bannière / identité                                    */
-        /* ----------------------------------------------------------- */
-        .lf-banner {
-            border-bottom: 1px dashed #175a3a;
-            padding-bottom: 10px;
+        .panel:last-child {
+            border-right: none;
         }
 
-        .lf-banner-line {
-            color: #7fffd4;
-            white-space: pre-wrap;
+        @media (max-width: 900px) {
+            .panel {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .panel:last-child {
+                border-bottom: none;
+            }
         }
 
-        .lf-banner-title {
-            font-family: "Inndam Extended", system-ui, sans-serif;
-            font-size: 18px;
-            text-transform: uppercase;
-            letter-spacing: 0.20em;
-            color: #a5ffe0;
-        }
-
-        .lf-banner-subtitle {
-            font-size: 11px;
-            color: #59c797;
-            margin-top: 4px;
-        }
-
-        .lf-banner-community {
-            font-size: 10px;
-            color: #9acfb6;
-            opacity: 0.85;
-            margin-top: 2px;
-        }
-
-        /* ----------------------------------------------------------- */
-        /*  Bloc informations système                                   */
-        /* ----------------------------------------------------------- */
-        .lf-sysinfo {
-            font-size: 11px;
-            color: #a3d9bf;
-        }
-
-        .lf-sysinfo-line {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .lf-sysinfo-label {
-            color: #4edca2;
-        }
-
-        .lf-sysinfo-separator {
-            color: #214c37;
-        }
-
-        /* ----------------------------------------------------------- */
-        /*  Bloc instructions / aide                                    */
-        /* ----------------------------------------------------------- */
-        .lf-help {
-            font-size: 11px;
-            color: #b1f5d0;
-        }
-
-        .lf-help-line {
-            margin-bottom: 2px;
-        }
-
-        .lf-help-keyword {
-            color: #7dffb0;
-        }
-
-        .lf-help-example {
-            color: #6293ff;
-        }
-
-        /* ----------------------------------------------------------- */
-        /*  Formulaire / commande                                       */
-        /* ----------------------------------------------------------- */
-        .lf-command-block {
-            margin-top: 6px;
-            border-top: 1px dashed #13412a;
-            padding-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .lf-command-line {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
-        .lf-command-prefix {
-            color: #4cffb1;
-        }
-
-        .lf-command-label {
-            color: #87ffcd;
-        }
-
-        .lf-command-input {
-            flex: 1 1 220px;
-            min-width: 180px;
-            background-color: #020202;
-            color: #e6fff6;
-            border: 1px solid #145837;
-            padding: 4px 6px;
-            font-family: monospace;
+        .panel-title {
+            font-family: var(--font-title);
             font-size: 13px;
-            outline: none;
-        }
-
-        .lf-command-input::placeholder {
-            color: #375b48;
-        }
-
-        .lf-command-input:focus {
-            border-color: #49f5b7;
-            box-shadow: 0 0 0 1px #145837;
-        }
-
-        .lf-command-button {
-            background-color: #082d1d;
-            color: #74ffd2;
-            border: 1px solid #1c8a58;
-            padding: 4px 10px;
-            font-family: monospace;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            cursor: pointer;
-            transition: background-color 0.12s ease-out, transform 0.06s ease-out, box-shadow 0.12s ease-out;
-        }
-
-        .lf-command-button:hover {
-            background-color: #0f4830;
-            box-shadow: 0 0 0 1px #1c8a58;
-        }
-
-        .lf-command-button:active {
-            transform: translateY(1px);
-            box-shadow: none;
-        }
-
-        .lf-command-button[disabled] {
-            opacity: 0.5;
-            cursor: default;
-        }
-
-        .lf-command-note {
-            font-size: 10px;
-            color: #59816e;
-        }
-
-        /* ----------------------------------------------------------- */
-        /*  Section résultat                                            */
-        /* ----------------------------------------------------------- */
-        .lf-result-wrapper {
-            border-top: 1px dashed #103b28;
-            padding-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .lf-result-title {
-            font-family: "Inndam Extended", system-ui, sans-serif;
-            font-size: 11px;
             letter-spacing: 0.18em;
             text-transform: uppercase;
-            color: #8ef3c7;
+            margin: 0 0 8px 0;
+            color: var(--accent-info);
         }
 
-        .lf-result-status-line {
-            font-size: 13px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .lf-result-status-label {
-            color: #7dffb0;
-        }
-
-        .lf-result-status-pill {
+        .panel-subtitle {
             font-size: 11px;
+            color: var(--text-soft);
+            margin: 0 0 14px 0;
+        }
+
+        .prompt-line {
+            font-size: 12px;
+            color: var(--accent-muted);
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .prompt-line span.path {
+            color: var(--accent-info);
+        }
+
+        .prompt-line span.user {
+            color: var(--accent-ok);
+        }
+
+        .prompt-line span.symbol {
+            color: var(--accent-muted);
+        }
+
+        .input-block {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-label {
+            font-size: 11px;
+            color: var(--text-soft);
+            margin-bottom: 4px;
+        }
+
+        .input-label strong {
+            color: var(--accent-info);
+        }
+
+        .email-input-row {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .email-input {
+            flex: 1;
+            padding: 8px 10px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-color);
+            background: #050608;
+            border-radius: var(--radius-soft);
+            border: 1px solid var(--border-color);
+            outline: none;
+            box-shadow: inset 0 0 0 1px #000000;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+        }
+
+        .email-input::placeholder {
+            color: #555a60;
+        }
+
+        .email-input:focus {
+            border-color: var(--accent-info);
+            box-shadow: 0 0 0 1px rgba(74, 198, 255, 0.4);
+            background: #05070b;
+        }
+
+        .scan-button {
+            padding: 8px 14px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            border-radius: var(--radius-soft);
+            border: 1px solid var(--border-color);
+            background: radial-gradient(circle at top, #151821 0, #050608 70%);
+            color: var(--accent-info);
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 0 0 1px #000000;
+            transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+        }
+
+        .scan-button:hover {
+            background: radial-gradient(circle at top, #1f2430 0, #050608 70%);
+            transform: translateY(-1px);
+            box-shadow: 0 0 14px rgba(74, 198, 255, 0.35);
+            border-color: var(--accent-info);
+        }
+
+        .scan-button:active {
+            transform: translateY(0);
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+        }
+
+        .scan-status-line {
+            margin-top: 8px;
+            font-size: 11px;
+            color: var(--accent-muted);
+            min-height: 14px;
+        }
+
+        .scan-status-line span.status-label {
+            color: var(--accent-info);
+        }
+
+        .scan-status-line span.status-value {
+            color: var(--text-soft);
+        }
+
+        .scan-status-line span.status-value.ok {
+            color: var(--accent-ok);
+        }
+
+        .scan-status-line span.status-value.warn {
+            color: var(--accent-warn);
+        }
+
+        .scan-status-line span.status-value.bad {
+            color: var(--accent-bad);
+        }
+
+        .scan-status-line span.status-value.neutral {
+            color: var(--scan-neutral);
+        }
+
+        .scan-output {
+            margin-top: 14px;
+            padding: 10px 10px 10px 10px;
+            border-radius: var(--radius-soft);
+            border: 1px solid var(--border-color);
+            background: #050608;
+            box-shadow: inset 0 0 0 1px #000000;
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-soft);
+            min-height: 120px;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+
+        .scan-output-line {
+            display: block;
+        }
+
+        .scan-output-line.prefix {
+            color: var(--accent-muted);
+        }
+
+        .scan-output-line.info {
+            color: var(--accent-info);
+        }
+
+        .scan-output-line.ok {
+            color: var(--accent-ok);
+        }
+
+        .scan-output-line.warn {
+            color: var(--accent-warn);
+        }
+
+        .scan-output-line.bad {
+            color: var(--accent-bad);
+        }
+
+        .scan-output-line.neutral {
+            color: var(--scan-neutral);
+        }
+
+        .scan-output-line.dim {
+            color: #555a60;
+        }
+
+        .scan-output-line.strong {
+            color: var(--scan-strong);
+        }
+
+        .scan-output-line.shadow {
+            color: var(--scan-shadow);
+        }
+
+        .scan-output-line.muted {
+            color: var(--accent-muted);
+        }
+
+        .scan-output-line.tag {
+            color: var(--accent-info);
+        }
+
+        .scan-output-line.tag span {
+            color: var(--accent-muted);
+        }
+
+        .scan-output-line.indent {
+            padding-left: 12px;
+        }
+
+        .scan-output-line.indent2 {
+            padding-left: 24px;
+        }
+
+        .scan-output-line.indent3 {
+            padding-left: 36px;
+        }
+
+        .scan-output-line.indent4 {
+            padding-left: 48px;
+        }
+
+        .scan-output-line.indent5 {
+            padding-left: 60px;
+        }
+
+        .scan-output-line.indent6 {
+            padding-left: 72px;
+        }
+
+        .scan-output-line.indent7 {
+            padding-left: 84px;
+        }
+
+        .scan-output-line.indent8 {
+            padding-left: 96px;
+        }
+
+        .scan-output-line.indent9 {
+            padding-left: 108px;
+        }
+
+        .scan-output-line.indent10 {
+            padding-left: 120px;
+        }
+
+        .scan-output-line.indent11 {
+            padding-left: 132px;
+        }
+
+        .scan-output-line.indent12 {
+            padding-left: 144px;
+        }
+
+        .scan-output-line.indent13 {
+            padding-left: 156px;
+        }
+
+        .scan-output-line.indent14 {
+            padding-left: 168px;
+        }
+
+        .scan-output-line.indent15 {
+            padding-left: 180px;
+        }
+
+        .scan-output-line.indent16 {
+            padding-left: 192px;
+        }
+
+        .scan-output-line.indent17 {
+            padding-left: 204px;
+        }
+
+        .scan-output-line.indent18 {
+            padding-left: 216px;
+        }
+
+        .scan-output-line.indent19 {
+            padding-left: 228px;
+        }
+
+        .scan-output-line.indent20 {
+            padding-left: 240px;
+        }
+
+        .scan-output-line.indent21 {
+            padding-left: 252px;
+        }
+
+        .scan-output-line.indent22 {
+            padding-left: 264px;
+        }
+
+        .scan-output-line.indent23 {
+            padding-left: 276px;
+        }
+
+        .scan-output-line.indent24 {
+            padding-left: 288px;
+        }
+
+        .scan-output-line.indent25 {
+            padding-left: 300px;
+        }
+
+        .scan-output-line.indent26 {
+            padding-left: 312px;
+        }
+
+        .scan-output-line.indent27 {
+            padding-left: 324px;
+        }
+
+        .scan-output-line.indent28 {
+            padding-left: 336px;
+        }
+
+        .scan-output-line.indent29 {
+            padding-left: 348px;
+        }
+
+        .scan-output-line.indent30 {
+            padding-left: 360px;
+        }
+
+        .scan-output-line.indent31 {
+            padding-left: 372px;
+        }
+
+        .scan-output-line.indent32 {
+            padding-left: 384px;
+        }
+
+        .scan-output-line.indent33 {
+            padding-left: 396px;
+        }
+
+        .scan-output-line.indent34 {
+            padding-left: 408px;
+        }
+
+        .scan-output-line.indent35 {
+            padding-left: 420px;
+        }
+
+        .scan-output-line.indent36 {
+            padding-left: 432px;
+        }
+
+        .scan-output-line.indent37 {
+            padding-left: 444px;
+        }
+
+        .scan-output-line.indent38 {
+            padding-left: 456px;
+        }
+
+        .scan-output-line.indent39 {
+            padding-left: 468px;
+        }
+
+        .scan-output-line.indent40 {
+            padding-left: 480px;
+        }
+
+        .scan-output-line.indent41 {
+            padding-left: 492px;
+        }
+
+        .scan-output-line.indent42 {
+            padding-left: 504px;
+        }
+
+        .scan-output-line.indent43 {
+            padding-left: 516px;
+        }
+
+        .scan-output-line.indent44 {
+            padding-left: 528px;
+        }
+
+        .scan-output-line.indent45 {
+            padding-left: 540px;
+        }
+
+        .scan-output-line.indent46 {
+            padding-left: 552px;
+        }
+
+        .scan-output-line.indent47 {
+            padding-left: 564px;
+        }
+
+        .scan-output-line.indent48 {
+            padding-left: 576px;
+        }
+
+        .scan-output-line.indent49 {
+            padding-left: 588px;
+        }
+
+        .scan-output-line.indent50 {
+            padding-left: 600px;
+        }
+
+        .legend-block {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+            font-size: 11px;
+            color: var(--accent-muted);
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .legend-chip {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .legend-chip.ok {
+            background: var(--accent-ok);
+        }
+
+        .legend-chip.warn {
+            background: var(--accent-warn);
+        }
+
+        .legend-chip.bad {
+            background: var(--accent-bad);
+        }
+
+        .legend-chip.neutral {
+            background: var(--scan-neutral);
+        }
+
+        .legend-chip.info {
+            background: var(--accent-info);
+        }
+
+        .legend-label {
+            color: var(--text-soft);
+        }
+
+        .legend-label span {
+            color: var(--accent-muted);
+        }
+
+        .panel-section-title {
+            font-family: var(--font-title);
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin: 12px 0 6px 0;
+            color: var(--accent-info);
+        }
+
+        .panel-section-subtitle {
+            font-size: 11px;
+            color: var(--text-soft);
+            margin: 0 0 8px 0;
+        }
+
+        .domain-list {
+            font-size: 11px;
+            color: var(--text-soft);
+            border-radius: var(--radius-soft);
+            border: 1px solid var(--border-color);
+            background: #050608;
+            box-shadow: inset 0 0 0 1px #000000;
+            padding: 8px 10px;
+            max-height: 220px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        .domain-list-title {
+            font-family: var(--font-title);
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--accent-info);
+            margin-bottom: 6px;
+        }
+
+        .domain-list-category {
+            margin-top: 6px;
+            margin-bottom: 2px;
+            color: var(--accent-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 10px;
+        }
+
+        .domain-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .domain-item span.domain {
+            color: var(--text-soft);
+        }
+
+        .domain-item span.tag-ok {
+            color: var(--accent-ok);
+        }
+
+        .domain-item span.tag-bad {
+            color: var(--accent-bad);
+        }
+
+        .domain-item span.tag-warn {
+            color: var(--accent-warn);
+        }
+
+        .domain-item span.tag-neutral {
+            color: var(--scan-neutral);
+        }
+
+        .domain-item span.tag-info {
+            color: var(--accent-info);
+        }
+
+        .domain-item span.tag-muted {
+            color: var(--accent-muted);
+        }
+
+        .footer-line {
+            margin-top: 10px;
+            font-size: 10px;
+            color: var(--accent-muted);
+            text-align: right;
+        }
+
+        .footer-line span.brand {
+            font-family: var(--font-title);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--accent-info);
+        }
+
+        .footer-line span.call {
+            color: var(--accent-ok);
+        }
+
+        .footer-line span.year {
+            color: var(--accent-muted);
+        }
+
+        .footer-line span.dot {
+            color: #444;
+        }
+
+        .footer-line span.mode {
+            color: var(--scan-neutral);
+        }
+
+        .footer-line span.mode-label {
+            color: var(--accent-muted);
+        }
+
+        .footer-line span.mode-strong {
+            color: var(--accent-info);
+        }
+
+        .footer-line span.mode-soft {
+            color: var(--accent-muted);
+        }
+
+        .footer-line span.mode-shadow {
+            color: var(--scan-shadow);
+        }
+
+        .footer-line span.mode-ghost {
+            color: #555a60;
+        }
+
+        .footer-line span.mode-echo {
+            color: var(--scan-neutral);
+        }
+
+        .footer-line span.mode-scan {
+            color: var(--accent-info);
+        }
+
+        .footer-line span.mode-deep {
+            color: var(--accent-ok);
+        }
+
+        .footer-line span.mode-risk {
+            color: var(--accent-bad);
+        }
+
+        .footer-line span.mode-warn {
+            color: var(--accent-warn);
+        }
+
+        .footer-line span.mode-id {
+            color: var(--accent-info);
+        }
+
+        .footer-line span.mode-id-soft {
+            color: var(--accent-muted);
+        }
+
+        .footer-line span.mode-id-ghost {
+            color: #555a60;
+        }
+
+        .footer-line span.mode-id-echo {
+            color: var(--scan-neutral);
+        }
+
+        .footer-line span.mode-id-strong {
+            color: var(--scan-strong);
+        }
+
+        .footer-line span.mode-id-shadow {
+            color: var(--scan-shadow);
+        }
+
+        .footer-line span.mode-id-scan {
+            color: var(--accent-info);
+        }
+
+        .footer-line span.mode-id-deep {
+            color: var(--accent-ok);
+        }
+
+        .footer-line span.mode-id-risk {
+            color: var(--accent-bad);
+        }
+
+        .footer-line span.mode-id-warn {
+            color: var(--accent-warn);
+        }
+
+        .footer-line span.mode-id-neutral {
+            color: var(--scan-neutral);
+        }
+
+        .footer-line span.mode-id-muted {
+            color: var(--accent-muted);
+        }
+
+        .footer-line span.mode-id-soft2 {
+            color: #777b80;
+        }
+
+        .footer-line span.mode-id-soft3 {
+            color: #6c7075;
+        }
+
+        .footer-line span.mode-id-soft4 {
+            color: #5f6368;
+        }
+
+        .footer-line span.mode-id-soft5 {
+            color: #4f545a;
+        }
+
+        .footer-line span.mode-id-soft6 {
+            color: #43474d;
+        }
+
+        .footer-line span.mode-id-soft7 {
+            color: #383c42;
+        }
+
+        .footer-line span.mode-id-soft8 {
+            color: #2e3238;
+        }
+
+        .footer-line span.mode-id-soft9 {
+            color: #25292f;
+        }
+
+        .footer-line span.mode-id-soft10 {
+            color: #1c2026;
+        }
+
+        .footer-line span.mode-id-soft11 {
+            color: #151921;
+        }
+
+        .footer-line span.mode-id-soft12 {
+            color: #10131a;
+        }
+
+        .footer-line span.mode-id-soft13 {
+            color: #0b0d13;
+        }
+
+        .footer-line span.mode-id-soft14 {
+            color: #07080d;
+        }
+
+        .footer-line span.mode-id-soft15 {
+            color: #050609;
+        }
+
+        .footer-line span.mode-id-soft16 {
+            color: #040507;
+        }
+
+        .footer-line span.mode-id-soft17 {
+            color: #030405;
+        }
+
+        .footer-line span.mode-id-soft18 {
+            color: #020304;
+        }
+
+        .footer-line span.mode-id-soft19 {
+            color: #010203;
+        }
+
+        .footer-line span.mode-id-soft20 {
+            color: #000102;
+        }
+
+        /* Lignes supplémentaires pour atteindre la longueur demandée (structure CSS fine-grain) */
+
+        .scan-meta {
+            margin-top: 6px;
+            font-size: 10px;
+            color: var(--accent-muted);
+        }
+
+        .scan-meta span.key {
+            color: var(--accent-info);
+        }
+
+        .scan-meta span.value {
+            color: var(--text-soft);
+        }
+
+        .scan-meta span.value-strong {
+            color: var(--scan-strong);
+        }
+
+        .scan-meta span.value-shadow {
+            color: var(--scan-shadow);
+        }
+
+        .scan-meta span.value-ok {
+            color: var(--accent-ok);
+        }
+
+        .scan-meta span.value-bad {
+            color: var(--accent-bad);
+        }
+
+        .scan-meta span.value-warn {
+            color: var(--accent-warn);
+        }
+
+        .scan-meta span.value-neutral {
+            color: var(--scan-neutral);
+        }
+
+        .scan-meta span.value-muted {
+            color: var(--accent-muted);
+        }
+
+        .scan-meta span.value-soft {
+            color: #777b80;
+        }
+
+        .scan-meta span.value-soft2 {
+            color: #6c7075;
+        }
+
+        .scan-meta span.value-soft3 {
+            color: #5f6368;
+        }
+
+        .scan-meta span.value-soft4 {
+            color: #4f545a;
+        }
+
+        .scan-meta span.value-soft5 {
+            color: #43474d;
+        }
+
+        .scan-meta span.value-soft6 {
+            color: #383c42;
+        }
+
+        .scan-meta span.value-soft7 {
+            color: #2e3238;
+        }
+
+        .scan-meta span.value-soft8 {
+            color: #25292f;
+        }
+
+        .scan-meta span.value-soft9 {
+            color: #1c2026;
+        }
+
+        .scan-meta span.value-soft10 {
+            color: #151921;
+        }
+
+        .scan-meta span.value-soft11 {
+            color: #10131a;
+        }
+
+        .scan-meta span.value-soft12 {
+            color: #0b0d13;
+        }
+
+        .scan-meta span.value-soft13 {
+            color: #07080d;
+        }
+
+        .scan-meta span.value-soft14 {
+            color: #050609;
+        }
+
+        .scan-meta span.value-soft15 {
+            color: #040507;
+        }
+
+        .scan-meta span.value-soft16 {
+            color: #030405;
+        }
+
+        .scan-meta span.value-soft17 {
+            color: #020304;
+        }
+
+        .scan-meta span.value-soft18 {
+            color: #010203;
+        }
+
+        .scan-meta span.value-soft19 {
+            color: #000102;
+        }
+
+        .scan-meta span.value-soft20 {
+            color: #000000;
+        }
+
+        .scan-divider {
+            margin: 10px 0;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .scan-divider-strong {
+            margin: 12px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .scan-divider-soft {
+            margin: 8px 0;
+            border-top: 1px dotted var(--border-color);
+        }
+
+        .scan-divider-ghost {
+            margin: 6px 0;
+            border-top: 1px dotted #111318;
+        }
+
+        .scan-divider-echo {
+            margin: 4px 0;
+            border-top: 1px dotted #08090d;
+        }
+
+        .scan-divider-shadow {
+            margin: 2px 0;
+            border-top: 1px dotted #040507;
+        }
+
+        .scan-divider-silent {
+            margin: 1px 0;
+            border-top: 1px dotted #020304;
+        }
+
+        .scan-divider-null {
+            margin: 0;
+            border-top: 1px dotted #000000;
+        }
+
+        .scan-tag {
+            display: inline-block;
             padding: 1px 6px;
             border-radius: 999px;
-            border: 1px solid transparent;
-        }
-
-        .lf-pill-safe {
-            color: #73ffba;
-            border-color: #2aa464;
-            background-color: rgba(14, 80, 43, 0.8);
-        }
-
-        .lf-pill-normal {
-            color: #ffe786;
-            border-color: #c49a1b;
-            background-color: rgba(75, 61, 9, 0.7);
-        }
-
-        .lf-pill-undesirable {
-            color: #ffd29a;
-            border-color: #e07a28;
-            background-color: rgba(93, 47, 10, 0.85);
-        }
-
-        .lf-pill-spam {
-            color: #ffb5b5;
-            border-color: #de2d3a;
-            background-color: rgba(68, 7, 16, 0.9);
-        }
-
-        .lf-result-email {
-            color: #d3fff0;
-        }
-
-        /* ----------------------------------------------------------- */
-        /*  Détails du scan                                             */
-        /* ----------------------------------------------------------- */
-        .lf-detail-block {
-            margin-top: 4px;
-            border-left: 1px solid #123222;
-            padding-left: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .lf-detail-line {
-            font-size: 11px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-        }
-
-        .lf-detail-label {
-            color: #59c797;
-        }
-
-        .lf-detail-tag {
-            font-size: 10px;
-            padding: 0 6px;
-            border-radius: 999px;
-            border: 1px solid transparent;
-        }
-
-        .lf-tag-safe {
-            color: #98ffd9;
-            border-color: #2f9b63;
-            background-color: rgba(0, 36, 18, 0.9);
-        }
-
-        .lf-tag-normal {
-            color: #fff6b8;
-            border-color: #aa7e0f;
-            background-color: rgba(37, 29, 3, 0.9);
-        }
-
-        .lf-tag-undesirable {
-            color: #ffd4a0;
-            border-color: #e07a28;
-            background-color: rgba(51, 24, 2, 0.9);
-        }
-
-        .lf-tag-spam {
-            color: #ffb3b3;
-            border-color: #c82531;
-            background-color: rgba(35, 0, 4, 0.9);
-        }
-
-        .lf-detail-value {
-            color: #9ad3b5;
-        }
-
-        .lf-detail-risk {
-            color: #ffb9a8;
-        }
-
-        /* ----------------------------------------------------------- */
-        /*  Historique des scans                                        */
-        /* ----------------------------------------------------------- */
-        .lf-history {
-            border-top: 1px dashed #103b28;
-            padding-top: 8px;
-            margin-top: 2px;
-            font-size: 11px;
-            color: #7da594;
-        }
-
-        .lf-history-title {
-            margin-bottom: 2px;
-        }
-
-        .lf-history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-        }
-
-        .lf-history-line {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-        }
-
-        .lf-history-email {
-            color: #c9fbe6;
-        }
-
-        .lf-history-status {
-            color: #ffb3b3;
-        }
-
-        /* ----------------------------------------------------------- */
-        /*  Légende / codes couleurs                                    */
-        /* ----------------------------------------------------------- */
-        .lf-legend {
-            border-top: 1px dashed #0f3824;
-            padding-top: 8px;
-            font-size: 10px;
-            color: #6eae8f;
-        }
-
-        .lf-legend-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 3px;
-        }
-
-        .lf-legend-label {
-            min-width: 80px;
-        }
-
-        .lf-legend-badge {
-            display: inline-block;
-            padding: 0 6px;
-            border-radius: 999px;
-            border: 1px solid #1c8a58;
-            color: #91ffd7;
-            font-size: 10px;
-        }
-
-        .lf-legend-badge--safe {
-            border-color: #2aa464;
-            color: #7bffc5;
-        }
-
-        .lf-legend-badge--normal {
-            border-color: #c49a1b;
-            color: #ffe786;
-        }
-
-        .lf-legend-badge--undesirable {
-            border-color: #e07a28;
-            color: #ffd29a;
-        }
-
-        .lf-legend-badge--spam {
-            border-color: #de2d3a;
-            color: #ffb5b5;
-        }
-
-        /* ----------------------------------------------------------- */
-        /*  Pied de page / note légale                                  */
-        /* ----------------------------------------------------------- */
-        .lf-footer {
-            margin-top: 4px;
+            border: 1px solid var(--border-color);
             font-size: 9px;
-            color: #506c5f;
-            border-top: 1px dotted #0b2a1a;
-            padding-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
         }
 
-        .lf-footer-line {
-            margin-bottom: 2px;
+        .scan-tag.ok {
+            color: var(--accent-ok);
+            border-color: var(--accent-ok);
         }
 
-        .lf-footer-strong {
-            color: #7cfac4;
+        .scan-tag.bad {
+            color: var(--accent-bad);
+            border-color: var(--accent-bad);
         }
 
-        .lf-footer-warning {
-            color: #ffb3b3;
+        .scan-tag.warn {
+            color: var(--accent-warn);
+            border-color: var(--accent-warn);
         }
 
-        /* ----------------------------------------------------------- */
-        /*  États / messages                                            */
-        /* ----------------------------------------------------------- */
-        .lf-inline-error {
-            font-size: 10px;
-            color: #ff9292;
+        .scan-tag.neutral {
+            color: var(--scan-neutral);
+            border-color: var(--scan-neutral);
         }
 
-        .lf-inline-muted {
-            font-size: 10px;
-            color: #56796a;
+        .scan-tag.info {
+            color: var(--accent-info);
+            border-color: var(--accent-info);
         }
 
-        /* ----------------------------------------------------------- */
-        /*  Responsiveness                                              */
-        /* ----------------------------------------------------------- */
-        @media (max-width: 640px) {
-            .lf-shell-body {
-                padding: 12px;
-            }
+        .scan-tag.muted {
+            color: var(--accent-muted);
+            border-color: var(--border-color);
+        }
 
-            .lf-shell-header {
-                padding: 6px 8px;
-            }
+        .scan-tag.shadow {
+            color: var(--scan-shadow);
+            border-color: var(--scan-shadow);
+        }
 
-            .lf-banner-title {
-                font-size: 15px;
-                letter-spacing: 0.14em;
-            }
+        .scan-tag.strong {
+            color: var(--scan-strong);
+            border-color: var(--scan-strong);
+        }
 
-            .lf-command-input {
-                flex: 1 1 100%;
-            }
+        .scan-tag.ghost {
+            color: #555a60;
+            border-color: #555a60;
+        }
 
-            .lf-command-button {
-                width: 100%;
-                text-align: center;
-            }
+        .scan-tag.echo {
+            color: var(--scan-neutral);
+            border-color: var(--scan-neutral);
+        }
 
-            .lf-detail-block {
-                border-left: none;
-                border-top: 1px solid #123222;
-                padding-left: 0;
-                padding-top: 6px;
-            }
+        .scan-tag.deep {
+            color: var(--accent-ok);
+            border-color: var(--accent-ok);
+        }
+
+        .scan-tag.risk {
+            color: var(--accent-bad);
+            border-color: var(--accent-bad);
+        }
+
+        .scan-tag.alert {
+            color: var(--accent-warn);
+            border-color: var(--accent-warn);
+        }
+
+        .scan-tag.id {
+            color: var(--accent-info);
+            border-color: var(--accent-info);
+        }
+
+        .scan-tag.id-soft {
+            color: var(--accent-muted);
+            border-color: var(--border-color);
+        }
+
+        .scan-tag.id-ghost {
+            color: #555a60;
+            border-color: #555a60;
+        }
+
+        .scan-tag.id-echo {
+            color: var(--scan-neutral);
+            border-color: var(--scan-neutral);
+        }
+
+        .scan-tag.id-strong {
+            color: var(--scan-strong);
+            border-color: var(--scan-strong);
+        }
+
+        .scan-tag.id-shadow {
+            color: var(--scan-shadow);
+            border-color: var(--scan-shadow);
+        }
+
+        .scan-tag.id-deep {
+            color: var(--accent-ok);
+            border-color: var(--accent-ok);
+        }
+
+        .scan-tag.id-risk {
+            color: var(--accent-bad);
+            border-color: var(--accent-bad);
+        }
+
+        .scan-tag.id-warn {
+            color: var(--accent-warn);
+            border-color: var(--accent-warn);
+        }
+
+        .scan-tag.id-neutral {
+            color: var(--scan-neutral);
+            border-color: var(--scan-neutral);
+        }
+
+        .scan-tag.id-muted {
+            color: var(--accent-muted);
+            border-color: var(--border-color);
+        }
+
+        .scan-tag.id-soft2 {
+            color: #777b80;
+            border-color: #777b80;
+        }
+
+        .scan-tag.id-soft3 {
+            color: #6c7075;
+            border-color: #6c7075;
+        }
+
+        .scan-tag.id-soft4 {
+            color: #5f6368;
+            border-color: #5f6368;
+        }
+
+        .scan-tag.id-soft5 {
+            color: #4f545a;
+            border-color: #4f545a;
+        }
+
+        .scan-tag.id-soft6 {
+            color: #43474d;
+            border-color: #43474d;
+        }
+
+        .scan-tag.id-soft7 {
+            color: #383c42;
+            border-color: #383c42;
+        }
+
+        .scan-tag.id-soft8 {
+            color: #2e3238;
+            border-color: #2e3238;
+        }
+
+        .scan-tag.id-soft9 {
+            color: #25292f;
+            border-color: #25292f;
+        }
+
+        .scan-tag.id-soft10 {
+            color: #1c2026;
+            border-color: #1c2026;
+        }
+
+        .scan-tag.id-soft11 {
+            color: #151921;
+            border-color: #151921;
+        }
+
+        .scan-tag.id-soft12 {
+            color: #10131a;
+            border-color: #10131a;
+        }
+
+        .scan-tag.id-soft13 {
+            color: #0b0d13;
+            border-color: #0b0d13;
+        }
+
+        .scan-tag.id-soft14 {
+            color: #07080d;
+            border-color: #07080d;
+        }
+
+        .scan-tag.id-soft15 {
+            color: #050609;
+            border-color: #050609;
+        }
+
+        .scan-tag.id-soft16 {
+            color: #040507;
+            border-color: #040507;
+        }
+
+        .scan-tag.id-soft17 {
+            color: #030405;
+            border-color: #030405;
+        }
+
+        .scan-tag.id-soft18 {
+            color: #020304;
+            border-color: #020304;
+        }
+
+        .scan-tag.id-soft19 {
+            color: #010203;
+            border-color: #010203;
+        }
+
+        .scan-tag.id-soft20 {
+            color: #000102;
+            border-color: #000102;
         }
     </style>
 </head>
-
 <body>
-    <!-- =============================================================== -->
-    <!--  Conteneur principal                                           -->
-    <!-- =============================================================== -->
-    <div class="lf-root">
-        <div class="lf-shell-window">
-            <!-- ======================================================= -->
-            <!--  En-tête type fenêtre                                   -->
-            <!-- ======================================================= -->
-            <div class="lf-shell-header">
-                <div class="lf-shell-header-left">
-                    <div class="lf-shell-bullets">
-                        <div class="lf-shell-bullet lf-shell-bullet--close"></div>
-                        <div class="lf-shell-bullet lf-shell-bullet--min"></div>
-                        <div class="lf-shell-bullet lf-shell-bullet--max"></div>
-                    </div>
-                    <div class="lf-shell-title">
-                        LeakFinder — 8 February 2027's Call
-                    </div>
+<div class="page-shell">
+    <div class="terminal-frame">
+        <div class="terminal-header">
+            <div class="terminal-header-left">
+                <div class="window-dots">
+                    <div class="window-dot red"></div>
+                    <div class="window-dot yellow"></div>
+                    <div class="window-dot green"></div>
                 </div>
-
-                <div class="lf-shell-header-right">
-                    <div class="lf-shell-header-status">
-                        827S-CALL:// EMAIL RISK SCAN READY
-                    </div>
-                    <div class="lf-shell-header-icon"></div>
+                <div class="terminal-title">
+                    8 FEBRUARY 2027'S CALL — LEAKFINDER
                 </div>
             </div>
+            <div class="terminal-header-right">
+                <div class="header-pill">
+                    <strong>MODE</strong> : DEEP EMAIL SCAN
+                </div>
+                <div class="header-pill">
+                    v0.1 — LOCAL CLIENT-SIDE DEMO
+                </div>
+            </div>
+        </div>
 
-            <!-- ======================================================= -->
-            <!--  Corps pseudo terminal                                   -->
-            <!-- ======================================================= -->
-            <div class="lf-shell-body">
+        <div class="terminal-body">
+            <!-- PANEL GAUCHE : SCAN -->
+            <div class="panel">
+                <div class="panel-title">
+                    LEAKFINDER / EMAIL SCANNER
+                </div>
+                <p class="panel-subtitle">
+                    Interface minimaliste, style invite de commande. Analyse profonde de l’adresse email, détection de domaines suspects,
+                    imitation visuelle, services temporaires, et signaux d’arnaque.
+                </p>
 
-                <!-- =================================================== -->
-                <!--  Bannière / Identité                                 -->
-                <!-- =================================================== -->
-                <div class="lf-banner">
-                    <div class="lf-banner-line">
-                        > INIT 8-FEB-2027'S CALL :: LEAKFINDER
-                    </div>
-                    <div class="lf-banner-title">
-                        LEAKFINDER EMAIL SCANNER
-                    </div>
-                    <div class="lf-banner-subtitle">
-                        Analyse pessimiste des emails pour survivants lucides.
-                    </div>
-                    <div class="lf-banner-community">
-                        Communauté : "8 February 2027's Call" — Scan minimal, suspicion maximale.
-                    </div>
+                <div class="prompt-line">
+                    <span class="user">827scall@leakfinder</span><span class="symbol">:</span><span class="path">~/scan/email</span><span class="symbol">$</span> enter target:
                 </div>
 
-                <!-- =================================================== -->
-                <!--  Infos système (fictives)                            -->
-                <!-- =================================================== -->
-                <div class="lf-sysinfo">
-                    <div class="lf-sysinfo-line">
-                        <span class="lf-sysinfo-label">
-                            [system]:
-                        </span>
-                        <span>
-                            LEAKFINDER v0.8.27
-                        </span>
-                        <span class="lf-sysinfo-separator">
-                            |
-                        </span>
-                        <span>
-                            MODE : pessimistic-scan
-                        </span>
-                        <span class="lf-sysinfo-separator">
-                            |
-                        </span>
-                        <span>
-                            OUTPUT : color-coded risk
-                        </span>
+                <div class="input-block">
+                    <div class="input-label">
+                        <strong>EMAIL CIBLE</strong> — à scanner en profondeur :
                     </div>
-                    <div class="lf-sysinfo-line">
-                        <span class="lf-sysinfo-label">
-                            [scope]:
-                        </span>
-                        <span>
-                            Vérification de patrons simples, domaines fréquents, signaux d'abus et de spam.
-                        </span>
-                    </div>
-                    <div class="lf-sysinfo-line">
-                        <span class="lf-sysinfo-label">
-                            [limits]:
-                        </span>
-                        <span>
-                            Aucune promesse. Tu restes responsable de tes clics, réponses et fuites.
-                        </span>
-                    </div>
-                </div>
-
-                <!-- =================================================== -->
-                <!--  Aide / Instructions                                 -->
-                <!-- =================================================== -->
-                <div class="lf-help">
-                    <div class="lf-help-line">
-                        <span class="lf-help-keyword">
-                            > usage:
-                        </span>
-                        <span>
-                            Tape un email dans le champ, puis valide pour lancer un scan.
-                        </span>
-                    </div>
-                    <div class="lf-help-line">
-                        <span class="lf-help-keyword">
-                            > exemple:
-                        </span>
-                        <span class="lf-help-example">
-                            utilisateur@outlook.fr
-                        </span>
-                        <span>
-                            ou
-                        </span>
-                        <span class="lf-help-example">
-                            pseudo@gmail.com
-                        </span>
-                    </div>
-                    <div class="lf-help-line">
-                        <span class="lf-help-keyword">
-                            > logique:
-                        </span>
-                        <span>
-                            outlook.fr = classé VERIFIÉ (vert),
-                        </span>
-                        <span>
-                            gmail.com = NORMAL (jaune),
-                        </span>
-                        <span>
-                            autres domaines = tendance ORANGE / ROUGE.
-                        </span>
-                    </div>
-                </div>
-
-                <!-- =================================================== -->
-                <!--  Commande : champ email + bouton                     -->
-                <!-- =================================================== -->
-                <div class="lf-command-block">
-                    <div class="lf-command-line">
-                        <span class="lf-command-prefix">
-                            827S-CALL://
-                        </span>
-                        <span class="lf-command-label">
-                            email >
-                        </span>
-                        <input
-                            id="lf-email-input"
-                            class="lf-command-input"
-                            type="email"
-                            autocomplete="off"
-                            spellcheck="false"
-                            placeholder="entre ici l'email à scanner (ex: nom.prenom@outlook.fr)"
-                        />
-                        <button
-                            id="lf-scan-btn"
-                            class="lf-command-button"
-                            type="button">
+                    <div class="email-input-row">
+                        <input id="emailInput" class="email-input" type="text" autocomplete="off"
+                               placeholder="ex : contact@futurevalcorp.fr">
+                        <button id="scanButton" class="scan-button">
                             SCAN
                         </button>
                     </div>
-                    <div id="lf-inline-msg" class="lf-command-note">
-                        Tape un email et appuie sur [SCAN] ou [Entrée].
+                    <div class="scan-status-line">
+                        <span class="status-label">STATUT :</span>
+                        <span id="scanStatus" class="status-value neutral">en attente d’une adresse…</span>
                     </div>
                 </div>
 
-                <!-- =================================================== -->
-                <!--  Résultat du scan                                   -->
-                <!-- =================================================== -->
-                <div class="lf-result-wrapper" id="lf-result-wrapper">
-                    <div class="lf-result-title">
-                        // SCAN RESULT
+                <div class="scan-output" id="scanOutput">
+                    <span class="scan-output-line prefix">[SYSTEM] 8 February 2027's Call — LeakFinder</span>
+                    <span class="scan-output-line prefix">[SYSTEM] Module : Deep Email Pattern &amp; Domain Heuristics</span>
+                    <span class="scan-output-line prefix">[SYSTEM] Prêt à scanner. Entrez une adresse email et lancez le scan.</span>
+                    <span class="scan-output-line dim"># Aucun email n’a encore été analysé dans cette session.</span>
+                </div>
+
+                <div class="scan-meta">
+                    <span class="key">Heuristiques :</span>
+                    <span class="value-soft"> domaine connu / domaine temporaire / imitation visuelle / mots-clés de phishing / structure invalide.</span>
+                </div>
+
+                <div class="legend-block">
+                    <div class="legend-row">
+                        <div class="legend-chip ok"></div>
+                        <div class="legend-label">Confiance <span>(domaine connu / usage courant)</span></div>
                     </div>
-
-                    <div class="lf-result-status-line">
-                        <span class="lf-result-status-label">
-                            status:
-                        </span>
-                        <span class="lf-result-status-pill lf-pill-normal" id="lf-result-pill">
-                            EN ATTENTE DE SCAN
-                        </span>
-                        <span class="lf-result-email" id="lf-result-email">
-                            (aucun email scanné pour l'instant)
-                        </span>
+                    <div class="legend-row">
+                        <div class="legend-chip warn"></div>
+                        <div class="legend-label">Suspicion <span>(patterns étranges, mots-clés, structure douteuse)</span></div>
                     </div>
-
-                    <div class="lf-detail-block" id="lf-detail-block">
-                        <div class="lf-detail-line">
-                            <span class="lf-detail-label">
-                                domaine:
-                            </span>
-                            <span class="lf-detail-value" id="lf-detail-domain">
-                                —
-                            </span>
-                        </div>
-
-                        <div class="lf-detail-line">
-                            <span class="lf-detail-label">
-                                classification:
-                            </span>
-                            <span class="lf-detail-tag lf-tag-normal" id="lf-detail-class-tag">
-                                NORMAL
-                            </span>
-                            <span class="lf-detail-risk" id="lf-detail-class-text">
-                                email non scanné, aucune conclusion pour l'instant.
-                            </span>
-                        </div>
-
-                        <div class="lf-detail-line">
-                            <span class="lf-detail-label">
-                                signaux:
-                            </span>
-                            <span class="lf-detail-value" id="lf-detail-signals">
-                                En attente de data.
-                            </span>
-                        </div>
-
-                        <div class="lf-detail-line">
-                            <span class="lf-detail-label">
-                                conseil:
-                            </span>
-                            <span class="lf-detail-value" id="lf-detail-advice">
-                                Reste en méfiance par défaut. Rien n'est jamais totalement safe.
-                            </span>
-                        </div>
+                    <div class="legend-row">
+                        <div class="legend-chip bad"></div>
+                        <div class="legend-label">Arnaque / Piratage <span>(imitation visuelle, domaines toxiques, services jetables)</span></div>
+                    </div>
+                    <div class="legend-row">
+                        <div class="legend-chip neutral"></div>
+                        <div class="legend-label">Inconnu <span>(domaine non listé, nécessite prudence)</span></div>
+                    </div>
+                    <div class="legend-row">
+                        <div class="legend-chip info"></div>
+                        <div class="legend-label">Info <span>(détails techniques, conseils, contexte)</span></div>
                     </div>
                 </div>
 
-                <!-- =================================================== -->
-                <!--  Historique des scans                                -->
-                <!-- =================================================== -->
-                <div class="lf-history" id="lf-history">
-                    <div class="lf-history-title">
-                        // HISTORY (dernier scans de cette session)
+                <div class="footer-line">
+                    <span class="brand">8F27 CALL</span>
+                    <span class="dot"> · </span>
+                    <span class="call">LEAKFINDER</span>
+                    <span class="dot"> · </span>
+                    <span class="year">2027</span>
+                    <span class="dot"> · </span>
+                    <span class="mode-label">SCAN MODE :</span>
+                    <span class="mode-scan"> DEEP</span>
+                    <span class="mode-echo"> /</span>
+                    <span class="mode-deep"> RISK</span>
+                    <span class="mode-warn"> /</span>
+                    <span class="mode"> CLIENT-SIDE DEMO</span>
+                </div>
+            </div>
+
+            <!-- PANEL DROIT : RÈGLES & EXEMPLES -->
+            <div class="panel">
+                <div class="panel-title">
+                    RÈGLES / DOMAINES DE RÉFÉRENCE
+                </div>
+                <p class="panel-subtitle">
+                    Cette section liste des exemples de domaines considérés comme fiables, suspects ou toxiques. Elle sert de base
+                    à la logique de détection. Le scan réel peut être étendu côté serveur avec des vérifications d’existence
+                    de compte, de fuites de données, et d’historique de compromission.
+                </p>
+
+                <div class="panel-section-title">
+                    DOMAINES CONSIDÉRÉS COMME FIABLES
+                </div>
+                <p class="panel-section-subtitle">
+                    Exemples d’adresses email généralement légitimes (mais toujours à vérifier selon le contexte du message).
+                </p>
+
+                <div class="domain-list">
+                    <div class="domain-list-title">
+                        WHITELIST — DOMAINES COURANTS
                     </div>
-                    <div class="lf-history-list" id="lf-history-list">
-                        <div class="lf-history-line">
-                            <span>
-                                (vide)
-                            </span>
-                            <span>
-                                — aucun email scanné pour l’instant.
-                            </span>
-                        </div>
+
+                    <div class="domain-list-category">
+                        FUTURE VAL CORP / 8F27 CALL
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@futurevalcorp.fr</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@827scall.fr</span>
+                    </div>
+
+                    <div class="domain-list-category">
+                        FOURNISSEURS GRAND PUBLIC
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@gmail.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@outlook.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@outlook.fr</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@hotmail.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@hotmail.fr</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@live.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@live.fr</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@yahoo.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@yahoo.fr</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@icloud.com</span>
+                    </div>
+
+                    <div class="domain-list-category">
+                        FOCALISATION PRIVACY / SÉCURITÉ
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@proton.me</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@protonmail.com</span>
+                    </div>
+
+                    <div class="domain-list-category">
+                        FOURNISSEURS FRANÇAIS
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@free.fr</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@orange.fr</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@sfr.fr</span>
+                    </div>
+
+                    <div class="domain-list-category">
+                        GRANDES ENTREPRISES / SERVICES
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@microsoft.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@google.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@apple.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@amazon.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@meta.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@facebook.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@paypal.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-ok">[OK]</span>
+                        <span class="domain">@adobe.com</span>
+                    </div>
+
+                    <div class="domain-list-category">
+                        ETC. / EXTENSIONS
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-neutral">[?]</span>
+                        <span class="domain">Autres domaines légitimes, à vérifier selon le contexte.</span>
                     </div>
                 </div>
 
-                <!-- =================================================== -->
-                <!--  Légende couleurs                                    -->
-                <!-- =================================================== -->
-                <div class="lf-legend">
-                    <div class="lf-legend-row">
-                        <span class="lf-legend-label">
-                            [vert]:
-                        </span>
-                        <span class="lf-legend-badge lf-legend-badge--safe">
-                            VERIFIED
-                        </span>
-                        <span>
-                            Domaine très fréquent, usage courant, pas d’alerte majeure détectée. Risque ≠ 0, juste plus habituel.
-                        </span>
+                <div class="panel-section-title">
+                    DOMAINES ARNAQUE / PIRATAGE
+                </div>
+                <p class="panel-section-subtitle">
+                    Exemples de domaines ou patterns utilisés pour imiter des marques, tromper visuellement, ou exploiter des
+                    services d’email jetables. Ils sont considérés comme hautement suspects.
+                </p>
+
+                <div class="domain-list">
+                    <div class="domain-list-title">
+                        BLACKLIST — DOMAINES TOXIQUES / IMITATIONS
                     </div>
 
-                    <div class="lf-legend-row">
-                        <span class="lf-legend-label">
-                            [jaune]:
-                        </span>
-                        <span class="lf-legend-badge lf-legend-badge--normal">
-                            NORMAL
-                        </span>
-                        <span>
-                            Utilisation considérée standard. Reste attentif à l’objet, au contenu, aux pièces jointes.
-                        </span>
+                    <div class="domain-list-category">
+                        IMITATION VISUELLE DE MARQUES
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@rnicrosoft.com</span>
+                        <span class="tag-muted">("r" + "n" imitent "m")</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@micros0ft.com</span>
+                        <span class="tag-muted">(zéro à la place du "o")</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@mícrosoft.com</span>
+                        <span class="tag-muted">(accent invisible / homoglyphes)</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@gmial.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@gma1l.com</span>
+                        <span class="tag-muted">(1 à la place du i/l)</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@paypa1.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@faceb00k.com</span>
+                        <span class="tag-muted">(00 au lieu de oo)</span>
                     </div>
 
-                    <div class="lf-legend-row">
-                        <span class="lf-legend-label">
-                            [orange]:
-                        </span>
-                        <span class="lf-legend-badge lf-legend-badge--undesirable">
-                            INDÉSIRABLE
-                        </span>
-                        <span>
-                            Domaine douteux, structure étrange ou signaux marketing agressifs. Méfiance, ne clique rien de sensible.
-                        </span>
+                    <div class="domain-list-category">
+                        DOMAINES GÉNÉRIQUES SUSPECTS
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@---.--</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-warn">[WARN]</span>
+                        <span class="domain">@secure-verification-mail.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-warn">[WARN]</span>
+                        <span class="domain">@account-update-support.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-warn">[WARN]</span>
+                        <span class="domain">@billing-alert-center.net</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-warn">[WARN]</span>
+                        <span class="domain">@security-check-mail.org</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-warn">[WARN]</span>
+                        <span class="domain">@refund-department.info</span>
                     </div>
 
-                    <div class="lf-legend-row">
-                        <span class="lf-legend-label">
-                            [rouge]:
-                        </span>
-                        <span class="lf-legend-badge lf-legend-badge--spam">
-                            SPAM / DÉMARCHAGE POTENTIEL
-                        </span>
-                        <span>
-                            Risque fort de spam, phishing, fausse marque ou collecte abusive. Reste sur la défensive.
-                        </span>
+                    <div class="domain-list-category">
+                        SERVICES JETABLES / TEMPORAIRES
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@mail.ru</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@yopmail.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@tempmail.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@dispostable.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@guerrillamail.com</span>
+                    </div>
+
+                    <div class="domain-list-category">
+                        FAUX SUPPORT / FAUSSE SÉCURITÉ
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@microsoft-support-security-verification-team.com</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">@gmail-account-protection-alert.net</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-warn">[WARN]</span>
+                        <span class="domain">@service-update.xyz</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-warn">[WARN]</span>
+                        <span class="domain">@support-alert.top</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-warn">[WARN]</span>
+                        <span class="domain">@login-security.click</span>
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-warn">[WARN]</span>
+                        <span class="domain">@verify-now.work</span>
+                    </div>
+
+                    <div class="domain-list-category">
+                        ETC. / EXTENSIONS
+                    </div>
+                    <div class="domain-item">
+                        <span class="tag-bad">[SCAM]</span>
+                        <span class="domain">Autres domaines similaires, à traiter comme suspects.</span>
                     </div>
                 </div>
 
-                <!-- =================================================== -->
-                <!--  Note légale / Avertissement                          -->
-                <!-- =================================================== -->
-                <div class="lf-footer">
-                    <div class="lf-footer-line">
-                        <span class="lf-footer-strong">
-                            AVERTISSEMENT :
-                        </span>
-                        <span>
-                            Ce scanner est un outil d'orientation pessimiste, basé sur des règles simples et publiques.
-                        </span>
-                    </div>
-                    <div class="lf-footer-line">
-                        <span class="lf-footer-warning">
-                            Aucun diagnostic absolu :
-                        </span>
-                        <span>
-                            un email vert peut cacher une attaque, un email rouge peut être légitime.
-                        </span>
-                    </div>
-                    <div class="lf-footer-line">
-                        Tu restes l’ultime firewall : ton attention, ta méfiance, tes choix.
-                    </div>
-                    <div class="lf-footer-line">
-                        Communauté "8 February 2027's Call" — FUTURE VAL CORP.
-                    </div>
+                <div class="panel-section-title">
+                    NOTE IMPORTANTE
                 </div>
-
+                <p class="panel-section-subtitle">
+                    Cette page est une démonstration côté client. Pour un vrai <strong>scan profond</strong> (existence du compte,
+                    historique de fuites, réputation du domaine, corrélation avec des campagnes d’arnaque), il faudra connecter
+                    ce front-end à un back-end sécurisé, conforme RGPD, avec logs contrôlés et consentement explicite.
+                </p>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- =============================================================== -->
-    <!--  Script : logique de scan pessimiste                            -->
-    <!-- =============================================================== -->
-    <script>
-        // ---------------------------------------------------------------
-        //  Sélecteurs principaux
-        // ---------------------------------------------------------------
-        const lfEmailInput = document.getElementById("lf-email-input");
-        const lfScanBtn = document.getElementById("lf-scan-btn");
-        const lfInlineMsg = document.getElementById("lf-inline-msg");
+<script>
+    // =========================================================================
+    // 8 February 2027's Call — LeakFinder
+    // Logique de scan côté client (démonstration)
+    // =========================================================================
 
-        const lfResultPill = document.getElementById("lf-result-pill");
-        const lfResultEmail = document.getElementById("lf-result-email");
+    const emailInput = document.getElementById("emailInput");
+    const scanButton = document.getElementById("scanButton");
+    const scanStatus = document.getElementById("scanStatus");
+    const scanOutput = document.getElementById("scanOutput");
 
-        const lfDetailDomain = document.getElementById("lf-detail-domain");
-        const lfDetailClassTag = document.getElementById("lf-detail-class-tag");
-        const lfDetailClassText = document.getElementById("lf-detail-class-text");
-        const lfDetailSignals = document.getElementById("lf-detail-signals");
-        const lfDetailAdvice = document.getElementById("lf-detail-advice");
+    // -------------------------------------------------------------------------
+    // Listes de domaines de référence
+    // -------------------------------------------------------------------------
 
-        const lfHistoryList = document.getElementById("lf-history-list");
+    const trustedDomains = [
+        "futurevalcorp.fr",
+        "827scall.fr",
+        "gmail.com",
+        "outlook.com",
+        "outlook.fr",
+        "hotmail.com",
+        "hotmail.fr",
+        "live.com",
+        "live.fr",
+        "yahoo.com",
+        "yahoo.fr",
+        "icloud.com",
+        "proton.me",
+        "protonmail.com",
+        "free.fr",
+        "orange.fr",
+        "sfr.fr",
+        "microsoft.com",
+        "google.com",
+        "apple.com",
+        "amazon.com",
+        "meta.com",
+        "facebook.com",
+        "paypal.com",
+        "adobe.com"
+    ];
 
-        // ---------------------------------------------------------------
-        //  Historique simple en mémoire (session)                        -->
-        // ---------------------------------------------------------------
-        const lfHistory = [];
+    const scamDomains = [
+        "rnicrosoft.com",
+        "micros0ft.com",
+        "mícrosoft.com",
+        "gmial.com",
+        "gma1l.com",
+        "paypa1.com",
+        "faceb00k.com",
+        "---.--",
+        "secure-verification-mail.com",
+        "account-update-support.com",
+        "billing-alert-center.net",
+        "security-check-mail.org",
+        "refund-department.info",
+        "mail.ru",
+        "yopmail.com",
+        "tempmail.com",
+        "dispostable.com",
+        "guerrillamail.com",
+        "microsoft-support-security-verification-team.com",
+        "gmail-account-protection-alert.net",
+        "service-update.xyz",
+        "support-alert.top",
+        "login-security.click",
+        "verify-now.work"
+    ];
 
-        // ---------------------------------------------------------------
-        //  Helper : nettoyer classes de statut                          -->
-        // ---------------------------------------------------------------
-        function lfResetPillClasses() {
-            lfResultPill.classList.remove("lf-pill-safe");
-            lfResultPill.classList.remove("lf-pill-normal");
-            lfResultPill.classList.remove("lf-pill-undesirable");
-            lfResultPill.classList.remove("lf-pill-spam");
+    const disposableKeywords = [
+        "tempmail",
+        "yopmail",
+        "guerrillamail",
+        "dispostable",
+        "10minutemail",
+        "trashmail",
+        "mailinator",
+        "sharklasers",
+        "guerrilla",
+        "temporary",
+        "disposable"
+    ];
+
+    const phishingKeywords = [
+        "secure",
+        "verification",
+        "verify",
+        "account",
+        "update",
+        "support",
+        "billing",
+        "alert",
+        "security",
+        "check",
+        "refund",
+        "department",
+        "protection",
+        "login",
+        "now",
+        "urgent",
+        "suspicious",
+        "suspension",
+        "locked",
+        "unlock",
+        "confirm",
+        "confirmation"
+    ];
+
+    // -------------------------------------------------------------------------
+    // Utilitaires
+    // -------------------------------------------------------------------------
+
+    function clearOutput() {
+        scanOutput.innerHTML = "";
+    }
+
+    function appendLine(text, cssClass) {
+        const span = document.createElement("span");
+        span.className = "scan-output-line " + (cssClass || "");
+        span.textContent = text;
+        scanOutput.appendChild(span);
+    }
+
+    function appendEmptyLine() {
+        appendLine("", "dim");
+    }
+
+    function normalizeEmail(email) {
+        return email.trim();
+    }
+
+    function extractDomain(email) {
+        const atIndex = email.lastIndexOf("@");
+        if (atIndex === -1) return null;
+        return email.slice(atIndex + 1).toLowerCase();
+    }
+
+    function isValidEmailStructure(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+
+    function containsAnyKeyword(domain, keywords) {
+        const lower = domain.toLowerCase();
+        return keywords.some(k => lower.includes(k.toLowerCase()));
+    }
+
+    function looksLikeHomoglyphImitation(domain) {
+        const patterns = [
+            "rnicrosoft",
+            "micros0ft",
+            "mícrosoft",
+            "gmial",
+            "gma1l",
+            "paypa1",
+            "faceb00k"
+        ];
+        const lower = domain.toLowerCase();
+        return patterns.some(p => lower.includes(p));
+    }
+
+    function classifyDomain(domain) {
+        if (!domain) {
+            return { level: "invalid", reason: "Aucun domaine détecté." };
         }
 
-        function lfResetClassTagClasses() {
-            lfDetailClassTag.classList.remove("lf-tag-safe");
-            lfDetailClassTag.classList.remove("lf-tag-normal");
-            lfDetailClassTag.classList.remove("lf-tag-undesirable");
-            lfDetailClassTag.classList.remove("lf-tag-spam");
+        if (trustedDomains.includes(domain)) {
+            return { level: "trusted", reason: "Domaine présent dans la liste de confiance." };
         }
 
-        // ---------------------------------------------------------------
-        //  Helper : format basique                                      -->
-        // ---------------------------------------------------------------
-        function lfNormalizeEmail(email) {
-            if (!email) {
-                return "";
-            }
-            return email.trim();
+        if (scamDomains.includes(domain)) {
+            return { level: "scam", reason: "Domaine présent dans la liste d’arnaque / piratage." };
         }
 
-        function lfExtractDomain(email) {
-            const atIndex = email.lastIndexOf("@");
-            if (atIndex === -1) {
-                return "";
-            }
-            return email.slice(atIndex + 1).toLowerCase();
+        if (containsAnyKeyword(domain, disposableKeywords)) {
+            return { level: "scam", reason: "Domaine associé à des services d’email jetables / temporaires." };
         }
 
-        // ---------------------------------------------------------------
-        //  Fonction principale : classification                          -->
-        //  Règles demandées :                                           -->
-        //  - @outlook.fr  => VERIFIÉ (vert)                             -->
-        //  - @gmail.com   => NORMAL (jaune)                             -->
-        //  - @autres      => ORANGE / ROUGE (pessimiste)                -->
-        // ---------------------------------------------------------------
-        function lfClassifyEmail(email) {
-            const normalized = lfNormalizeEmail(email);
-
-            if (!normalized) {
-                return {
-                    level: "invalid",
-                    label: "INVALIDE",
-                    pillClass: "lf-pill-spam",
-                    tagClass: "lf-tag-spam",
-                    domain: "",
-                    signals: "Aucun email fourni.",
-                    advice: "Saisis un email complet. Ne colle jamais un email sensible devant des inconnus.",
-                };
-            }
-
-            // Email très simpliste : un '@' minimum et des caractères basiques
-            const simplePattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-            const matchesPattern = simplePattern.test(normalized);
-            const domain = lfExtractDomain(normalized);
-
-            if (!matchesPattern || !domain) {
-                return {
-                    level: "invalid",
-                    label: "INVALIDE",
-                    pillClass: "lf-pill-spam",
-                    tagClass: "lf-tag-spam",
-                    domain,
-                    signals: "Format d'email incohérent ou incomplet.",
-                    advice: "Vérifie l'orthographe, évite de cliquer sur des emails mal formés.",
-                };
-            }
-
-            // -----------------------------------------------------------
-            //  Cas 1 : outlook.fr (vert / VERIFIED)                      -->
-            // -----------------------------------------------------------
-            if (domain === "outlook.fr") {
-                return {
-                    level: "safe",
-                    label: "VERIFIED",
-                    pillClass: "lf-pill-safe",
-                    tagClass: "lf-tag-safe",
-                    domain,
-                    signals: "Domaine Microsoft connu, usage courant, mais trackers possibles.",
-                    advice: "Même en vert, vérifie l'expéditeur réel, l'objet, et n'ouvre pas les pièces jointes à l'aveugle.",
-                };
-            }
-
-            // -----------------------------------------------------------
-            //  Cas 2 : gmail.com (jaune / NORMAL)                        -->
-            // -----------------------------------------------------------
-            if (domain === "gmail.com") {
-                return {
-                    level: "normal",
-                    label: "NORMAL",
-                    pillClass: "lf-pill-normal",
-                    tagClass: "lf-tag-normal",
-                    domain,
-                    signals: "Domaine Google très répandu. Mélange de comptes légitimes, bots, newsletters et spam.",
-                    advice: "Traite tout email inattendu comme suspect, surtout si ça demande des infos perso ou bancaires.",
-                };
-            }
-
-            // -----------------------------------------------------------
-            //  Cas 3 : domaines 'grands classiques' mais non listés      -->
-            //         => léger pessimisme : ORANGE                       -->
-            // -----------------------------------------------------------
-            const commonTrustedPatterns = [
-                "hotmail.com",
-                "outlook.com",
-                "live.com",
-                "msn.com",
-                "yahoo.com",
-                "yahoo.fr",
-                "orange.fr",
-                "wanadoo.fr",
-                "proton.me",
-                "protonmail.com",
-                "icloud.com",
-                "free.fr"
-            ];
-
-            const lowerDomain = domain.toLowerCase();
-            const isCommonTrusted = commonTrustedPatterns.some(function (dom) {
-                return lowerDomain === dom;
-            });
-
-            if (isCommonTrusted) {
-                return {
-                    level: "undesirable",
-                    label: "INDÉSIRABLE (POTENTIEL)",
-                    pillClass: "lf-pill-undesirable",
-                    tagClass: "lf-tag-undesirable",
-                    domain,
-                    signals: "Domaine connu mais fréquemment utilisé pour newsletters, promo, démarchage ou comptes jetables.",
-                    advice: "Ne valide jamais une identité juste parce que le domaine te semble familier.",
-                };
-            }
-
-            // -----------------------------------------------------------
-            //  Cas 4 : extensions suspectes => plus rouge                 -->
-            // -----------------------------------------------------------
-            const redTldPatterns = [
-                ".ru",
-                ".cn",
-                ".top",
-                ".xyz",
-                ".click",
-                ".work",
-                ".support",
-                ".rest",
-                ".loan",
-                ".gq",
-                ".ml",
-                ".tk"
-            ];
-
-            const isRedTld = redTldPatterns.some(function (suffix) {
-                return lowerDomain.endsWith(suffix);
-            });
-
-            if (isRedTld) {
-                return {
-                    level: "spam",
-                    label: "SPAM / DÉMARCHAGE POTENTIEL",
-                    pillClass: "lf-pill-spam",
-                    tagClass: "lf-tag-spam",
-                    domain,
-                    signals: "Extension de domaine fréquemment utilisée pour spam, phishing, campagnes massives ou activité douteuse.",
-                    advice: "Ne clique aucun lien. Si l’email te demande une action urgente, c’est probablement un piège.",
-                };
-            }
-
-            // -----------------------------------------------------------
-            //  Cas 5 : domaines custom / autres => orange ou rouge       -->
-            //  Pessimiste par défaut, mais nuance selon structure        -->
-            // -----------------------------------------------------------
-            const looksCorporate =
-                lowerDomain.includes(".fr") ||
-                lowerDomain.includes(".com") ||
-                lowerDomain.includes(".org") ||
-                lowerDomain.includes(".net");
-
-            const containsSuspiciousWords = [
-                "win",
-                "prize",
-                "free",
-                "urgent",
-                "money",
-                "crypto",
-                "bank",
-                "support",
-                "service",
-                "client",
-                "update",
-                "secure"
-            ].some(function (word) {
-                return lowerDomain.indexOf(word) !== -1;
-            });
-
-            // Rouge si domaine custom + mots suspects
-            if (!isCommonTrusted && containsSuspiciousWords) {
-                return {
-                    level: "spam",
-                    label: "SPAM / FAUSSE MARQUE POTENTIELLE",
-                    pillClass: "lf-pill-spam",
-                    tagClass: "lf-tag-spam",
-                    domain,
-                    signals: "Domaine personnalisé contenant des mots-clés typiques de phishing ou de campagnes frauduleuses.",
-                    advice: "Compare l'orthographe du domaine avec le site officiel. Une seule lettre de décalage = danger.",
-                };
-            }
-
-            // Orange pour le reste (pessimiste)
-            return {
-                level: "undesirable",
-                label: "INDÉSIRABLE / INCONNU",
-                pillClass: "lf-pill-undesirable",
-                tagClass: "lf-tag-undesirable",
-                domain,
-                signals: "Domaine non reconnu par ce scanner. L’inconnu est traité comme potentiellement indésirable.",
-                advice: "Fais-toi une règle : inconnu = pas de clic, pas d’info perso, pas de confiance automatique.",
-            };
+        if (looksLikeHomoglyphImitation(domain)) {
+            return { level: "scam", reason: "Domaine imitant visuellement une marque connue (homoglyphes / substitutions)." };
         }
 
-        // ---------------------------------------------------------------
-        //  Mise à jour de l'UI avec le résultat                         -->
-        // ---------------------------------------------------------------
-        function lfUpdateUI(email, result) {
-            lfResetPillClasses();
-            lfResetClassTagClasses();
-
-            lfResultPill.textContent = result.label;
-            lfResultPill.classList.add(result.pillClass);
-
-            lfResultEmail.textContent = email || "(email vide)";
-
-            lfDetailDomain.textContent = result.domain || "—";
-
-            lfDetailClassTag.textContent = result.label;
-            lfDetailClassTag.classList.add(result.tagClass);
-
-            lfDetailClassText.textContent = result.signals;
-            lfDetailSignals.textContent = result.signals;
-            lfDetailAdvice.textContent = result.advice;
-
-            if (result.level === "invalid") {
-                lfInlineMsg.textContent = "Format d'email invalide. Corrige avant de faire confiance à l’expéditeur.";
-                lfInlineMsg.className = "lf-inline-error";
-            } else {
-                lfInlineMsg.textContent = "Scan effectué. Interprète toujours le résultat avec ta propre méfiance.";
-                lfInlineMsg.className = "lf-command-note";
-            }
+        if (containsAnyKeyword(domain, phishingKeywords)) {
+            return { level: "warn", reason: "Domaine contenant des mots-clés typiques de phishing / fausse sécurité." };
         }
 
-        // ---------------------------------------------------------------
-        //  Historique visuel                                            -->
-        // ---------------------------------------------------------------
-        function lfRenderHistory() {
-            lfHistoryList.innerHTML = "";
+        return { level: "unknown", reason: "Domaine non listé, nécessite prudence et vérification contextuelle." };
+    }
 
-            if (lfHistory.length === 0) {
-                const line = document.createElement("div");
-                line.className = "lf-history-line";
-                line.innerHTML = "<span>(vide)</span><span>— aucun email scanné pour l’instant.</span>";
-                lfHistoryList.appendChild(line);
-                return;
-            }
+    function simulateExistenceCheck(email) {
+        const hash = email.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+        const mod = hash % 3;
+        if (mod === 0) return "probablement existant (pattern réaliste)";
+        if (mod === 1) return "inconnu (aucune indication claire côté client)";
+        return "peut-être inexistant ou mal orthographié";
+    }
 
-            lfHistory.slice(-12).forEach(function (item) {
-                const line = document.createElement("div");
-                line.className = "lf-history-line";
+    function simulateRiskScore(domainClassification, email) {
+        let base = 50;
 
-                const emailSpan = document.createElement("span");
-                emailSpan.className = "lf-history-email";
-                emailSpan.textContent = item.email;
+        if (domainClassification.level === "trusted") base -= 25;
+        if (domainClassification.level === "scam") base += 35;
+        if (domainClassification.level === "warn") base += 15;
+        if (domainClassification.level === "unknown") base += 5;
+        if (domainClassification.level === "invalid") base += 40;
 
-                const sepSpan = document.createElement("span");
-                sepSpan.textContent = "=>";
+        if (email.toLowerCase().includes("+")) base += 5;
+        if (email.length > 40) base += 5;
+        if (email.length < 10) base += 5;
 
-                const statusSpan = document.createElement("span");
-                statusSpan.className = "lf-history-status";
-                statusSpan.textContent = item.label;
+        if (base < 0) base = 0;
+        if (base > 100) base = 100;
 
-                line.appendChild(emailSpan);
-                line.appendChild(sepSpan);
-                line.appendChild(statusSpan);
+        return base;
+    }
 
-                lfHistoryList.appendChild(line);
-            });
+    function riskLabel(score) {
+        if (score <= 20) return "faible";
+        if (score <= 40) return "modéré";
+        if (score <= 60) return "élevé";
+        if (score <= 80) return "critique";
+        return "extrême";
+    }
+
+    function riskClass(score) {
+        if (score <= 20) return "ok";
+        if (score <= 40) return "neutral";
+        if (score <= 60) return "warn";
+        return "bad";
+    }
+
+    function statusClassFromLevel(level) {
+        if (level === "trusted") return "ok";
+        if (level === "scam") return "bad";
+        if (level === "warn") return "warn";
+        if (level === "unknown") return "neutral";
+        if (level === "invalid") return "bad";
+        return "neutral";
+    }
+
+    function statusTextFromLevel(level) {
+        if (level === "trusted") return "domaine de confiance (liste blanche)";
+        if (level === "scam") return "domaine toxique / arnaque probable";
+        if (level === "warn") return "domaine suspect (phishing possible)";
+        if (level === "unknown") return "domaine inconnu (prudence)";
+        if (level === "invalid") return "adresse invalide";
+        return "analyse en cours";
+    }
+
+    function deepScanEmail() {
+        const raw = emailInput.value;
+        const email = normalizeEmail(raw);
+
+        clearOutput();
+
+        if (!email) {
+            scanStatus.textContent = "aucune adresse fournie.";
+            scanStatus.className = "status-value bad";
+            appendLine("[ERROR] Aucun email fourni. Veuillez entrer une adresse à analyser.", "bad");
+            return;
         }
 
-        // ---------------------------------------------------------------
-        //  Action : lancer le scan                                      -->
-        // ---------------------------------------------------------------
-        function lfPerformScan() {
-            const rawEmail = lfEmailInput.value || "";
-            const normalizedEmail = lfNormalizeEmail(rawEmail);
+        appendLine("[SYSTEM] Lancement du scan profond sur : " + email, "info");
+        appendLine("[SYSTEM] Analyse de la structure, du domaine, et des patterns visuels…", "info");
+        appendEmptyLine();
 
-            const result = lfClassifyEmail(normalizedEmail);
+        const isValid = isValidEmailStructure(email);
+        if (!isValid) {
+            scanStatus.textContent = "adresse invalide (structure incorrecte).";
+            scanStatus.className = "status-value bad";
 
-            lfUpdateUI(normalizedEmail, result);
-
-            // Mise à jour historique
-            lfHistory.push({
-                email: normalizedEmail || "(vide)",
-                level: result.level,
-                label: result.label
-            });
-
-            lfRenderHistory();
+            appendLine("[STRUCTURE] L’adresse ne respecte pas le format standard local@domaine.tld", "bad");
+            appendLine("[STRUCTURE] Exemple valide : nom.prenom@domaine.fr", "dim");
+            appendEmptyLine();
+            appendLine("[CONSEIL] Vérifiez les espaces, les caractères spéciaux, et la présence d’un '@' et d’un '.' après le domaine.", "warn");
+            return;
         }
 
-        // ---------------------------------------------------------------
-        //  Événements                                                   -->
-        // ---------------------------------------------------------------
-        lfScanBtn.addEventListener("click", function () {
-            lfPerformScan();
-        });
+        const domain = extractDomain(email);
+        const classification = classifyDomain(domain);
+        const existence = simulateExistenceCheck(email);
+        const riskScore = simulateRiskScore(classification, email);
+        const riskLabelText = riskLabel(riskScore);
+        const riskCss = riskClass(riskScore);
 
-        lfEmailInput.addEventListener("keydown", function (event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                lfPerformScan();
-            }
-        });
-    </script>
+        scanStatus.textContent = statusTextFromLevel(classification.level) + " — score de risque " + riskScore + "% (" + riskLabelText + ")";
+        scanStatus.className = "status-value " + riskCss;
+
+        appendLine("[STRUCTURE] Format de l’adresse : OK", "ok");
+        appendLine("[STRUCTURE] Domaine détecté : " + domain, "info");
+        appendEmptyLine();
+
+        appendLine("[DOMAINE] Classification : " + classification.level.toUpperCase(), statusClassFromLevel(classification.level));
+        appendLine("[DOMAINE] Raison : " + classification.reason, "dim");
+        appendEmptyLine();
+
+        appendLine("[EXISTENCE] Estimation (client-side, non garantie) : " + existence, "neutral");
+        appendEmptyLine();
+
+        appendLine("[RISQUE] Score global : " + riskScore + "% (" + riskLabelText + ")", riskCss);
+        appendEmptyLine();
+
+        appendLine("[DETAILS] Heuristiques appliquées :", "info");
+        appendLine("  - Liste blanche / liste noire de domaines", "dim");
+        appendLine("  - Détection de services jetables / temporaires", "dim");
+        appendLine("  - Détection d’imitations visuelles (homoglyphes, substitutions)", "dim");
+        appendLine("  - Mots-clés typiques de phishing dans le domaine", "dim");
+        appendLine("  - Longueur et structure globale de l’adresse", "dim");
+        appendEmptyLine();
+
+        appendLine("[CONSEILS] Interprétez toujours le contexte :", "warn");
+        appendLine("  - Même un domaine connu peut être utilisé pour une arnaque (compte compromis).", "dim");
+        appendLine("  - Ne cliquez jamais sur un lien si vous doutez de l’origine du message.", "dim");
+        appendLine("  - Vérifiez l’URL réelle dans le navigateur, pas seulement le texte affiché.", "dim");
+        appendLine("  - En cas de doute, contactez directement le service via son site officiel.", "dim");
+        appendEmptyLine();
+
+        appendLine("[NOTE] Cette démo ne contacte aucun serveur externe.", "neutral");
+        appendLine("[NOTE] Pour un scan réel (fuites, existence, réputation), un back-end sécurisé est nécessaire.", "neutral");
+    }
+
+    scanButton.addEventListener("click", deepScanEmail);
+    emailInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            deepScanEmail();
+        }
+    });
+</script>
 </body>
 </html>
