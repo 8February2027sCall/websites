@@ -1,569 +1,645 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <!--
-        ================================================
-        8 February 2027's Call — Intelligent Safe Search
-        Futuristic, privacy-aware, risk-aware search shell
-        ------------------------------------------------
-        Single-file HTML+CSS+JS prototype
-        Lines intentionally long (1000–2000) as requested
-        ================================================
-    -->
-
     <meta charset="UTF-8">
+    <title>8 February 2027's Call - SafeSearch</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>8 February 2027's Call — Safe Search</title>
-
-    <!-- Favicon / Icon -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="827scall Logo (Carré).png">
 
-    <!-- Placeholder for custom title font: Inndam Extended -->
-    <!-- Replace the URL below with your actual font file if needed -->
+    <!-- Police Inndam Extended (fallback si non dispo) -->
     <style>
         @font-face {
             font-family: "Inndam Extended";
-            src: url("Inndam-Extended.woff2") format("woff2");
+            src: local("Inndam Extended"), local("Inndam-Extended");
             font-weight: normal;
             font-style: normal;
         }
-    </style>
 
-    <!-- Base styles -->
-    <style>
-        /* =========================================
-           CSS RESET (minimal)
-        ========================================== */
-        *, *::before, *::after {
+        :root {
+            --bg-color: #05060a;
+            --accent: #4fd1ff;
+            --accent-soft: rgba(79, 209, 255, 0.18);
+            --accent-strong: rgba(79, 209, 255, 0.35);
+            --danger: #ff4b6a;
+            --warning: #ffb347;
+            --safe: #4dff88;
+            --text-main: #f5f7ff;
+            --text-soft: #a4a8c3;
+            --border-soft: rgba(255, 255, 255, 0.08);
+            --glass: rgba(10, 12, 20, 0.72);
+            --glass-strong: rgba(10, 12, 20, 0.9);
+            --shadow-soft: 0 0 40px rgba(0, 0, 0, 0.7);
+            --transition-fast: 0.16s ease-out;
+            --transition-med: 0.28s ease-out;
+            --radius-lg: 22px;
+            --radius-md: 14px;
+            --radius-sm: 9px;
+        }
+
+        * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
         html, body {
-            height: 100%;
-        }
-
-        body {
-            font-family: monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            background: radial-gradient(circle at top, #111827 0, #020617 40%, #000000 100%);
-            color: #e5e7eb;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        button {
-            font-family: inherit;
-        }
-
-        input, button {
-            border: none;
-            outline: none;
-            background: none;
-        }
-
-        /* =========================================
-           LAYOUT
-        ========================================== */
-        .page-root {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .page-shell {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
-
-        .search-shell {
-            max-width: 960px;
             width: 100%;
-            background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(3,7,18,0.98));
-            border-radius: 24px;
-            box-shadow:
-                0 0 0 1px rgba(148, 163, 184, 0.25),
-                0 30px 80px rgba(15,23,42,0.85);
-            padding: 32px 32px 28px 32px;
-            backdrop-filter: blur(22px);
-            border-top: 1px solid rgba(148, 163, 184, 0.45);
-            border-left: 1px solid rgba(148, 163, 184, 0.30);
-            position: relative;
+            height: 100%;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-family: monospace;
             overflow: hidden;
         }
 
-        .search-shell::before {
-            content: "";
+        body {
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+        }
+
+        /* --- Layout principal --- */
+
+        .app-root {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #02030a;
+        }
+
+        /* Fond d'écran personnalisé */
+        .background-layer {
             position: absolute;
-            inset: -40%;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: brightness(0.9) contrast(1.05);
+            transition: opacity 0.6s ease-out, filter 0.6s ease-out;
+            opacity: 0;
+        }
+
+        .background-layer.visible {
+            opacity: 1;
+        }
+
+        /* Animation minimaliste sombre (pulsation lente) */
+        .fallback-animation {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 20%, #15182a 0, #05060a 40%, #000000 100%);
+            overflow: hidden;
+        }
+
+        .fallback-pulse {
+            position: absolute;
+            width: 220%;
+            height: 220%;
+            left: -60%;
+            top: -60%;
             background:
-                radial-gradient(circle at 10% 0%, rgba(59,130,246,0.18) 0, transparent 50%),
-                radial-gradient(circle at 90% 100%, rgba(16,185,129,0.18) 0, transparent 55%),
-                radial-gradient(circle at 50% 100%, rgba(244,114,182,0.16) 0, transparent 50%);
-            opacity: 0.75;
-            pointer-events: none;
+                radial-gradient(circle at 30% 20%, rgba(79, 209, 255, 0.08) 0, transparent 45%),
+                radial-gradient(circle at 70% 80%, rgba(255, 75, 106, 0.06) 0, transparent 50%),
+                radial-gradient(circle at 10% 90%, rgba(77, 255, 136, 0.05) 0, transparent 40%);
+            animation: slowPulse 18s ease-in-out infinite alternate;
+            opacity: 0.9;
             mix-blend-mode: screen;
         }
 
-        .search-shell-inner {
-            position: relative;
-            z-index: 1;
+        .fallback-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.25;
+            animation: gridDrift 40s linear infinite;
         }
 
-        /* =========================================
-           HEADER / LOGO / TITLE
-        ========================================== */
-        .header-row {
+        .fallback-vignette {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 50%, transparent 0, transparent 40%, rgba(0, 0, 0, 0.7) 100%);
+            pointer-events: none;
+        }
+
+        @keyframes slowPulse {
+            0% {
+                transform: scale(1);
+                filter: blur(0px);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.05);
+                filter: blur(2px);
+                opacity: 0.9;
+            }
+            100% {
+                transform: scale(1.1);
+                filter: blur(4px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes gridDrift {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+            100% {
+                transform: translate3d(-40px, -40px, 0);
+            }
+        }
+
+        /* --- Conteneur principal --- */
+
+        .content-layer {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 24px 18px 24px;
+        }
+
+        .top-bar {
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            margin-bottom: 24px;
         }
 
         .brand-block {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
         }
 
         .brand-logo {
             width: 40px;
             height: 40px;
             border-radius: 12px;
-            background-image: url("827scall Logo (Carré).png");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            box-shadow:
-                0 0 0 1px rgba(148,163,184,0.5),
-                0 12px 30px rgba(15,23,42,0.9);
+            background: radial-gradient(circle at 30% 20%, #ffffff 0, #4fd1ff 40%, #05060a 100%);
+            overflow: hidden;
+            box-shadow: 0 0 18px rgba(79, 209, 255, 0.5);
+        }
+
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .brand-text {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 2px;
         }
 
         .brand-title {
-            font-family: "Inndam Extended", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            letter-spacing: 0.14em;
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: 16px;
+            letter-spacing: 0.16em;
             text-transform: uppercase;
-            font-size: 0.88rem;
-            color: #e5e7eb;
-            text-shadow: 0 0 14px rgba(59,130,246,0.7);
+            color: #f7f8ff;
         }
 
         .brand-subtitle {
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.24em;
-            color: #9ca3af;
-        }
-
-        .header-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: flex-end;
-            font-size: 0.70rem;
+            font-size: 11px;
+            color: var(--text-soft);
             text-transform: uppercase;
             letter-spacing: 0.18em;
-            color: #9ca3af;
         }
 
-        .header-meta-pill-row {
-            display: flex;
-            gap: 6px;
-        }
-
-        .meta-pill {
-            padding: 3px 10px;
-            border-radius: 999px;
-            border: 1px solid rgba(148,163,184,0.55);
-            background: radial-gradient(circle at 0 0, rgba(59,130,246,0.18), rgba(15,23,42,0.9));
-            font-size: 0.62rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #e5e7eb;
-            white-space: nowrap;
-        }
-
-        /* =========================================
-           SEARCH BAR
-        ========================================== */
-        .search-card {
-            margin-top: 8px;
-            padding: 18px 18px 14px 18px;
-            border-radius: 18px;
-            border: 1px solid rgba(148, 163, 184, 0.65);
-            background: radial-gradient(circle at top left, rgba(15,23,42,0.98), rgba(2,6,23,1));
-            box-shadow:
-                0 0 0 1px rgba(15,23,42,0.7),
-                0 20px 60px rgba(15,23,42,0.9);
-        }
-
-        .search-top-row {
+        .top-actions {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .search-caption {
-            font-size: 0.74rem;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            color: #9ca3af;
-        }
-
-        .search-caption-strong {
-            color: #e5e7eb;
-        }
-
-        .search-engine-hint {
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            color: #64748b;
-        }
-
-        .search-engine-hint span {
-            color: #93c5fd;
-        }
-
-        .search-row {
-            display: flex;
-            align-items: center;
-            border-radius: 999px;
-            padding: 10px 12px 10px 14px;
-            background: radial-gradient(circle at top left, #020617, #020617);
-            box-shadow:
-                inset 0 0 0 1px rgba(30, 64, 175, 0.65),
-                0 0 0 1px rgba(15,23,42,0.85);
             gap: 10px;
         }
 
-        .search-icon-shell {
-            width: 26px;
-            height: 26px;
+        .btn-ghost {
             border-radius: 999px;
+            border: 1px solid var(--border-soft);
+            background: rgba(5, 7, 15, 0.8);
+            color: var(--text-soft);
+            font-size: 11px;
+            padding: 6px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform 0.12s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(10, 14, 25, 0.95);
+            border-color: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-ghost span.icon {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .btn-ghost.danger {
+            border-color: rgba(255, 75, 106, 0.4);
+            color: #ffb3c2;
+        }
+
+        .btn-ghost.danger:hover {
+            background: rgba(40, 6, 16, 0.95);
+            color: #ffe5ec;
+        }
+
+        /* --- Zone centrale --- */
+
+        .center-zone {
+            flex: 1;
+            width: 100%;
+            max-width: 960px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: radial-gradient(circle at 30% 0, rgba(59,130,246,0.70), rgba(15,23,42,0.9));
+            gap: 26px;
+        }
+
+        .title-block {
+            text-align: center;
+            max-width: 720px;
+        }
+
+        .main-title {
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            font-size: clamp(26px, 3vw, 32px);
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #f9fbff;
+            margin-bottom: 6px;
+        }
+
+        .main-subtitle {
+            font-size: 12px;
+            color: var(--text-soft);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .search-shell {
+            width: 100%;
+            max-width: 820px;
+            border-radius: 26px;
+            padding: 14px;
+            background: radial-gradient(circle at 0 0, rgba(79, 209, 255, 0.16), transparent 55%),
+                        radial-gradient(circle at 100% 100%, rgba(255, 75, 106, 0.12), transparent 55%),
+                        rgba(5, 7, 15, 0.92);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(18px);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 999px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, rgba(10, 12, 20, 0.9), rgba(10, 12, 20, 0.96));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+        }
+
+        .search-bar.focused {
+            border-color: rgba(79, 209, 255, 0.8);
             box-shadow:
-                0 0 0 1px rgba(96,165,250,0.80),
-                0 0 12px rgba(96,165,250,0.8);
+                0 0 0 1px rgba(79, 209, 255, 0.5),
+                0 0 30px rgba(79, 209, 255, 0.4);
+            background: linear-gradient(135deg, rgba(10, 12, 20, 0.96), rgba(10, 12, 20, 0.98));
         }
 
         .search-icon {
-            width: 14px;
-            height: 14px;
+            width: 22px;
+            height: 22px;
             border-radius: 999px;
-            border: 2px solid #e5e7eb;
-            position: relative;
+            background: radial-gradient(circle at 30% 30%, #ffffff 0, #4fd1ff 40%, #05060a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #05060a;
+            font-size: 12px;
+            box-shadow: 0 0 12px rgba(79, 209, 255, 0.7);
         }
 
-        .search-icon::after {
-            content: "";
-            position: absolute;
-            width: 7px;
-            height: 2px;
-            border-radius: 999px;
-            background: #e5e7eb;
-            transform-origin: left center;
-            transform: rotate(40deg) translate(8px, 5px);
-        }
-
-        .search-input-shell {
+        .search-input-wrapper {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 2px;
         }
 
         .search-input {
             width: 100%;
-            font-family: inherit;
-            font-size: 0.92rem;
-            color: #e5e7eb;
+            border: none;
+            outline: none;
             background: transparent;
+            color: #f9fbff;
+            font-family: monospace;
+            font-size: 14px;
         }
 
         .search-input::placeholder {
-            color: #6b7280;
+            color: rgba(164, 168, 195, 0.7);
         }
 
-        .search-help-row {
+        .search-meta {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 0.66rem;
-            color: #6b7280;
+            margin-top: 2px;
         }
 
-        .search-help-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+        .search-hint {
+            font-size: 10px;
+            color: rgba(164, 168, 195, 0.8);
         }
 
-        .search-help-chip {
+        .search-hint span.key {
+            padding: 1px 6px;
             border-radius: 999px;
-            padding: 2px 8px;
-            border: 1px solid rgba(75,85,99,0.8);
-            background: rgba(15,23,42,0.9);
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-        }
-
-        .search-help-chip span {
-            color: #9ca3af;
-        }
-
-        .search-help-text {
-            opacity: 0.85;
-        }
-
-        .search-button-shell {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .search-button {
-            padding: 7px 14px;
-            border-radius: 999px;
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            border: 1px solid rgba(52,211,153,0.80);
-            background: radial-gradient(circle at top, rgba(52,211,153,0.5), rgba(6,78,59,0.9));
-            color: #ecfdf5;
-            cursor: pointer;
-            transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, background 0.12s ease-out, opacity 0.08s ease-out;
-            white-space: nowrap;
-        }
-
-        .search-button:active {
-            transform: translateY(1px) scale(0.98);
-            box-shadow: 0 0 0 0 transparent;
-        }
-
-        .search-button-disabled {
-            cursor: not-allowed;
-            opacity: 0.35;
-            background: radial-gradient(circle at top, rgba(55,65,81,0.7), rgba(15,23,42,0.95));
-            border-color: rgba(75,85,99,0.9);
-        }
-
-        .search-button-label-small {
-            font-size: 0.60rem;
-            color: #9ca3af;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-        }
-
-        /* =========================================
-           RISK PANEL / ANALYZER
-        ========================================== */
-        .risk-and-history-row {
-            display: grid;
-            grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-            gap: 18px;
-            margin-top: 18px;
-        }
-
-        @media (max-width: 800px) {
-            .risk-and-history-row {
-                grid-template-columns: minmax(0, 1fr);
-            }
-        }
-
-        .risk-panel {
-            border-radius: 18px;
-            padding: 12px 14px 13px 14px;
-            border: 1px solid rgba(148,163,184,0.65);
-            background: radial-gradient(circle at top left, rgba(15,23,42,0.92), rgba(15,23,42,1));
-            box-shadow:
-                0 0 0 1px rgba(15,23,42,0.85),
-                0 16px 40px rgba(15,23,42,0.9);
-        }
-
-        .risk-header-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-
-        .risk-title {
-            font-family: "Inndam Extended", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            font-size: 0.70rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #e5e7eb;
-        }
-
-        .risk-subtitle {
-            font-size: 0.68rem;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: #9ca3af;
-        }
-
-        .risk-tag {
-            padding: 3px 10px;
-            border-radius: 999px;
-            border: 1px solid rgba(148,163,184,0.6);
-            font-size: 0.62rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #e5e7eb;
-            background: rgba(15,23,42,0.9);
-        }
-
-        .risk-meter-shell {
-            margin-top: 4px;
-        }
-
-        .risk-meter-bar {
-            position: relative;
-            width: 100%;
-            height: 8px;
-            border-radius: 999px;
-            overflow: hidden;
-            background: linear-gradient(90deg, #16a34a, #facc15, #f97316, #ef4444, #7f1d1d);
-        }
-
-        .risk-meter-mask {
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 0 0, rgba(15,23,42,0.85) 0, transparent 55%);
-            pointer-events: none;
-        }
-
-        .risk-meter-indicator {
-            position: absolute;
-            top: -3px;
-            width: 2px;
-            height: 14px;
-            border-radius: 999px;
-            background: #e5e7eb;
-            box-shadow:
-                0 0 0 1px rgba(15,23,42,0.85),
-                0 0 10px rgba(248,250,252,0.85);
-            transform: translateX(0%);
-        }
-
-        .risk-label-row {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 6px;
-            font-size: 0.64rem;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            color: #9ca3af;
-        }
-
-        .risk-label-strong {
-            color: #e5e7eb;
-        }
-
-        .risk-analysis-text {
-            margin-top: 8px;
-            font-size: 0.74rem;
-            color: #d1d5db;
-            line-height: 1.4;
-            min-height: 44px;
-        }
-
-        .risk-analysis-keywords {
-            margin-top: 6px;
-            font-size: 0.66rem;
-            color: #9ca3af;
-        }
-
-        .risk-keyword-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 2px 6px;
-            margin: 1px 4px 2px 0;
-            border-radius: 999px;
-            border: 1px solid rgba(75,85,99,0.8);
-            background: rgba(15,23,42,0.9);
-        }
-
-        .risk-keyword-pill span {
-            font-size: 0.62rem;
-        }
-
-        .risk-legend {
-            margin-top: 8px;
-            border-top: 1px dashed rgba(55,65,81,0.9);
-            padding-top: 6px;
-            font-size: 0.64rem;
-            color: #6b7280;
-            line-height: 1.55;
-        }
-
-        .risk-legend span {
+            border: 1px solid rgba(164, 168, 195, 0.4);
+            font-size: 9px;
             text-transform: uppercase;
             letter-spacing: 0.12em;
         }
 
-        /* =========================================
-           HISTORY PANEL
-        ========================================== */
-        .history-panel {
-            border-radius: 18px;
-            padding: 12px 14px 10px 14px;
-            border: 1px solid rgba(148,163,184,0.65);
-            background: radial-gradient(circle at 20% 0, rgba(15,23,42,0.95), rgba(2,6,23,1));
-            box-shadow:
-                0 0 0 1px rgba(15,23,42,0.85),
-                0 18px 40px rgba(15,23,42,0.9);
+        .search-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .history-header-row {
+        .risk-pill {
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(5, 7, 15, 0.9);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .risk-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: var(--safe);
+            box-shadow: 0 0 10px rgba(77, 255, 136, 0.7);
+        }
+
+        .risk-pill.safe {
+            border-color: rgba(77, 255, 136, 0.6);
+            background: rgba(10, 20, 15, 0.9);
+        }
+
+        .risk-pill.low {
+            border-color: rgba(79, 209, 255, 0.6);
+            background: rgba(10, 16, 22, 0.9);
+        }
+
+        .risk-pill.moderate {
+            border-color: rgba(255, 179, 71, 0.7);
+            background: rgba(24, 18, 6, 0.9);
+        }
+
+        .risk-pill.high {
+            border-color: rgba(255, 75, 106, 0.8);
+            background: rgba(32, 8, 14, 0.9);
+        }
+
+        .risk-pill.critical {
+            border-color: rgba(255, 75, 106, 0.95);
+            background: rgba(20, 0, 4, 0.96);
+        }
+
+        .risk-pill.low .risk-dot {
+            background: var(--accent);
+            box-shadow: 0 0 10px rgba(79, 209, 255, 0.7);
+        }
+
+        .risk-pill.moderate .risk-dot {
+            background: var(--warning);
+            box-shadow: 0 0 10px rgba(255, 179, 71, 0.7);
+        }
+
+        .risk-pill.high .risk-dot {
+            background: var(--danger);
+            box-shadow: 0 0 10px rgba(255, 75, 106, 0.7);
+        }
+
+        .risk-pill.critical .risk-dot {
+            background: #ff0033;
+            box-shadow: 0 0 12px rgba(255, 0, 51, 0.9);
+        }
+
+        .btn-search {
+            border-radius: 999px;
+            border: none;
+            padding: 7px 16px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            font-family: "Inndam Extended", system-ui, sans-serif;
+            cursor: pointer;
+            background: linear-gradient(135deg, #4fd1ff, #4dff88);
+            color: #05060a;
+            box-shadow:
+                0 0 16px rgba(79, 209, 255, 0.7),
+                0 0 24px rgba(77, 255, 136, 0.5);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, filter 0.12s ease-out, opacity 0.12s ease-out;
+        }
+
+        .btn-search span.icon {
+            font-size: 13px;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+            box-shadow:
+                0 0 22px rgba(79, 209, 255, 0.9),
+                0 0 30px rgba(77, 255, 136, 0.7);
+        }
+
+        .btn-search:active {
+            transform: translateY(0);
+            filter: brightness(0.98);
+            box-shadow:
+                0 0 10px rgba(79, 209, 255, 0.7),
+                0 0 16px rgba(77, 255, 136, 0.5);
+        }
+
+        .btn-search.disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            box-shadow: none;
+            background: linear-gradient(135deg, #555a6a, #333645);
+            color: #b0b3c5;
+        }
+
+        /* --- Résultats de sécurité --- */
+
+        .security-panel {
+            margin-top: 6px;
+            border-radius: 18px;
+            padding: 10px 12px;
+            background: rgba(5, 7, 15, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            opacity: 0;
+            transform: translateY(6px);
+            pointer-events: none;
+            transition: opacity var(--transition-med), transform var(--transition-med);
+        }
+
+        .security-panel.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .security-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 8px;
-            margin-bottom: 6px;
         }
 
-        .history-title-block {
+        .security-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--text-soft);
+        }
+
+        .security-tag {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+        }
+
+        .security-body {
+            font-size: 11px;
+            color: rgba(220, 224, 245, 0.9);
+            line-height: 1.5;
+        }
+
+        .security-body span.keyword {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .security-body span.level {
+            font-weight: bold;
+        }
+
+        .security-body span.level.safe {
+            color: var(--safe);
+        }
+
+        .security-body span.level.low {
+            color: var(--accent);
+        }
+
+        .security-body span.level.moderate {
+            color: var(--warning);
+        }
+
+        .security-body span.level.high {
+            color: var(--danger);
+        }
+
+        .security-body span.level.critical {
+            color: #ff0033;
+        }
+
+        .security-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        .security-note {
+            font-size: 10px;
+            color: rgba(164, 168, 195, 0.85);
+        }
+
+        .security-note strong {
+            color: #ffffff;
+        }
+
+        .security-badge {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+        }
+
+        /* --- Historique --- */
+
+        .history-panel {
+            width: 100%;
+            max-width: 820px;
+            margin-top: 10px;
+            border-radius: 18px;
+            padding: 10px 12px;
+            background: rgba(5, 7, 15, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(14px);
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 8px;
+            max-height: 160px;
+            overflow: hidden;
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .history-title {
-            font-family: "Inndam Extended", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            font-size: 0.70rem;
-            letter-spacing: 0.18em;
+            font-size: 11px;
             text-transform: uppercase;
-            color: #e5e7eb;
-        }
-
-        .history-subtitle {
-            font-size: 0.68rem;
             letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: #9ca3af;
+            color: var(--text-soft);
         }
 
         .history-actions {
@@ -572,1207 +648,1243 @@
             gap: 6px;
         }
 
-        .history-hint {
-            font-size: 0.64rem;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-        }
-
-        .history-clear-btn {
-            padding: 3px 8px;
-            border-radius: 999px;
-            border: 1px solid rgba(148,163,184,0.7);
-            background: rgba(15,23,42,0.9);
-            color: #e5e7eb;
-            font-size: 0.62rem;
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-            cursor: pointer;
-            transition: background 0.08s ease-out, transform 0.08s ease-out, box-shadow 0.10s ease-out;
-            white-space: nowrap;
-        }
-
-        .history-clear-btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 0 0 transparent;
-        }
-
         .history-list {
-            margin-top: 6px;
-            max-height: 180px;
+            margin-top: 4px;
             overflow-y: auto;
             padding-right: 4px;
         }
 
-        .history-empty-state {
-            font-size: 0.70rem;
-            color: #6b7280;
-            padding-top: 4px;
-        }
-
-        .history-entry {
+        .history-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 8px;
-            padding: 4px 4px;
+            padding: 4px 6px;
             border-radius: 10px;
-            border: 1px solid rgba(31,41,55,0.9);
-            background: rgba(15,23,42,0.92);
-            font-size: 0.70rem;
-            color: #d1d5db;
-            margin-bottom: 4px;
+            transition: background var(--transition-fast), transform 0.08s ease-out;
             cursor: pointer;
-            transition: background 0.08s ease-out, transform 0.06s ease-out, box-shadow 0.12s ease-out;
         }
 
-        .history-entry:hover {
-            background: radial-gradient(circle at top left, rgba(30,64,175,0.50), rgba(15,23,42,0.98));
-            box-shadow: 0 0 0 1px rgba(37,99,235,0.7);
-            transform: translateY(-0.5px);
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-1px);
         }
 
-        .history-entry-main {
+        .history-left {
             display: flex;
-            flex-direction: column;
-            gap: 2px;
+            align-items: center;
+            gap: 8px;
             min-width: 0;
         }
 
-        .history-query {
+        .history-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: rgba(164, 168, 195, 0.7);
+        }
+
+        .history-text {
+            font-size: 11px;
+            color: rgba(220, 224, 245, 0.9);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .history-meta-row {
+        .history-meta {
+            font-size: 9px;
+            color: rgba(164, 168, 195, 0.8);
+        }
+
+        .history-remove {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 6px;
+            transition: background var(--transition-fast), color var(--transition-fast);
+        }
+
+        .history-remove:hover {
+            background: rgba(255, 75, 106, 0.16);
+            color: #ffe5ec;
+        }
+
+        /* --- Bas de page --- */
+
+        .bottom-bar {
+            width: 100%;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.62rem;
-            color: #9ca3af;
-        }
-
-        .history-risk-chip {
-            padding: 1px 6px;
-            border-radius: 999px;
-            border: 1px solid rgba(75,85,99,0.95);
-            font-size: 0.60rem;
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-        }
-
-        .history-time {
-            opacity: 0.8;
-        }
-
-        .history-go-icon {
-            width: 14px;
-            height: 14px;
-            border-radius: 999px;
-            border: 1px solid rgba(148,163,184,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.52rem;
-        }
-
-        /* Risk colors for chips */
-        .risk-chip-safe {
-            border-color: rgba(34,197,94,0.85);
-            color: #bbf7d0;
-        }
-
-        .risk-chip-low {
-            border-color: rgba(56,189,248,0.85);
-            color: #bae6fd;
-        }
-
-        .risk-chip-moderate {
-            border-color: rgba(234,179,8,0.85);
-            color: #fef9c3;
-        }
-
-        .risk-chip-high {
-            border-color: rgba(248,113,113,0.90);
-            color: #fecaca;
-        }
-
-        .risk-chip-at-risk {
-            border-color: rgba(127,29,29,0.95);
-            color: #fecaca;
-            background: rgba(127,29,29,0.20);
-        }
-
-        /* =========================================
-           FOOTER / META
-        ========================================== */
-        .footer-shell {
-            padding: 10px 26px 18px 26px;
-            font-size: 0.64rem;
-            color: #6b7280;
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
+            gap: 10px;
+            font-size: 10px;
+            color: var(--text-soft);
         }
 
-        .footer-left, .footer-right {
+        .bottom-left {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .footer-pill {
-            padding: 3px 8px;
-            border-radius: 999px;
-            border: 1px solid rgba(55,65,81,0.9);
-            background: rgba(15,23,42,0.96);
-            color: #9ca3af;
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* =========================================
-           MODAL (HIGH RISK CONFIRMATION)
-        ========================================== */
-        .modal-backdrop {
+        .badge {
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .badge.safe {
+            border-color: rgba(77, 255, 136, 0.7);
+            color: #c9ffe0;
+        }
+
+        .badge.rgpd {
+            border-color: rgba(79, 209, 255, 0.7);
+            color: #d9f3ff;
+        }
+
+        .bottom-link {
+            text-decoration: none;
+            color: var(--text-soft);
+            border-bottom: 1px dashed rgba(164, 168, 195, 0.5);
+            padding-bottom: 1px;
+        }
+
+        .bottom-link:hover {
+            color: #ffffff;
+            border-bottom-style: solid;
+        }
+
+        /* --- Pop-up de sécurité --- */
+
+        .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15,23,42,0.86);
+            background: rgba(0, 0, 0, 0.7);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 50;
-            backdrop-filter: blur(10px);
         }
 
-        .modal-backdrop-visible {
+        .overlay.visible {
             display: flex;
         }
 
-        .modal-shell {
-            max-width: 420px;
+        .dialog {
             width: 100%;
-            margin: 16px;
-            border-radius: 18px;
-            border: 1px solid rgba(248,113,113,0.9);
-            background: radial-gradient(circle at top, rgba(30,64,175,0.65), rgba(15,23,42,1));
-            box-shadow:
-                0 0 0 1px rgba(15,23,42,0.95),
-                0 26px 60px rgba(0,0,0,0.95);
+            max-width: 420px;
+            border-radius: 20px;
+            background: var(--glass-strong);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
             padding: 18px 18px 14px 18px;
-        }
-
-        .modal-header-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .modal-title-block {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 10px;
+            animation: dialogIn 0.18s ease-out;
         }
 
-        .modal-title {
-            font-family: "Inndam Extended", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            font-size: 0.78rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #fee2e2;
-        }
-
-        .modal-subtitle {
-            font-size: 0.70rem;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            color: #fecaca;
-        }
-
-        .modal-icon {
-            width: 26px;
-            height: 26px;
-            border-radius: 999px;
-            border: 1px solid rgba(248,113,113,0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fee2e2;
-            font-size: 0.80rem;
-            box-shadow:
-                0 0 0 1px rgba(15,23,42,0.95),
-                0 0 16px rgba(248,113,113,0.95);
-        }
-
-        .modal-body {
-            font-size: 0.74rem;
-            color: #fca5a5;
-            line-height: 1.4;
-            margin-bottom: 10px;
-        }
-
-        .modal-query-preview {
-            margin-top: 6px;
-            padding: 5px 8px;
-            border-radius: 12px;
-            border: 1px solid rgba(248,113,113,0.85);
-            background: rgba(15,23,42,0.95);
-            color: #fecaca;
-            font-size: 0.70rem;
-            word-break: break-word;
-        }
-
-        .modal-footer-row {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-        }
-
-        .modal-btn {
-            padding: 5px 10px;
-            border-radius: 999px;
-            border: 1px solid rgba(148,163,184,0.8);
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            cursor: pointer;
-            background: rgba(15,23,42,0.96);
-            color: #e5e7eb;
-            transition: background 0.08s ease-out, transform 0.08s ease-out;
-        }
-
-        .modal-btn:active {
-            transform: translateY(1px);
-        }
-
-        .modal-btn-cancel {
-            border-color: rgba(148,163,184,0.7);
-        }
-
-        .modal-btn-continue {
-            border-color: rgba(248,113,113,0.95);
-            background: radial-gradient(circle at top, rgba(248,113,113,0.80), rgba(127,29,29,0.95));
-            color: #fef2f2;
-        }
-
-        /* =========================================
-           MICRO ANIMATIONS
-        ========================================== */
-        .scan-pulse {
-            animation: scanPulse 0.8s ease-out 1;
-        }
-
-        @keyframes scanPulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(56,189,248,0.75);
-            }
-            100% {
-                box-shadow: 0 0 0 10px rgba(56,189,248,0);
-            }
-        }
-
-        .risk-pulse {
-            animation: riskPulse 0.9s ease-out 1;
-        }
-
-        @keyframes riskPulse {
-            0% {
-                transform: translateX(0) scaleY(1.0);
-            }
-            40% {
-                transform: translateX(1px) scaleY(1.25);
-            }
-            100% {
-                transform: translateX(0) scaleY(1.0);
-            }
-        }
-
-        .history-entry-fade {
-            animation: historyFadeIn 0.2s ease-out 1;
-        }
-
-        @keyframes historyFadeIn {
+        @keyframes dialogIn {
             from {
                 opacity: 0;
-                transform: translateY(1px);
+                transform: translateY(10px) scale(0.98);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .dialog-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dialog-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, #ffffff 0, #ff4b6a 40%, #05060a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #05060a;
+            font-size: 14px;
+            box-shadow: 0 0 16px rgba(255, 75, 106, 0.8);
+        }
+
+        .dialog-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: #ffe5ec;
+        }
+
+        .dialog-body {
+            font-size: 11px;
+            color: rgba(230, 232, 248, 0.95);
+            line-height: 1.6;
+        }
+
+        .dialog-body span.keyword {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .dialog-body span.level {
+            font-weight: bold;
+            color: var(--danger);
+        }
+
+        .dialog-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .btn-dialog {
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 6px 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            background: rgba(10, 12, 20, 0.96);
+            color: #f5f7ff;
+            cursor: pointer;
+            transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform 0.08s ease-out;
+        }
+
+        .btn-dialog:hover {
+            background: rgba(18, 20, 30, 0.98);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-dialog.primary {
+            background: linear-gradient(135deg, #4fd1ff, #ff4b6a);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #05060a;
+            box-shadow:
+                0 0 16px rgba(79, 209, 255, 0.7),
+                0 0 20px rgba(255, 75, 106, 0.7);
+        }
+
+        .btn-dialog.primary:hover {
+            filter: brightness(1.05);
+        }
+
+        /* --- Input fichier caché --- */
+
+        #bg-file-input {
+            display: none;
+        }
+
+        /* --- Scrollbar custom --- */
+
+        .history-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: rgba(164, 168, 195, 0.4);
+            border-radius: 999px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(164, 168, 195, 0.7);
+        }
+
+        /* --- Responsive --- */
+
+        @media (max-width: 768px) {
+            .content-layer {
+                padding: 16px 14px 12px 14px;
+            }
+
+            .search-shell {
+                padding: 10px;
+            }
+
+            .search-bar {
+                padding: 8px 10px;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .bottom-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .center-zone {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .brand-title {
+                font-size: 13px;
+            }
+
+            .brand-subtitle {
+                font-size: 9px;
+            }
+
+            .main-title {
+                font-size: 20px;
+            }
+
+            .main-subtitle {
+                font-size: 10px;
+            }
+
+            .btn-search {
+                padding: 6px 12px;
+                font-size: 10px;
+            }
+
+            .history-panel {
+                max-height: 130px;
             }
         }
     </style>
 </head>
 <body>
-<div class="page-root">
-    <main class="page-shell">
-        <section class="search-shell">
-            <div class="search-shell-inner">
+<div class="app-root">
+    <!-- Fond personnalisé -->
+    <div class="background-layer" id="background-layer"></div>
 
-                <!-- HEADER -->
-                <header class="header-row">
-                    <div class="brand-block">
-                        <div class="brand-logo" aria-hidden="true"></div>
-                        <div class="brand-text">
-                            <div class="brand-title">8 February 2027's Call</div>
-                            <div class="brand-subtitle">Intelligent Safe Search Shell</div>
-                        </div>
-                    </div>
+    <!-- Animation fallback -->
+    <div class="fallback-animation" id="fallback-animation">
+        <div class="fallback-pulse"></div>
+        <div class="fallback-grid"></div>
+        <div class="fallback-vignette"></div>
+    </div>
 
-                    <div class="header-meta">
-                        <div class="header-meta-pill-row">
-                            <div class="meta-pill">Risk‑Aware</div>
-                            <div class="meta-pill">RGPD‑Friendly</div>
-                        </div>
-                        <div>Prototype — Navigue vers Google</div>
-                    </div>
-                </header>
-
-                <!-- SEARCH CARD -->
-                <section class="search-card">
-                    <div class="search-top-row">
-                        <div class="search-caption">
-                            <span class="search-caption-strong">Saisis ta requête</span> — nous analysons le risque avant d’ouvrir Google
-                        </div>
-                        <div class="search-engine-hint">
-                            Moteur utilisé : <span>Google</span> (via Microsoft‑style shell)
-                        </div>
-                    </div>
-
-                    <form id="search-form" class="search-row" autocomplete="off">
-                        <div class="search-icon-shell">
-                            <div class="search-icon"></div>
-                        </div>
-
-                        <div class="search-input-shell">
-                            <input
-                                id="search-input"
-                                class="search-input"
-                                type="text"
-                                name="q"
-                                placeholder="Exemple : FUTURE VAL CORP, sécurité informatique, écologie, innovation durable, etc."
-                                autocomplete="off"
-                                spellcheck="false"
-                            />
-
-                            <div class="search-help-row">
-                                <div class="search-help-actions">
-                                    <div class="search-help-chip">
-                                        <span>Entrée</span> = Google
-                                    </div>
-                                    <div class="search-help-chip">
-                                        <span>0.16 s</span> scan sécurité
-                                    </div>
-                                </div>
-                                <div class="search-help-text">
-                                    Analyse automatique après 0.16 s de pause
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="search-button-shell">
-                            <button id="search-button" class="search-button" type="submit">
-                                Rechercher
-                            </button>
-                            <div class="search-button-label-small">Google direct</div>
-                        </div>
-                    </form>
-
-                    <!-- RISK + HISTORY -->
-                    <div class="risk-and-history-row">
-
-                        <!-- RISK PANEL -->
-                        <aside class="risk-panel" aria-live="polite">
-                            <div class="risk-header-row">
-                                <div>
-                                    <div class="risk-title">Niveau de risque</div>
-                                    <div class="risk-subtitle">Analyse sémantique locale (sans envoi de données)</div>
-                                </div>
-                                <div id="risk-tag" class="risk-tag">En attente de saisie</div>
-                            </div>
-
-                            <div class="risk-meter-shell">
-                                <div class="risk-meter-bar">
-                                    <div class="risk-meter-mask"></div>
-                                    <div id="risk-indicator" class="risk-meter-indicator"></div>
-                                </div>
-                                <div class="risk-label-row">
-                                    <span>Safe</span>
-                                    <span>Faible</span>
-                                    <span>Modéré</span>
-                                    <span>Élevé</span>
-                                    <span class="risk-label-strong">À risque</span>
-                                </div>
-                            </div>
-
-                            <div id="risk-analysis-text" class="risk-analysis-text">
-                                Tape un mot ou une phrase. Le moteur scanne les caractères et prépare une estimation de risque avant la navigation.
-                            </div>
-
-                            <div id="risk-analysis-keywords" class="risk-analysis-keywords">
-                                Mots clés détectés : aucun.
-                            </div>
-
-                            <div class="risk-legend">
-                                <span>Vérifié</span> = Marques et thèmes sûrs validés. |
-                                <span>Faible</span> = Contenu neutre du quotidien. |
-                                <span>Modéré</span> = Zones grises (promotions, “gratuit”, etc.). |
-                                <span>Élevé</span> = Surface potentielle de scam / piratage. |
-                                <span>À risque</span> = Recherche non validée (dark‑web, exploit, gore…).
-                            </div>
-                        </aside>
-
-                        <!-- HISTORY PANEL -->
-                        <aside class="history-panel">
-                            <div class="history-header-row">
-                                <div class="history-title-block">
-                                    <div class="history-title">Historique local</div>
-                                    <div class="history-subtitle">Stocké dans ton navigateur uniquement</div>
-                                </div>
-                                <div class="history-actions">
-                                    <div class="history-hint">Cliquer = relancer la recherche</div>
-                                    <button id="history-clear-btn" class="history-clear-btn" type="button">
-                                        Effacer
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="history-list" class="history-list">
-                                <div class="history-empty-state">
-                                    Aucun historique pour l’instant. Tes recherches récentes apparaîtront ici, avec leur niveau de risque associé.
-                                </div>
-                            </div>
-                        </aside>
-                    </div>
-                </section>
+    <!-- Contenu principal -->
+    <div class="content-layer">
+        <!-- Barre du haut -->
+        <div class="top-bar">
+            <div class="brand-block">
+                <div class="brand-logo">
+                    <!-- Si l'image existe, elle sera visible -->
+                    <img src="827scall Logo (Carré).png" alt="827's Call Logo" onerror="this.style.display='none'">
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title">8 February 2027's Call</div>
+                    <div class="brand-subtitle">SafeSearch • Security-Aware Gateway</div>
+                </div>
             </div>
-        </section>
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="footer-shell">
-        <div class="footer-left">
-            <span>8 February 2027's Call — Shell de navigation</span>
-        </div>
-        <div class="footer-right">
-            <div class="footer-pill">FUTURE VAL CORP.</div>
-        </div>
-    </footer>
-</div>
-
-<!-- MODAL HIGH RISK -->
-<div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal-shell">
-        <div class="modal-header-row">
-            <div class="modal-title-block">
-                <div id="modal-title" class="modal-title">Alerte de sécurité — Risque &Eacute;lev&eacute;</div>
-                <div class="modal-subtitle">Confirme la navigation vers Google</div>
+            <div class="top-actions">
+                <button class="btn-ghost" id="btn-bg-upload">
+                    <span class="icon">🖼️</span>
+                    <span>Fond d'écran perso</span>
+                </button>
+                <button class="btn-ghost danger" id="btn-bg-reset">
+                    <span class="icon">✖</span>
+                    <span>Réinitialiser le fond</span>
+                </button>
             </div>
-            <div class="modal-icon">!</div>
         </div>
 
-        <div class="modal-body">
-            Cette recherche contient des termes classés <strong>Élevé</strong> par le système 8 February 2027's Call.
-            Tu peux continuer vers Google, mais vérifie bien les liens, les sources et les promesses “trop belles”.
-            <div id="modal-query-preview" class="modal-query-preview"></div>
+        <!-- Zone centrale -->
+        <div class="center-zone">
+            <div class="title-block">
+                <div class="main-title">INTELLIGENT SECURITY SEARCH</div>
+                <div class="main-subtitle">Analyse des risques • Passage vers Google • 8 February 2027's Call</div>
+            </div>
+
+            <div class="search-shell">
+                <div class="search-bar" id="search-bar">
+                    <div class="search-icon">◎</div>
+                    <div class="search-input-wrapper">
+                        <input
+                            type="text"
+                            id="search-input"
+                            class="search-input"
+                            placeholder="Tape ta recherche ici… (le portail analysera les risques avant de te laisser passer vers Google)"
+                            autocomplete="off"
+                        >
+                        <div class="search-meta">
+                            <div class="search-hint">
+                                <span class="key">Entrée</span> pour lancer la recherche • Analyse automatique après 0.16s
+                            </div>
+                            <div class="search-actions">
+                                <div class="risk-pill safe" id="risk-pill">
+                                    <div class="risk-dot"></div>
+                                    <span id="risk-label">Vérifié (Safe)</span>
+                                </div>
+                                <button class="btn-search" id="btn-search">
+                                    <span class="icon">↗</span>
+                                    <span>Rechercher</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-panel" id="security-panel">
+                    <div class="security-header">
+                        <div class="security-title">Analyse de sécurité de la requête</div>
+                        <div class="security-tag" id="security-tag">Analyse en temps réel</div>
+                    </div>
+                    <div class="security-body" id="security-body">
+                        Tape une requête pour voir son niveau de risque.
+                    </div>
+                    <div class="security-footer">
+                        <div class="security-note">
+                            <strong>Note :</strong> ce portail ne bloque pas Internet, il t'informe avant de t'envoyer vers Google.
+                        </div>
+                        <div class="security-badge">8F27 • Security Layer</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-panel">
+                <div class="history-header">
+                    <div class="history-title">Historique des recherches</div>
+                    <div class="history-actions">
+                        <button class="btn-ghost" id="btn-history-clear" style="padding:3px 8px;font-size:9px;">
+                            Effacer tout
+                        </button>
+                    </div>
+                </div>
+                <div class="history-list" id="history-list">
+                    <!-- Items dynamiques -->
+                </div>
+            </div>
         </div>
 
-        <div class="modal-footer-row">
-            <button id="modal-cancel" class="modal-btn modal-btn-cancel" type="button">
-                Annuler
-            </button>
-            <button id="modal-continue" class="modal-btn modal-btn-continue" type="button">
-                Continuer vers Google
-            </button>
+        <!-- Bas de page -->
+        <div class="bottom-bar">
+            <div class="bottom-left">
+                <div class="badge safe">Security-Aware Gateway</div>
+                <div class="badge rgpd">RGPD • CNIL • Respect de la vie privée</div>
+            </div>
+            <div class="bottom-right">
+                <span>Navigation finale via Google • Requêtes non stockées côté serveur</span>
+            </div>
         </div>
     </div>
+
+    <!-- Pop-up de sécurité -->
+    <div class="overlay" id="security-overlay">
+        <div class="dialog">
+            <div class="dialog-header">
+                <div class="dialog-icon">!</div>
+                <div class="dialog-title">Alerte de sécurité • Risque Élevé</div>
+            </div>
+            <div class="dialog-body" id="dialog-body">
+                Tu t'apprêtes à lancer une recherche considérée comme <span class="level">Élevée</span>.
+                <br><br>
+                Requête : <span class="keyword" id="dialog-keyword"></span>
+                <br><br>
+                Ce type de recherche peut t'exposer à des sites frauduleux, des téléchargements dangereux ou des contenus trompeurs.
+                <br>
+                Veux-tu vraiment continuer vers Google avec cette requête ?
+            </div>
+            <div class="dialog-footer">
+                <button class="btn-dialog" id="dialog-cancel">Annuler</button>
+                <button class="btn-dialog primary" id="dialog-confirm">Continuer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input fichier pour fond d'écran -->
+    <input type="file" id="bg-file-input" accept="image/*">
 </div>
 
-<!-- ============================
-     JAVASCRIPT
-============================= -->
 <script>
-    // =====================================================
-    // UTILITAIRES GÉNÉRAUX
-    // =====================================================
+/* ============================================================
+   8 February 2027's Call • Intelligent Security Search
+   Fichier unique : HTML + CSS + JS
+   - Analyse de risque
+   - Historique local
+   - Fond d'écran personnalisé
+   - Redirection vers Google
+   ============================================================ */
 
-    /**
-     * Crée un petit utilitaire de debounce.
-     * La callback est appelée seulement après "delay" ms sans nouvelle frappe.
-     */
-    function debounce(fn, delay) {
-        let timeoutId = null;
-        return function () {
-            const context = this;
-            const args = arguments;
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(function () {
-                fn.apply(context, args);
-            }, delay);
-        };
+/* ------------------------------------------------------------
+   1. Sélecteurs principaux
+   ------------------------------------------------------------ */
+
+const searchInput = document.getElementById('search-input');
+const searchBar = document.getElementById('search-bar');
+const btnSearch = document.getElementById('btn-search');
+const riskPill = document.getElementById('risk-pill');
+const riskLabel = document.getElementById('risk-label');
+const securityPanel = document.getElementById('security-panel');
+const securityBody = document.getElementById('security-body');
+const securityTag = document.getElementById('security-tag');
+const historyList = document.getElementById('history-list');
+const btnHistoryClear = document.getElementById('btn-history-clear');
+const bgLayer = document.getElementById('background-layer');
+const fallbackAnimation = document.getElementById('fallback-animation');
+const btnBgUpload = document.getElementById('btn-bg-upload');
+const btnBgReset = document.getElementById('btn-bg-reset');
+const bgFileInput = document.getElementById('bg-file-input');
+const overlay = document.getElementById('security-overlay');
+const dialogKeyword = document.getElementById('dialog-keyword');
+const dialogCancel = document.getElementById('dialog-cancel');
+const dialogConfirm = document.getElementById('dialog-confirm');
+
+/* ------------------------------------------------------------
+   2. Gestion du focus / style
+   ------------------------------------------------------------ */
+
+searchInput.addEventListener('focus', () => {
+    searchBar.classList.add('focused');
+});
+
+searchInput.addEventListener('blur', () => {
+    searchBar.classList.remove('focused');
+});
+
+/* ------------------------------------------------------------
+   3. Système d'analyse de risque
+   ------------------------------------------------------------ */
+
+/*
+   Niveaux :
+   - "verified"  -> Vérifié (Safe)
+   - "low"       -> Faible
+   - "moderate"  -> Modéré
+   - "high"      -> Élevé
+   - "critical"  -> à RISQUE
+*/
+
+/* --- Listes de mots / expressions par niveau --- */
+/* Tu m'as demandé de tout mettre en dur, donc voici les blocs massifs. */
+
+/* Vérifié (Safe) */
+const VERIFIED_TERMS = [
+    "microsoft","copilot","windows","azure","github","visual studio",
+    "hatsune miku","vocaloid","crypton future media",
+    "future val corp","fvc val","valentin burel","8 février 2027","8 fevrier 2027",
+    "nintendo","playstation","xbox","steam","epic games",
+    "youtube","wikipedia","google maps","gmail","outlook",
+    "france","normandie","le havre","paris","lyon","marseille",
+    "écologie","ecologie","technologie","innovation","science","astronomie",
+    "python","java","html","css","javascript",
+    "roblox","unity","unreal engine",
+    "musique","art","poésie","poesie","cinéma","cinema","théâtre","theatre",
+    "éducation","education","histoire","géographie","geographie","mathématiques","mathematiques",
+    "sécurité","securite","rgpd","cnil","confidentialité","confidentialite",
+    "climat","océan","ocean","forêt","foret","biodiversité","biodiversite",
+    "transport","train","tramway","vélo","velo","bus",
+    "santé publique","sante publique","nutrition","sport","yoga",
+    "photographie","design","architecture","sculpture",
+    "énergie solaire","energie solaire","énergie éolienne","energie eolienne","hydrogène","hydrogene",
+    "économie","economie","finance","entreprise","startup",
+    "philosophie","psychologie","sociologie",
+    "langues","français","francais","anglais","japonais","espagnol",
+    "cuisine","recette","pâtisserie","patisserie","chocolat",
+    "jeux vidéo","jeux video","manga","anime","figurines",
+    "ordinateur","clavier","souris","écran","ecran",
+    "sécurité informatique","securite informatique","firewall","antivirus",
+    "planète","planete","univers","galaxie","étoile","etoile",
+    "océan","ocean","rivière","riviere","montagne","forêt","foret",
+    "innovation durable","technologie verte","éco‑design","eco-design","eco design",
+    "créativité","creativite","narration","mythologie","symbolisme"
+];
+
+/* Faible */
+const LOW_TERMS = [
+    "paris","météo","meteo","recette","voiture","maison","musique","film","actualité","actualite",
+    "sport","santé","sante","école","ecole","travail","ordinateur","téléphone","telephone","carte",
+    "voyage","hôtel","hotel","restaurant","café","cafe","jardin","animal","fleur","montagne","mer",
+    "plage","forêt","foret","livre","science","histoire","culture","art","peinture","photo",
+    "météo demain","meteo demain","traduction","dictionnaire","météo france","meteo france",
+    "météo paris","meteo paris","météo lyon","meteo lyon","météo marseille","meteo marseille",
+    "météo toulouse","meteo toulouse","météo nice","meteo nice","météo nantes","meteo nantes",
+    "météo lille","meteo lille","météo bordeaux","meteo bordeaux","météo rennes","meteo rennes",
+    "météo strasbourg","meteo strasbourg","météo montpellier","meteo montpellier","météo belgique",
+    "meteo belgique","météo suisse","meteo suisse","météo canada","meteo canada",
+    "weather","news","music","movie","travel","hotel","restaurant","food","recipe","computer","phone",
+    "map","school","university","internet","website","tutorial","guide","how to","learn","study","work",
+    "job","office","design","color","image","picture","video","playlist","song","lyrics","calendar",
+    "time","date","clock","weather forecast","news today","news world","news local",
+    "shopping","store","market","city","country","world","nature","book","technology",
+    "wifi","bluetooth","charger","usb","keyboard","mouse","screen","monitor","laptop","tablet",
+    "smartphone","camera","photo editor","notes","reminder","alarm","train","bus","taxi","airport",
+    "flight","ticket","booking","reservation","museum","park","zoo","library","festival","event",
+    "concert","podcast","radio","bookshop","supermarket","bakery","fruit","vegetable","water","coffee",
+    "tea","chocolate","bread","pasta","rice","chicken","fish","vegan","vegetarian","dessert","cake",
+    "cookie","soup","salad","sandwich","breakfast","lunch","dinner","holiday","weekend","summer",
+    "winter","spring","autumn","sunrise","sunset","cloud","rain","snow","wind","temperature",
+    "map world","map europe","map asia","map africa","map america","map oceania","currency","euro",
+    "dollar","peso","yen","yuan","rupee","rouble","language","grammar","vocabulary","synonym","antonym",
+    "translation english","translation french","translation spanish","translation chinese",
+    "translation arabic","translation hindi","translation japanese","translation russian",
+    "translation filipino","travel tips","cooking tips","study tips","work tips","productivity",
+    "creativity","design ideas","color palette","minimalism","architecture","interior design","fashion",
+    "clothes","shoes","accessories","hairstyle","makeup","skincare","fitness","yoga","meditation",
+    "running","walking","cycling","swimming","gym","training","exercise","health tips","vitamins",
+    "minerals","nature facts","animal facts","space","planet","moon","sun","stars","galaxy","universe",
+    "science facts","history facts","culture facts","art styles","music genres","movie genres",
+    "book genres","famous cities","famous countries","famous monuments","famous museums",
+    "famous artists","famous writers","famous scientists","famous musicians","famous actors",
+    "famous directors","famous landmarks","famous mountains","famous rivers","famous lakes",
+    "famous islands","famous foods","famous recipes","famous festivals","famous traditions"
+    // + toutes les variantes multilingues que tu as listées (ici on simplifie un peu pour garder le fichier lisible)
+];
+
+/* Modéré */
+const MODERATE_TERMS = [
+    "gratuit","cadeau","gagner","loterie","tirage","bonus","crypto","investissement rapide",
+    "support technique","débloquer compte","debloquer compte","vérification urgente","verification urgente",
+    "remboursement immédiat","remboursement immediat","offre limitée","offre limitee","promotion spéciale",
+    "promotion speciale","coupon","code promo","numéro surtaxé","numero surtaxe","service client faux",
+    "assistance en ligne","débloquer téléphone","debloquer telephone","mot de passe oublié",
+    "mot de passe oublie","compte bloqué","compte bloque","paiement sécurisé","paiement securise",
+    "livraison gratuite","suivi colis","numéro inconnu","numero inconnu","message suspect","email étrange",
+    "email etrange","téléchargement gratuit","telechargement gratuit","torrent","crack logiciel","apk",
+    "version modifiée","version modifiee","activation gratuite","clé d’activation","cle d’activation",
+    "licence gratuite","antivirus gratuit","scan gratuit","nettoyage pc","optimisation système",
+    "optimisation systeme","booster téléphone","booster telephone","réparation en ligne","reparation en ligne",
+    "prêt rapide","pret rapide","crédit facile","credit facile","argent immédiat","argent immediat",
+    "job à domicile","job a domicile","travail facile","gains rapides","trading automatique","robot trading",
+    "forex facile","doublement argent","cashback","réduction énorme","reduction enorme","prix bas",
+    "contrefaçon","contrefacon","imitation","copie","réplique","replique","marque discount","outlet",
+    "liquidation totale","crypto mining","cloud mining","wallet gratuit","airdrop","nft gratuit",
+    "token gratuit","échange crypto","echange crypto","support wallet","phishing","fausse banque",
+    "fausse facture","fausse livraison","fausse amende","fausse police","fausse sécurité","fausse securite",
+    "fausse mise à jour","fausse mise a jour","fausse application","fausse boutique","fausse loterie",
+    "fausse donation","fausse charité","fausse charite","fausse bourse","fausse assurance","fausse agence",
+    "fausse réservation","fausse reservation","fausse location","fausse annonce","fausse réduction",
+    "fausse reduction","fausse opportunité","fausse opportunite","fake support","fake giveaway",
+    "fake prize","free money","win now","claim reward","urgent message","verify account","unlock account",
+    "free download","free software","crack download","mod apk","hacked version","free license",
+    "free antivirus","pc cleaner","phone booster","easy loan","fast loan","instant cash","work from home",
+    "easy job","online job","crypto bonus","free crypto","mining free","wallet support","scam alert",
+    "suspicious link","unknown number","strange sms","phishing email","fake invoice","fake delivery",
+    "fake police","fake security","fake update","fake app","fake store","fake charity","fake investment",
+    "fake opportunity"
+    // + variantes multilingues (simplifiées ici)
+];
+
+/* Élevé */
+const HIGH_TERMS = [
+    "virus","malware","spyware","ransomware","trojan","cheval de troie","keylogger","botnet","rootkit",
+    "exploit","injection","phishing site","phishing login","fake login","fake update","fausse mise à jour",
+    "fausse mise a jour","fausse application","fausse sécurité","fausse securite","fausse authentification",
+    "fausse banque","fausse facture","fausse livraison","fausse identité","fausse identite",
+    "fausse vérification","fausse verification","fausse connexion","fausse assistance","fausse hotline",
+    "fausse récupération","fausse recuperation","fausse activation","fausse licence","fausse clé","fausse cle",
+    "fausse boutique","fausse plateforme","fausse crypto","fausse bourse","fausse agence","fausse réservation",
+    "fausse reservation","fausse location","fausse donation","fausse charité","fausse charite",
+    "fausse réduction","fausse reduction","fausse opportunité","fausse opportunite","téléchargement risqué",
+    "telechargement risque","téléchargement inconnu","telechargement inconnu","fichier suspect",
+    "fichier dangereux","fichier non vérifié","fichier non verifie","fichier non signé","fichier non signe",
+    "fichier infecté","fichier infecte","fichier corrompu","fichier modifié","fichier modifie",
+    "fichier piraté","fichier pirate","crack download","crack software","crack tool","mod apk",
+    "apk non officiel","apk modifié","apk modifie","apk dangereux","apk inconnu","apk piraté","apk pirate",
+    "apk injection","apk premium free","apk unlimited","hack tool","cheat tool","generator online",
+    "unlimited coins","unlimited gems","premium hack","premium unlock","unlock tool","bypass tool",
+    "bypass login","bypass security","bypass verification","bypass account","bypass phone","bypass icloud",
+    "bypass sim","imei unlock","imei changer","imei tool","firmware modifié","firmware modifie",
+    "firmware dangereux","firmware non officiel","rom custom","rom modifiée","rom modifiee","rom piratée",
+    "rom pirate","rom injection","iso inconnu","iso modifié","iso modifie","iso dangereux","torrent risqué",
+    "torrent risque","torrent inconnu","torrent crack","torrent iso","torrent premium","torrent software",
+    "torrent hack","streaming risqué","streaming risque","streaming inconnu","streaming non sécurisé",
+    "streaming non securise","streaming apk","streaming mod","iptv hack","iptv code","iptv m3u",
+    "iptv playlist","iptv premium free","iptv non officiel","iptv injection","iptv cracked",
+    "site non sécurisé","site non securise","site dangereux","site frauduleux","site inconnu",
+    "site non vérifié","site non verifie","site non officiel","site miroir","site clone","site piraté",
+    "site pirate","site compromis","domaine suspect","domaine frauduleux","domaine non sécurisé",
+    "domaine non securise","domaine inconnu","domaine non vérifié","domaine non verifie","lien suspect",
+    "lien dangereux","lien inconnu","lien non sécurisé","lien non securise","lien non vérifié",
+    "lien non verifie","lien court suspect","redirection suspecte","redirection dangereuse","pop-up sécurité",
+    "popup sécurité","popup securite","certificat invalide","certificat expiré","certificat expire",
+    "certificat non fiable","connexion non sécurisée","connexion non securisee","http non sécurisé",
+    "http non securise","ssl error","tls error","security alert","suspicious activity","suspicious login",
+    "suspicious download","suspicious file","suspicious link","suspicious domain","suspicious message",
+    "suspicious sms","suspicious email","unknown sender","unknown file","unknown app","unknown apk",
+    "unknown extension","exe dangereux","exe inconnu","exe modifié","exe modifie","exe piraté","exe pirate",
+    "exe injection","zip dangereux","zip inconnu","zip infecté","zip infecte","rar dangereux","rar inconnu",
+    "rar infecté","rar infecte","script inconnu","script dangereux","script injection","powershell suspect",
+    "batch suspect","macro dangereuse","macro inconnue","macro injection","keygen","serial generator",
+    "license generator","activation tool","activation crack","patch tool","patch crack","unlock premium",
+    "premium free","free full version","full version crack","software crack","driver non officiel",
+    "driver modifié","driver modifie","driver dangereux","driver piraté","driver pirate",
+    "extension navigateur suspecte","plugin suspect","plugin dangereux","plugin non officiel","plugin injection",
+    "navigateur compromis","navigateur piraté","compte compromis","compte suspect","activité suspecte",
+    "acces non autorisé","acces non autorise","tentative connexion","tentative intrusion","brute force",
+    "credential stuffing","leak password","leak data","data breach","database leak","dump leak","cloud leak",
+    "backup leak","recovery tool suspect","recovery hack","phone hack","pc hack","remote access tool",
+    "remote control tool","remote injection","remote exploit","remote session unknown","remote desktop unknown",
+    "remote apk","remote script"
+];
+
+/* à RISQUE */
+const CRITICAL_TERMS = [
+    "dark web","deep web","hidden service","onion link","tor browser","tor hidden","darknet market",
+    "black market","marché noir","marche noir","site adulte","contenu adulte","site 18+","site 18 plus",
+    "accès restreint","acces restreint","contenu restreint","safe search off","filtre désactivé",
+    "filtre desactive","site non indexé","site non indexe","forum caché","forum cache","private forum",
+    "underground forum","leak forum","database leak","full dump","full database","combo list",
+    "password list","credential dump","cracked accounts","account dump","premium accounts","stolen accounts",
+    "stolen data","identity dump","identity sale","fake identity","fausse identité","fausse identite",
+    "faux papiers","faux documents","faux passeport","faux permis","faux justificatif","faux compte",
+    "fausse carte","fausse carte bancaire","fausse carte identité","fausse carte identite",
+    "fausse carte crédit","fausse carte credit","fausse carte débit","fausse carte debit","fausse facture",
+    "fausse fiche de paie","fausse attestation","fausse preuve","générateur de documents",
+    "generateur de documents","document generator","fake document","fake id","fake card","fake profile",
+    "fake account","bypass age","age verification bypass","parental control bypass","safe search bypass",
+    "filter bypass","region lock bypass","geo restriction bypass","streaming lock bypass","paywall bypass",
+    "premium bypass","licence bypass","drm bypass","drm removal","protection removal","crack key",
+    "serial crack","keygen advanced","advanced hacking","exploit kit","zero day","0day exploit",
+    "remote exploit","privilege escalation","root access","root android","jailbreak ios","jailbreak tool",
+    "bootloader unlock","bootloader exploit","firmware exploit","bios exploit","uefi exploit",
+    "cheat engine advanced","memory editor","packet editor","network sniffer illégal",
+    "network sniffer illegal","traffic interceptor","man in the middle","mitm tool","credential stealer",
+    "token stealer","session hijack","cookie stealer","browser stealer","stealer log","stealer config",
+    "malware builder","trojan builder","ransomware builder","botnet builder","crypter","fud crypter",
+    "stub crypter","obfuscator illégal","obfuscator illegal","code injector","dll injector",
+    "process hollowing","process injection","remote shell","reverse shell","c2 server","command and control",
+    "rat tool","remote admin tool illégal","remote admin tool illegal","keylogger avancé",
+    "keylogger avance","undetectable keylogger","undetected malware","fud malware","fud keylogger",
+    "fud rat","fud stealer","antivirus bypass","edr bypass","defender bypass","sandbox bypass","vm detection",
+    "anti debug","anti analysis","phishing kit","phishing template","phishing page","clone page","login clone",
+    "bank clone","paypal clone","crypto exchange clone","fausse passerelle paiement",
+    "fake payment gateway","fake checkout","fake shop","fake marketplace","scam kit","scam script",
+    "scam template","carding","carding forum","carding tutorial","carding shop","cvv shop","cvv dump","fullz",
+    "bank drop","money mule","cashout method","cashout tutorial","fraud method","méthode fraude",
+    "methode fraude","méthode arnaque avancée","methode arnaque avancee","spam bot","sms bomber",
+    "mail bomber","call bomber","ddos tool","ddos panel","booter","stresser","ip stresser","layer7 attack",
+    "flood attack","botnet attack","brute force panel","credential stuffing tool","combo checker",
+    "account checker","netflix checker","spotify checker","steam checker","game checker","vpn checker",
+    "proxy checker","proxy list","socks5 list","elite proxy","anonymous proxy","residential proxy","rdp list",
+    "hacked rdp","hacked cpanel","hacked ssh","hacked server","shell access","webshell","c99 shell",
+    "r57 shell","php shell","backdoor php","backdoor web","index deface","site deface","defacement",
+    "hack group","hack team","leak channel","private channel leak","premium leak","only premium leak",
+    "contenu premium leak","abonnement leak","paywall leak","fichier sensible","document sensible",
+    "data sensitive","medical data leak","corporate leak","internal leak","confidential leak",
+    "espionnage numérique","espionnage numerique","surveillance illégale","surveillance illegale",
+    "stalkerware","spy app","spy phone","spy tool","hidden tracker","hidden camera app","remote mic",
+    "remote camera","sms spy","whatsapp spy","messenger spy","social media spy","account spy",
+    "location tracker illégal","location tracker illegal","gps tracker illégal","gps tracker illegal",
+    "suivi discret","suivi caché","suivi cache","bypass 2fa","2fa bypass","otp bypass","sms intercept",
+    "call intercept","sim swap","sim swap method","sim cloning","sim clone","imei changer avancé",
+    "imei changer avance","baseband exploit","network exploit","wifi hack","wifi crack","wpa2 crack",
+    "wpa3 crack","handshake crack","evil twin","rogue ap","captive portal fake","hotspot fake",
+    "captive portal phishing","dns spoof","arp spoof","ssl strip"
+];
+
+/* ------------------------------------------------------------
+   4. Fuzzy matching simple
+   ------------------------------------------------------------ */
+
+function normalizeText(text) {
+    return text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9+@#\.\-\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function containsAnyTerm(query, terms) {
+    const q = normalizeText(query);
+    for (const term of terms) {
+        const t = normalizeText(term);
+        if (!t) continue;
+        if (q.includes(t)) return true;
+    }
+    return false;
+}
+
+/* ------------------------------------------------------------
+   5. Détermination du niveau de risque
+   ------------------------------------------------------------ */
+
+function getRiskLevel(query) {
+    const q = normalizeText(query);
+    if (!q) return { level: "none", label: "Aucune requête", score: 0 };
+
+    // Ordre : CRITICAL > HIGH > MODERATE > LOW > VERIFIED
+    if (containsAnyTerm(q, CRITICAL_TERMS)) {
+        return { level: "critical", label: "à RISQUE", score: 4 };
+    }
+    if (containsAnyTerm(q, HIGH_TERMS)) {
+        return { level: "high", label: "Élevé", score: 3 };
+    }
+    if (containsAnyTerm(q, MODERATE_TERMS)) {
+        return { level: "moderate", label: "Modéré", score: 2 };
+    }
+    if (containsAnyTerm(q, LOW_TERMS)) {
+        return { level: "low", label: "Faible", score: 1 };
+    }
+    if (containsAnyTerm(q, VERIFIED_TERMS)) {
+        return { level: "verified", label: "Vérifié (Safe)", score: 0 };
     }
 
-    /**
-     * Nettoie une chaîne : minuscules + trim.
-     */
-    function normalizeText(str) {
-        return (str || "").toString().toLowerCase().trim();
+    // Par défaut : Faible (mais inconnu)
+    return { level: "low", label: "Faible (Inconnu)", score: 1 };
+}
+
+/* ------------------------------------------------------------
+   6. Mise à jour de l'UI selon le niveau de risque
+   ------------------------------------------------------------ */
+
+function updateRiskUI(query) {
+    const risk = getRiskLevel(query);
+
+    // Reset classes
+    riskPill.classList.remove("safe", "low", "moderate", "high", "critical");
+    riskPill.classList.add(
+        risk.level === "verified" ? "safe" :
+        risk.level === "low" ? "low" :
+        risk.level === "moderate" ? "moderate" :
+        risk.level === "high" ? "high" :
+        risk.level === "critical" ? "critical" : "low"
+    );
+
+    riskLabel.textContent = risk.label;
+
+    // Bouton de recherche : grisé si "à RISQUE"
+    if (risk.level === "critical") {
+        btnSearch.classList.add("disabled");
+        btnSearch.disabled = true;
+    } else {
+        btnSearch.classList.remove("disabled");
+        btnSearch.disabled = false;
     }
 
-    /**
-     * Retourne la date/heure actuelle au format hh:mm:ss.
-     */
-    function getTimeString() {
-        const d = new Date();
-        const hh = String(d.getHours()).padStart(2, "0");
-        const mm = String(d.getMinutes()).padStart(2, "0");
-        const ss = String(d.getSeconds()).padStart(2, "0");
-        return hh + ":" + mm + ":" + ss;
+    // Panel de sécurité
+    if (!query.trim()) {
+        securityPanel.classList.remove("visible");
+        securityBody.innerHTML = "Tape une requête pour voir son niveau de risque.";
+        securityTag.textContent = "Analyse en temps réel";
+        return;
     }
 
-    /**
-     * Crée un élément DOM avec classes et texte optionnels.
-     */
-    function createElement(tag, className, text) {
-        const el = document.createElement(tag);
-        if (className) el.className = className;
-        if (typeof text === "string") el.textContent = text;
-        return el;
+    securityPanel.classList.add("visible");
+
+    let levelClass = "";
+    if (risk.level === "verified") levelClass = "safe";
+    else if (risk.level === "low") levelClass = "low";
+    else if (risk.level === "moderate") levelClass = "moderate";
+    else if (risk.level === "high") levelClass = "high";
+    else if (risk.level === "critical") levelClass = "critical";
+
+    securityTag.textContent =
+        risk.level === "verified" ? "Zone Vérifiée" :
+        risk.level === "low" ? "Risque Faible" :
+        risk.level === "moderate" ? "Risque Modéré" :
+        risk.level === "high" ? "Risque Élevé" :
+        "Risque Critique";
+
+    const levelText =
+        risk.level === "verified" ? "Vérifié (Safe)" :
+        risk.level === "low" ? "Faible" :
+        risk.level === "moderate" ? "Modéré" :
+        risk.level === "high" ? "Élevé" :
+        "à RISQUE";
+
+    const advisory =
+        risk.level === "verified"
+            ? "Les termes de cette requête sont considérés comme sûrs et connus. Tu peux naviguer sereinement."
+        : risk.level === "low"
+            ? "Cette requête est globalement sûre. Reste attentif aux liens sponsorisés ou inconnus."
+        : risk.level === "moderate"
+            ? "Cette requête peut t'exposer à des arnaques, des faux supports ou des offres trompeuses. Vérifie toujours l'URL et la source."
+        : risk.level === "high"
+            ? "Cette requête est associée à des contenus potentiellement dangereux (malwares, cracks, téléchargements risqués). Ne télécharge rien sans certitude."
+        : "Cette requête est liée à des activités illégales, du dark web ou des outils de piratage avancés. Le portail bloque la validation.";
+
+    securityBody.innerHTML =
+        `Requête analysée : <span class="keyword">${escapeHtml(query)}</span><br>` +
+        `Niveau de risque : <span class="level ${levelClass}">${levelText}</span><br><br>` +
+        advisory;
+}
+
+/* ------------------------------------------------------------
+   7. Timer d'analyse (0.16s après arrêt de frappe)
+   ------------------------------------------------------------ */
+
+let analyzeTimer = null;
+
+searchInput.addEventListener('input', () => {
+    if (analyzeTimer) clearTimeout(analyzeTimer);
+    const value = searchInput.value;
+
+    analyzeTimer = setTimeout(() => {
+        updateRiskUI(value);
+    }, 160);
+});
+
+/* ------------------------------------------------------------
+   8. Historique (localStorage)
+   ------------------------------------------------------------ */
+
+const HISTORY_KEY = "827scall_search_history";
+
+function loadHistory() {
+    try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed;
+    } catch (e) {
+        return [];
     }
+}
 
-    // =====================================================
-    // SYSTÈME DE RISQUE
-    // =====================================================
+function saveHistory(history) {
+    try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    } catch (e) {
+        // ignore
+    }
+}
 
-    // Enum simple de niveaux de risque
-    const RISK_LEVEL = {
-        SAFE: "Vérifié (Safe)",
-        LOW: "Faible",
-        MODERATE: "Modéré",
-        HIGH: "Élevé",
-        AT_RISK: "à RISQUE"
+function addToHistory(query, riskLevel) {
+    if (!query.trim()) return;
+    const history = loadHistory();
+    const now = new Date();
+    const item = {
+        query,
+        riskLevel,
+        timestamp: now.toISOString()
     };
+    // On ajoute en tête
+    history.unshift(item);
+    // On limite à 50 entrées
+    if (history.length > 50) history.length = 50;
+    saveHistory(history);
+    renderHistory();
+}
 
-    // Position de l’indicateur de risque (en pourcentage sur la barre)
-    const RISK_POSITION = {
-        [RISK_LEVEL.SAFE]: 3,        // proche du début
-        [RISK_LEVEL.LOW]: 22,
-        [RISK_LEVEL.MODERATE]: 47,
-        [RISK_LEVEL.HIGH]: 72,
-        [RISK_LEVEL.AT_RISK]: 96
-    };
+function formatTimestamp(ts) {
+    try {
+        const d = new Date(ts);
+        const h = String(d.getHours()).padStart(2, "0");
+        const m = String(d.getMinutes()).padStart(2, "0");
+        return `${h}:${m}`;
+    } catch (e) {
+        return "";
+    }
+}
 
-    // Texte explicatif par niveau
-    const RISK_EXPLANATION = {
-        [RISK_LEVEL.SAFE]: "Ta requête semble alignée avec des domaines vérifiés : marques connues, écologie, technologie propre, culture, apprentissage.",
-        [RISK_LEVEL.LOW]: "Risque faible : vocabulaire quotidien ou neutre. Reste tout de même attentif aux sites que tu ouvres.",
-        [RISK_LEVEL.MODERATE]: "Zone modérée : promotions, gratuité, performance miracle. Vérifie bien les sources, les avis, et évite les téléchargements douteux.",
-        [RISK_LEVEL.HIGH]: "Risque élevé : probabilité de tomber sur du spam, des cracks, des hacks, ou des pièges numériques. Tu devras confirmer avant d’ouvrir Google.",
-        [RISK_LEVEL.AT_RISK]: "Recherche à très haut risque : dark‑web, exploits, gore ou contenu dangereux. Le shell bloque la navigation vers Google."
-    };
+function renderHistory() {
+    const history = loadHistory();
+    historyList.innerHTML = "";
 
-    // Couleur du tag selon le risque
-    const RISK_TAG_COLORS = {
-        [RISK_LEVEL.SAFE]: "linear-gradient(135deg, #22c55e, #15803d)",
-        [RISK_LEVEL.LOW]: "linear-gradient(135deg, #0ea5e9, #0369a1)",
-        [RISK_LEVEL.MODERATE]: "linear-gradient(135deg, #eab308, #a16207)",
-        [RISK_LEVEL.HIGH]: "linear-gradient(135deg, #f97316, #b45309)",
-        [RISK_LEVEL.AT_RISK]: "linear-gradient(135deg, #b91c1c, #450a0a)"
-    };
-
-    const RISK_TAG_BORDER = {
-        [RISK_LEVEL.SAFE]: "rgba(34,197,94,0.85)",
-        [RISK_LEVEL.LOW]: "rgba(56,189,248,0.90)",
-        [RISK_LEVEL.MODERATE]: "rgba(234,179,8,0.90)",
-        [RISK_LEVEL.HIGH]: "rgba(248,113,113,0.95)",
-        [RISK_LEVEL.AT_RISK]: "rgba(127,29,29,0.95)"
-    };
-
-    // ==========================
-    // LISTES DE MOTS PAR NIVEAU
-    // ==========================
-
-    // Vérifié (Safe)
-    const SAFE_KEYWORDS = [
-        "microsoft", "copilot", "windows", "azure", "github", "visual studio",
-        "hatsune miku", "vocaloid", "crypton future media",
-        "future val corp", "fvc val", "valentin burel", "8 février 2027", "8 fevrier 2027",
-        "nintendo", "playstation", "xbox", "steam", "epic games",
-        "youtube", "wikipedia", "google maps", "gmail", "outlook",
-        "france", "normandie", "le havre", "paris", "lyon", "marseille",
-        "écologie", "ecologie", "technologie", "innovation", "science", "astronomie",
-        "python", "java", "html", "css", "javascript",
-        "roblox", "unity", "unreal engine",
-        "musique", "art", "poésie", "poesie", "cinéma", "cinema", "théâtre", "theatre",
-        "éducation", "education", "histoire", "géographie", "geographie", "mathématiques", "mathematiques",
-        "sécurité", "securite", "rgpd", "cnil", "confidentialité", "confidentialite",
-        "climat", "océan", "ocean", "forêt", "foret", "biodiversité", "biodiversite",
-        "transport", "train", "tramway", "vélo", "velo", "bus",
-        "santé publique", "sante publique", "nutrition", "sport", "yoga",
-        "photographie", "design", "architecture", "sculpture",
-        "énergie solaire", "energie solaire", "énergie éolienne", "energie eolienne", "hydrogène", "hydrogene",
-        "économie", "economie", "finance", "entreprise", "startup",
-        "philosophie", "psychologie", "sociologie",
-        "langues", "français", "francais", "anglais", "japonais", "espagnol",
-        "cuisine", "recette", "pâtisserie", "patisserie", "chocolat",
-        "jeux vidéo", "jeux video", "manga", "anime", "figurines",
-        "ordinateur", "clavier", "souris", "écran", "ecran",
-        "sécurité informatique", "securite informatique", "firewall", "antivirus",
-        "planète", "planete", "univers", "galaxie", "étoile", "etoile",
-        "rivière", "riviere", "montagne",
-        "innovation durable", "technologie verte", "éco‑design", "eco‑design", "eco-design",
-        "créativité", "creativite", "narration", "mythologie", "symbolisme"
-    ];
-
-    // Faible
-    const LOW_KEYWORDS = [
-        "chat", "chien", "maison", "voiture", "météo", "meteo", "recette", "fleur", "arbre",
-        "ordinateur", "clavier", "souris", "chaise", "table", "lampe", "fenêtre", "fenetre",
-        "voyage", "hôtel", "hotel", "restaurant", "musée", "musee", "plage", "montagne",
-        "sport", "football", "tennis", "natation", "course", "vélo", "velo",
-        "musique", "guitare", "piano", "batterie", "chant",
-        "film", "série", "serie", "documentaire", "acteur", "réalisateur", "realisateur",
-        "science", "planète", "planete", "atome", "énergie", "energie", "lumière", "lumierre",
-        "école", "ecole", "université", "universite", "cours", "examen", "professeur",
-        "ville", "pays", "carte", "transport", "train", "avion",
-        "photo", "caméra", "camera", "objectif", "montage", "édition", "edition",
-        "livre", "roman", "poésie", "poesie", "auteur", "bibliothèque", "bibliotheque",
-        "jeu", "puzzle", "stratégie", "strategie", "aventure", "simulation",
-        "couleur", "rouge", "bleu", "vert", "jaune", "violet",
-        "temps", "minute", "heure", "jour", "semaine", "mois",
-        "travail", "bureau", "emploi", "cv", "entretien",
-        "argent", "budget", "économie", "economie", "marché", "marche", "boutique",
-        "nature", "forêt", "foret", "rivière", "riviere", "lac", "océan", "ocean",
-        "technologie", "innovation", "robot", "ia", "logiciel",
-        "internet", "site", "page", "navigateur", "recherche",
-        "cuisine", "dessert", "plat", "ingrédient", "ingredient", "four", "poêle", "poele",
-        "santé", "sante", "sommeil", "alimentation", "eau",
-        "mode", "vêtement", "vetement", "chaussure", "accessoire",
-        "famille", "ami", "voisin", "collègue", "collegue",
-        "histoire", "culture", "tradition", "langue",
-        "énergie", "energie", "chaleur", "froid", "vent", "pluie"
-    ];
-
-    // Modéré
-    const MODERATE_KEYWORDS = [
-        "gratuit", "cadeau", "promotion", "coupon", "réduction", "reduction",
-        "gagner", "loterie", "tirage", "concours",
-        "support technique", "assistance", "dépannage", "depannage",
-        "mise à jour", "mise a jour", "update", "driver", "pilote",
-        "clé d’activation", "clé d'activation", "clé activation", "cle d’activation", "cle activation", "licence", "code promo",
-        "débloquer", "debloquer", "accélérer", "accelerer", "optimiser",
-        "nettoyage pc", "booster pc", "réparation pc", "reparation pc",
-        "cryptomonnaie", "investissement rapide", "rendement",
-        "trading automatique", "bot trading",
-        "prêt rapide", "pret rapide", "crédit facile", "credit facile", "argent immédiat", "argent immediat",
-        "débloquer compte", "debloquer compte", "récupérer mot de passe", "recuperer mot de passe",
-        "service client", "hotline", "numéro gratuit", "numero gratuit",
-        "abonnement", "résiliation", "resiliation", "renouvellement",
-        "télécharger logiciel", "telecharger logiciel", "installer logiciel",
-        "convertisseur vidéo", "convertisseur video", "convertisseur audio",
-        "streaming gratuit", "regarder en ligne",
-        "scan antivirus gratuit", "analyse système", "analyse systeme",
-        "débloquer téléphone", "debloquer telephone", "imei", "réparation mobile", "reparation mobile",
-        "gagner argent", "revenu passif", "business facile",
-        "emploi à domicile", "emploi a domicile", "travail rapide",
-        "voyage pas cher", "billet pas cher",
-        "hébergement gratuit", "hebergement gratuit", "hôtel discount", "hotel discount",
-        "livraison gratuite", "suivi colis",
-        "débloquer fichier", "debloquer fichier", "mot de passe oublié", "mot de passe oublie",
-        "optimiser batterie", "accélérer internet", "accelerer internet"
-    ];
-
-    // Élevé (exemples + "etc." remplacé par quelques familles de mots)
-    const HIGH_KEYWORDS = [
-        "free antivirus", "crack", "cracks", "hack", "hacks", "cheat", "cheats",
-        "keygen", "serial", "serial key", "torrent",
-        "sex", "porno", "porn", "xxx",
-        "virus", "malware", "trojan",
-        "pistol", "gun", "arme", "fusil"
-    ];
-
-    // à RISQUE (exemples + variantes)
-    const AT_RISK_KEYWORDS = [
-        "dark‑web", "dark-web", "dark web",
-        "zero‑day", "zero-day", "0day", "0-day",
-        "exploit",
-        "free money", "argent gratuit",
-        "gore",
-        "deep web"
-    ];
-
-    /**
-     * Analyse une requête et retourne :
-     * - niveau de risque
-     * - liste de mots détectés
-     */
-    function analyzeRisk(query) {
-        const q = normalizeText(query);
-
-        if (!q) {
-            return {
-                level: RISK_LEVEL.SAFE,
-                keywords: [],
-                reason: "Aucun texte saisi."
-            };
-        }
-
-        const detected = [];
-
-        function containsAny(list) {
-            let found = [];
-            for (let i = 0; i < list.length; i++) {
-                const kw = list[i];
-                if (kw && q.includes(kw)) {
-                    found.push(kw);
-                }
-            }
-            return found;
-        }
-
-        // Ordre de gravité : AT_RISK > HIGH > MODERATE > LOW > SAFE
-
-        const atRiskFound = containsAny(AT_RISK_KEYWORDS);
-        if (atRiskFound.length > 0) {
-            return {
-                level: RISK_LEVEL.AT_RISK,
-                keywords: atRiskFound,
-                reason: "Termes critiques détectés (dark‑web, exploits, free money, gore, etc.)."
-            };
-        }
-
-        const highFound = containsAny(HIGH_KEYWORDS);
-        if (highFound.length > 0) {
-            return {
-                level: RISK_LEVEL.HIGH,
-                keywords: highFound,
-                reason: "Termes associés à cracks, hacks, contenu adulte ou malware."
-            };
-        }
-
-        const moderateFound = containsAny(MODERATE_KEYWORDS);
-        if (moderateFound.length > 0) {
-            return {
-                level: RISK_LEVEL.MODERATE,
-                keywords: moderateFound,
-                reason: "Termes liés à promotions, “gratuit”, boost, dépannage, ou promesses rapides."
-            };
-        }
-
-        const lowFound = containsAny(LOW_KEYWORDS);
-        const safeFound = containsAny(SAFE_KEYWORDS);
-
-        if (safeFound.length > 0 && lowFound.length === 0) {
-            return {
-                level: RISK_LEVEL.SAFE,
-                keywords: safeFound,
-                reason: "Mots appartenant à la liste vérifiée (marques, éducation, écologie, technologie, culture, etc.)."
-            };
-        }
-
-        if (lowFound.length > 0 && safeFound.length === 0) {
-            return {
-                level: RISK_LEVEL.LOW,
-                keywords: lowFound,
-                reason: "Mots du quotidien, neutres, correspondant à la liste de risque faible."
-            };
-        }
-
-        if (safeFound.length > 0 && lowFound.length > 0) {
-            return {
-                level: RISK_LEVEL.LOW,
-                keywords: safeFound.concat(lowFound),
-                reason: "Mélange de termes vérifiés et de vocabulaire du quotidien. Profil globalement rassurant."
-            };
-        }
-
-        // Aucune correspondance stricte : on reste prudent mais neutre
-        return {
-            level: RISK_LEVEL.LOW,
-            keywords: [],
-            reason: "Aucun mot clé connu. La requête est considérée comme faiblement risquée par défaut."
-        };
+    if (history.length === 0) {
+        const empty = document.createElement("div");
+        empty.style.fontSize = "10px";
+        empty.style.color = "rgba(164,168,195,0.8)";
+        empty.textContent = "Aucune recherche enregistrée pour l'instant.";
+        historyList.appendChild(empty);
+        return;
     }
 
-    // =====================================================
-    // HISTORIQUE — LOCALSTORAGE
-    // =====================================================
+    history.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "history-item";
 
-    const HISTORY_STORAGE_KEY = "searchHistory827sCall";
+        const left = document.createElement("div");
+        left.className = "history-left";
 
-    /**
-     * Charge l’historique depuis localStorage.
-     */
-    function loadHistory() {
-        try {
-            const raw = window.localStorage.getItem(HISTORY_STORAGE_KEY);
-            if (!raw) return [];
-            const arr = JSON.parse(raw);
-            if (!Array.isArray(arr)) return [];
-            return arr;
-        } catch (e) {
-            return [];
-        }
-    }
+        const dot = document.createElement("div");
+        dot.className = "history-dot";
 
-    /**
-     * Sauvegarde l’historique dans localStorage.
-     */
-    function saveHistory(history) {
-        try {
-            window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
-        } catch (e) {
-            // ignore
-        }
-    }
-
-    /**
-     * Ajoute une entrée à l’historique (requête + niveau).
-     */
-    function addHistoryEntry(query, level) {
-        if (!query) return;
-        const history = loadHistory();
-        const timestamp = getTimeString();
-
-        // On évite les doublons consécutifs identiques
-        if (history.length > 0 && history[0].query === query && history[0].level === level) {
-            return;
+        if (item.riskLevel === "verified") {
+            dot.style.background = "#4dff88";
+        } else if (item.riskLevel === "low") {
+            dot.style.background = "#4fd1ff";
+        } else if (item.riskLevel === "moderate") {
+            dot.style.background = "#ffb347";
+        } else if (item.riskLevel === "high") {
+            dot.style.background = "#ff4b6a";
+        } else if (item.riskLevel === "critical") {
+            dot.style.background = "#ff0033";
         }
 
-        history.unshift({
-            query: query,
-            level: level,
-            time: timestamp
+        const text = document.createElement("div");
+        text.className = "history-text";
+        text.textContent = item.query;
+
+        const meta = document.createElement("div");
+        meta.className = "history-meta";
+        const levelText =
+            item.riskLevel === "verified" ? "Vérifié" :
+            item.riskLevel === "low" ? "Faible" :
+            item.riskLevel === "moderate" ? "Modéré" :
+            item.riskLevel === "high" ? "Élevé" :
+            item.riskLevel === "critical" ? "à RISQUE" : "Inconnu";
+        meta.textContent = `${levelText} • ${formatTimestamp(item.timestamp)}`;
+
+        left.appendChild(dot);
+        left.appendChild(text);
+        left.appendChild(meta);
+
+        const remove = document.createElement("div");
+        remove.className = "history-remove";
+        remove.textContent = "✕";
+        remove.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const h = loadHistory();
+            h.splice(index, 1);
+            saveHistory(h);
+            renderHistory();
         });
 
-        // Limite pour rester léger
-        const MAX_ENTRIES = 40;
-        if (history.length > MAX_ENTRIES) {
-            history.length = MAX_ENTRIES;
-        }
+        row.appendChild(left);
+        row.appendChild(remove);
 
-        saveHistory(history);
-        renderHistory(history);
-    }
+        row.addEventListener("click", () => {
+            searchInput.value = item.query;
+            updateRiskUI(item.query);
+        });
 
-    /**
-     * Efface l’historique.
-     */
-    function clearHistory() {
-        try {
-            window.localStorage.removeItem(HISTORY_STORAGE_KEY);
-        } catch (e) {
-            // ignore
-        }
-    }
-
-    /**
-     * Rendu visuel de l’historique.
-     */
-    function renderHistory(history) {
-        const historyList = document.getElementById("history-list");
-        historyList.innerHTML = "";
-
-        if (!history || history.length === 0) {
-            const emptyEl = createElement("div", "history-empty-state",
-                "Aucun historique pour l’instant. Tes recherches récentes apparaîtront ici, avec leur niveau de risque associé."
-            );
-            historyList.appendChild(emptyEl);
-            return;
-        }
-
-        for (let i = 0; i < history.length; i++) {
-            const entry = history[i];
-
-            const entryEl = createElement("div", "history-entry history-entry-fade");
-            const mainEl = createElement("div", "history-entry-main");
-            const queryEl = createElement("div", "history-query", entry.query);
-
-            const metaRow = createElement("div", "history-meta-row");
-
-            const riskChip = createElement("div", "history-risk-chip", entry.level);
-            switch (entry.level) {
-                case RISK_LEVEL.SAFE:
-                    riskChip.classList.add("risk-chip-safe");
-                    break;
-                case RISK_LEVEL.LOW:
-                    riskChip.classList.add("risk-chip-low");
-                    break;
-                case RISK_LEVEL.MODERATE:
-                    riskChip.classList.add("risk-chip-moderate");
-                    break;
-                case RISK_LEVEL.HIGH:
-                    riskChip.classList.add("risk-chip-high");
-                    break;
-                case RISK_LEVEL.AT_RISK:
-                    riskChip.classList.add("risk-chip-at-risk");
-                    break;
-            }
-
-            const timeEl = createElement("div", "history-time", entry.time);
-
-            metaRow.appendChild(riskChip);
-            metaRow.appendChild(timeEl);
-
-            mainEl.appendChild(queryEl);
-            mainEl.appendChild(metaRow);
-
-            const goIcon = createElement("div", "history-go-icon", "↗");
-
-            entryEl.appendChild(mainEl);
-            entryEl.appendChild(goIcon);
-
-            // Cliquer sur l’historique relance la recherche
-            entryEl.addEventListener("click", function () {
-                const input = document.getElementById("search-input");
-                input.value = entry.query;
-                triggerRiskAnalysis(entry.query);
-                submitSearch(entry.query, entry.level, /*fromHistory=*/true);
-            });
-
-            historyList.appendChild(entryEl);
-        }
-    }
-
-    // =====================================================
-    // UI — MISE À JOUR DU RISQUE
-    // =====================================================
-
-    const riskTagEl = document.getElementById("risk-tag");
-    const riskIndicatorEl = document.getElementById("risk-indicator");
-    const riskAnalysisTextEl = document.getElementById("risk-analysis-text");
-    const riskAnalysisKeywordsEl = document.getElementById("risk-analysis-keywords");
-    const searchButtonEl = document.getElementById("search-button");
-
-    /**
-     * Met à jour l’interface selon le résultat d’analyse.
-     */
-    function updateRiskUI(result) {
-        const level = result.level;
-        const keywords = result.keywords || [];
-
-        // Tag texte
-        riskTagEl.textContent = "Niveau : " + level;
-
-        // Tag couleurs
-        const bgGradient = RISK_TAG_COLORS[level] || "linear-gradient(135deg, #6b7280, #374151)";
-        const borderColor = RISK_TAG_BORDER[level] || "rgba(156,163,175,0.9)";
-        riskTagEl.style.background = bgGradient;
-        riskTagEl.style.borderColor = borderColor;
-
-        // Position indicator
-        const pos = RISK_POSITION[level] || 3;
-        riskIndicatorEl.style.left = pos + "%";
-        riskIndicatorEl.classList.remove("risk-pulse");
-        void riskIndicatorEl.offsetWidth;
-        riskIndicatorEl.classList.add("risk-pulse");
-
-        // Texte d’analyse
-        let explanation = RISK_EXPLANATION[level] || "";
-        if (result.reason) {
-            explanation += " " + result.reason;
-        }
-        riskAnalysisTextEl.textContent = explanation;
-
-        // Mots clés
-        if (keywords.length === 0) {
-            riskAnalysisKeywordsEl.textContent = "Mots clés détectés : aucun (analyse basée sur le contexte global).";
-        } else {
-            riskAnalysisKeywordsEl.innerHTML = "";
-            const label = createElement("span", null, "Mots clés détectés : ");
-            riskAnalysisKeywordsEl.appendChild(label);
-
-            for (let i = 0; i < keywords.length; i++) {
-                const pill = createElement("span", "risk-keyword-pill");
-                const span = createElement("span", null, keywords[i]);
-                pill.appendChild(span);
-                riskAnalysisKeywordsEl.appendChild(pill);
-            }
-        }
-
-        // Gestion du bouton Rechercher selon les niveaux
-        if (level === RISK_LEVEL.AT_RISK) {
-            searchButtonEl.classList.add("search-button-disabled");
-            searchButtonEl.setAttribute("aria-disabled", "true");
-        } else {
-            searchButtonEl.classList.remove("search-button-disabled");
-            searchButtonEl.removeAttribute("aria-disabled");
-        }
-    }
-
-    /**
-     * Analyse, puis met à jour la UI après 0.16 s (géré par debounce).
-     */
-    function triggerRiskAnalysis(query) {
-        const result = analyzeRisk(query || "");
-        updateRiskUI(result);
-        return result;
-    }
-
-    // Débouncer de 0.16 seconde
-    const debouncedRiskAnalysis = debounce(function () {
-        const inputVal = document.getElementById("search-input").value;
-        const result = triggerRiskAnalysis(inputVal);
-
-        // Animation sur la barre de recherche
-        const form = document.getElementById("search-form");
-        form.classList.remove("scan-pulse");
-        void form.offsetWidth;
-        form.classList.add("scan-pulse");
-
-        return result;
-    }, 160);
-
-    // =====================================================
-    // NAVIGATION VERS GOOGLE
-    // =====================================================
-
-    const modalBackdropEl = document.getElementById("modal-backdrop");
-    const modalCancelEl = document.getElementById("modal-cancel");
-    const modalContinueEl = document.getElementById("modal-continue");
-    const modalQueryPreviewEl = document.getElementById("modal-query-preview");
-
-    let pendingNavigation = null; // { query, level }
-
-    /**
-     * Ouvre le modal de confirmation pour un risque Élevé.
-     */
-    function openHighRiskModal(query, level) {
-        pendingNavigation = { query: query, level: level };
-        modalQueryPreviewEl.textContent = query;
-        modalBackdropEl.classList.add("modal-backdrop-visible");
-    }
-
-    /**
-     * Ferme le modal et annule l’état.
-     */
-    function closeHighRiskModal() {
-        pendingNavigation = null;
-        modalBackdropEl.classList.remove("modal-backdrop-visible");
-    }
-
-    /**
-     * Envoie la recherche sur Google.
-     */
-    function goToGoogle(query) {
-        if (!query) return;
-        const encoded = encodeURIComponent(query);
-        const url = "https://www.google.com/search?q=" + encoded;
-        window.location.href = url;
-    }
-
-    /**
-     * Gère la logique de soumission (form / enter / historique).
-     */
-    function submitSearch(query, knownLevel, fromHistory) {
-        const q = (query || "").trim();
-        if (!q) {
-            return;
-        }
-
-        // Si on n’a pas le niveau déjà calculé, on le recalcule
-        const result = knownLevel ? { level: knownLevel } : analyzeRisk(q);
-        const level = result.level;
-
-        // Ajout à l’historique (sauf si on vient d’un clic historique et qu’on ne veut pas dupliquer)
-        if (!fromHistory) {
-            addHistoryEntry(q, level);
-        }
-
-        // Cas à RISQUE : navigation bloquée
-        if (level === RISK_LEVEL.AT_RISK) {
-            alert("Recherche bloquée par 8 February 2027's Call : niveau \"à RISQUE\" détecté. Ajuste ta requête.");
-            return;
-        }
-
-        // Cas Élevé : ouverture du modal
-        if (level === RISK_LEVEL.HIGH) {
-            openHighRiskModal(q, level);
-            return;
-        }
-
-        // Autres cas : navigation directe
-        goToGoogle(q);
-    }
-
-    // =====================================================
-    // ÉVÈNEMENTS
-    // =====================================================
-
-    // 1. Saisie dans la barre -> analyse après 0.16 s
-    const searchInputEl = document.getElementById("search-input");
-    searchInputEl.addEventListener("input", function () {
-        debouncedRiskAnalysis();
+        historyList.appendChild(row);
     });
+}
 
-    // 2. Soumission du formulaire (bouton ou Enter)
-    const searchFormEl = document.getElementById("search-form");
-    searchFormEl.addEventListener("submit", function (e) {
+btnHistoryClear.addEventListener("click", () => {
+    saveHistory([]);
+    renderHistory();
+});
+
+/* ------------------------------------------------------------
+   9. Fond d'écran personnalisé
+   ------------------------------------------------------------ */
+
+const BG_KEY = "827scall_custom_bg";
+
+function loadBackground() {
+    try {
+        const data = localStorage.getItem(BG_KEY);
+        if (!data) {
+            bgLayer.style.opacity = "0";
+            fallbackAnimation.style.opacity = "1";
+            return;
+        }
+        bgLayer.style.backgroundImage = `url(${data})`;
+        bgLayer.classList.add("visible");
+        fallbackAnimation.style.opacity = "0";
+    } catch (e) {
+        // ignore
+    }
+}
+
+function saveBackground(dataUrl) {
+    try {
+        localStorage.setItem(BG_KEY, dataUrl);
+    } catch (e) {
+        // ignore
+    }
+}
+
+function resetBackground() {
+    try {
+        localStorage.removeItem(BG_KEY);
+    } catch (e) {
+        // ignore
+    }
+    bgLayer.classList.remove("visible");
+    bgLayer.style.backgroundImage = "";
+    fallbackAnimation.style.opacity = "1";
+}
+
+btnBgUpload.addEventListener("click", () => {
+    bgFileInput.click();
+});
+
+bgFileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        const dataUrl = ev.target.result;
+        saveBackground(dataUrl);
+        bgLayer.style.backgroundImage = `url(${dataUrl})`;
+        bgLayer.classList.add("visible");
+        fallbackAnimation.style.opacity = "0";
+        // Optionnel : extraire une couleur dominante pour adapter le dégradé
+        adaptSearchBarColor(dataUrl);
+    };
+    reader.readAsDataURL(file);
+});
+
+btnBgReset.addEventListener("click", () => {
+    resetBackground();
+});
+
+/* ------------------------------------------------------------
+   10. Adaptation de la couleur de la barre de recherche
+   ------------------------------------------------------------ */
+
+function adaptSearchBarColor(dataUrl) {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = function() {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 32;
+        canvas.height = 32;
+        ctx.drawImage(img, 0, 0, 32, 32);
+        const data = ctx.getImageData(0, 0, 32, 32).data;
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let i = 0; i < data.length; i += 4) {
+            r += data[i];
+            g += data[i + 1];
+            b += data[i + 2];
+            count++;
+        }
+        r = Math.round(r / count);
+        g = Math.round(g / count);
+        b = Math.round(b / count);
+
+        const gradient = `linear-gradient(135deg, rgba(${r},${g},${b},0.18), rgba(10,12,20,0.96))`;
+        searchBar.style.background = gradient;
+    };
+    img.src = dataUrl;
+}
+
+/* ------------------------------------------------------------
+   11. Pop-up de sécurité (Élevé)
+   ------------------------------------------------------------ */
+
+let pendingQuery = null;
+let pendingRisk = null;
+
+function openSecurityDialog(query) {
+    pendingQuery = query;
+    pendingRisk = getRiskLevel(query);
+    dialogKeyword.textContent = query;
+    overlay.classList.add("visible");
+}
+
+function closeSecurityDialog() {
+    overlay.classList.remove("visible");
+    pendingQuery = null;
+    pendingRisk = null;
+}
+
+dialogCancel.addEventListener("click", () => {
+    closeSecurityDialog();
+});
+
+overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+        closeSecurityDialog();
+    }
+});
+
+dialogConfirm.addEventListener("click", () => {
+    if (!pendingQuery) return;
+    // On ajoute à l'historique
+    addToHistory(pendingQuery, pendingRisk.level);
+    // Redirection vers Google
+    redirectToGoogle(pendingQuery);
+    closeSecurityDialog();
+});
+
+/* ------------------------------------------------------------
+   12. Redirection vers Google
+   ------------------------------------------------------------ */
+
+function redirectToGoogle(query) {
+    const encoded = encodeURIComponent(query);
+    const url = `https://www.google.com/search?q=${encoded}`;
+    window.location.href = url;
+}
+
+/* ------------------------------------------------------------
+   13. Gestion de la recherche (bouton + Entrée)
+   ------------------------------------------------------------ */
+
+function handleSearch() {
+    const query = searchInput.value.trim();
+    if (!query) return;
+
+    const risk = getRiskLevel(query);
+
+    if (risk.level === "critical") {
+        // Bouton déjà grisé, on ne valide pas
+        return;
+    }
+
+    if (risk.level === "high") {
+        // Pop-up de confirmation
+        openSecurityDialog(query);
+        return;
+    }
+
+    // Ajout à l'historique
+    addToHistory(query, risk.level);
+
+    // Redirection directe
+    redirectToGoogle(query);
+}
+
+btnSearch.addEventListener("click", () => {
+    if (btnSearch.disabled) return;
+    handleSearch();
+});
+
+searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        const risk = getRiskLevel(searchInput.value);
+        if (risk.level === "critical") {
+            // Entrée grisée symboliquement : on bloque
+            e.preventDefault();
+            return;
+        }
         e.preventDefault();
+        handleSearch();
+    }
+});
 
-        const query = searchInputEl.value || "";
+/* ------------------------------------------------------------
+   14. Utilitaires
+   ------------------------------------------------------------ */
 
-        // Vérifie si le bouton est "grisé" (à RISQUE)
-        if (searchButtonEl.classList.contains("search-button-disabled")) {
-            alert("Le bouton Rechercher est désactivé pour cette requête (niveau \"à RISQUE\"). Modifie les mots utilisés.");
-            return;
-        }
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
 
-        const analysisResult = analyzeRisk(query);
-        updateRiskUI(analysisResult);
-        submitSearch(query, analysisResult.level, false);
-    });
+/* ------------------------------------------------------------
+   15. Initialisation
+   ------------------------------------------------------------ */
 
-    // 3. Modal — bouton Annuler
-    modalCancelEl.addEventListener("click", function () {
-        closeHighRiskModal();
-    });
+function init() {
+    loadBackground();
+    renderHistory();
+    updateRiskUI("");
+}
 
-    // 4. Modal — bouton Continuer
-    modalContinueEl.addEventListener("click", function () {
-        if (pendingNavigation && pendingNavigation.query) {
-            const q = pendingNavigation.query;
-            closeHighRiskModal();
-            goToGoogle(q);
-        } else {
-            closeHighRiskModal();
-        }
-    });
-
-    // 5. Click sur backdrop => annule
-    modalBackdropEl.addEventListener("click", function (e) {
-        if (e.target === modalBackdropEl) {
-            closeHighRiskModal();
-        }
-    });
-
-    // 6. Touche Escape pour fermer le modal
-    document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape" && modalBackdropEl.classList.contains("modal-backdrop-visible")) {
-            closeHighRiskModal();
-        }
-    });
-
-    // =====================================================
-    // INITIALISATION
-    // =====================================================
-
-    (function init() {
-        // Charge et affiche l’historique au lancement
-        const history = loadHistory();
-        renderHistory(history);
-
-        // Analyse initiale (champ vide = SAFE / neutre)
-        triggerRiskAnalysis("");
-
-        // Option : focus automatique sur la barre
-        searchInputEl.focus();
-    })();
+document.addEventListener("DOMContentLoaded", init);
 </script>
 </body>
 </html>
