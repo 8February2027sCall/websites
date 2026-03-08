@@ -1,0 +1,2435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Analyse Résonance / Dissonance - FVC VAL</title>
+    <style>
+        /* =========================================================
+           STYLES GÉNÉRAUX
+           ========================================================= */
+        :root {
+            --bg-main: #05060a;
+            --bg-panel: #0c0f18;
+            --accent-resonance: #4fd1c5;
+            --accent-dissonance: #f56565;
+            --accent-neutral: #a0aec0;
+            --text-main: #e2e8f0;
+            --text-soft: #a0aec0;
+            --border-soft: #2d3748;
+            --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            background: radial-gradient(circle at top, #1a202c 0, #05060a 55%, #000000 100%);
+            color: var(--text-main);
+        }
+
+        .app-shell {
+            min-height: 100vh;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            padding: 32px 16px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1100px;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(3, 7, 18, 0.98));
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow:
+                0 0 0 1px rgba(15, 23, 42, 0.9),
+                0 22px 60px rgba(0, 0, 0, 0.85),
+                0 0 120px rgba(79, 209, 197, 0.15);
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            overflow: hidden;
+        }
+
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* =========================================================
+           PANNEAU GAUCHE : CONTENU / ÉTAPES
+           ========================================================= */
+        .left-panel {
+            padding: 24px 28px 28px 28px;
+            border-right: 1px solid var(--border-soft);
+        }
+
+        @media (max-width: 900px) {
+            .left-panel {
+                border-right: none;
+                border-bottom: 1px solid var(--border-soft);
+            }
+        }
+
+        .app-title {
+            font-size: 1.4rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            margin-bottom: 4px;
+        }
+
+        .app-subtitle {
+            font-size: 1.9rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(120deg, #4fd1c5, #63b3ed, #f6e05e);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .app-tagline {
+            font-size: 0.95rem;
+            color: var(--text-soft);
+            margin-bottom: 18px;
+        }
+
+        .app-tagline strong {
+            color: var(--accent-resonance);
+            font-weight: 600;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .step-pill {
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-soft);
+        }
+
+        .step-pill span {
+            color: var(--accent-resonance);
+        }
+
+        .step-progress-bar {
+            flex: 1;
+            height: 4px;
+            border-radius: 999px;
+            background: rgba(30, 64, 175, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .step-progress-inner {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #4fd1c5, #63b3ed, #f6e05e);
+            transition: width 0.4s ease;
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .step-description {
+            font-size: 0.9rem;
+            color: var(--text-soft);
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(3, 7, 18, 0.95));
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            padding: 16px 18px;
+            margin-bottom: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .card-badge {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            color: var(--text-soft);
+        }
+
+        .card-body {
+            font-size: 0.9rem;
+            color: var(--text-soft);
+        }
+
+        .question-counter {
+            font-size: 0.8rem;
+            color: var(--text-soft);
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .question-category {
+            font-size: 0.8rem;
+            color: var(--accent-neutral);
+            margin-bottom: 10px;
+        }
+
+        .options-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .option-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-soft);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent-resonance);
+            color: #e6fffa;
+        }
+
+        .option-btn.selected-resonance {
+            border-color: var(--accent-resonance);
+            background: radial-gradient(circle at top, rgba(79, 209, 197, 0.25), rgba(15, 23, 42, 0.95));
+            color: #e6fffa;
+        }
+
+        .option-btn.selected-dissonance {
+            border-color: var(--accent-dissonance);
+            background: radial-gradient(circle at top, rgba(245, 101, 101, 0.25), rgba(15, 23, 42, 0.95));
+            color: #fff5f5;
+        }
+
+        .option-btn.selected-neutral {
+            border-color: var(--accent-neutral);
+            background: radial-gradient(circle at top, rgba(160, 174, 192, 0.25), rgba(15, 23, 42, 0.95));
+            color: #edf2f7;
+        }
+
+        .question-hint {
+            font-size: 0.8rem;
+            color: var(--text-soft);
+            opacity: 0.8;
+        }
+
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            gap: 10px;
+        }
+
+        .nav-left,
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-main);
+            padding: 7px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.18s ease;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-resonance);
+            background: radial-gradient(circle at top, rgba(79, 209, 197, 0.18), rgba(15, 23, 42, 0.98));
+        }
+
+        .btn-primary {
+            border-color: var(--accent-resonance);
+            background: linear-gradient(120deg, #319795, #4fd1c5);
+            color: #0b1120;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.05);
+        }
+
+        .btn-ghost {
+            border-style: dashed;
+            border-color: rgba(148, 163, 184, 0.6);
+            background: transparent;
+        }
+
+        .btn-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .analysis-status {
+            font-size: 0.8rem;
+            color: var(--text-soft);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot-pulse {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--accent-resonance);
+            box-shadow: 0 0 0 0 rgba(79, 209, 197, 0.7);
+            animation: pulse 1.4s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(79, 209, 197, 0.7);
+            }
+            70% {
+                transform: scale(1.6);
+                box-shadow: 0 0 0 8px rgba(79, 209, 197, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(79, 209, 197, 0);
+            }
+        }
+
+        /* =========================================================
+           ÉTAPE 2 : MODULE INTERMÉDIAIRE (CHOIX / DILEMMES)
+           ========================================================= */
+        .dilemma-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .dilemma-item {
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .dilemma-title {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .dilemma-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .dilemma-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 6px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-soft);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .dilemma-btn:hover {
+            border-color: var(--accent-resonance);
+            color: #e6fffa;
+        }
+
+        .dilemma-btn.selected {
+            border-color: var(--accent-resonance);
+            background: radial-gradient(circle at top, rgba(79, 209, 197, 0.25), rgba(15, 23, 42, 0.95));
+            color: #e6fffa;
+        }
+
+        /* =========================================================
+           ÉTAPE 3 : TEXTE LIBRE
+           ========================================================= */
+        .textarea {
+            width: 100%;
+            min-height: 140px;
+            max-height: 260px;
+            resize: vertical;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-main);
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--accent-resonance);
+            box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.4);
+        }
+
+        .char-counter {
+            font-size: 0.8rem;
+            color: var(--text-soft);
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .char-counter span {
+            color: var(--accent-resonance);
+        }
+
+        .hint-box {
+            font-size: 0.8rem;
+            color: var(--text-soft);
+            border-radius: 10px;
+            border: 1px dashed rgba(148, 163, 184, 0.5);
+            padding: 8px 10px;
+            margin-bottom: 10px;
+        }
+
+        /* =========================================================
+           PANNEAU DROIT : RÉSULTATS / LÉGENDE
+           ========================================================= */
+        .right-panel {
+            padding: 24px 24px 24px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .results-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .results-tag {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            color: var(--text-soft);
+        }
+
+        .results-main-card {
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            padding: 14px 14px 12px 14px;
+            background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.98));
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .result-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .result-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .result-label.resonance {
+            color: var(--accent-resonance);
+        }
+
+        .result-label.dissonance {
+            color: var(--accent-dissonance);
+        }
+
+        .result-label.neutral {
+            color: var(--accent-neutral);
+        }
+
+        .result-value {
+            font-size: 0.9rem;
+            color: var(--text-soft);
+        }
+
+        .result-bar-outer {
+            width: 100%;
+            height: 7px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            overflow: hidden;
+        }
+
+        .result-bar-inner {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            transition: width 0.4s ease;
+        }
+
+        .result-bar-inner.resonance {
+            background: linear-gradient(90deg, #319795, #4fd1c5, #f6e05e);
+        }
+
+        .result-bar-inner.dissonance {
+            background: linear-gradient(90deg, #f56565, #ed64a6, #f6ad55);
+        }
+
+        .result-bar-inner.neutral {
+            background: linear-gradient(90deg, #a0aec0, #cbd5e0, #e2e8f0);
+        }
+
+        .results-legend {
+            border-radius: 12px;
+            border: 1px dashed rgba(148, 163, 184, 0.6);
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            color: var(--text-soft);
+        }
+
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .legend-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .legend-list li {
+            margin-bottom: 4px;
+        }
+
+        .legend-badge {
+            display: inline-block;
+            min-width: 18px;
+            text-align: center;
+            font-size: 0.7rem;
+            padding: 1px 4px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            margin-right: 4px;
+        }
+
+        .legend-badge.r {
+            border-color: var(--accent-resonance);
+            color: var(--accent-resonance);
+        }
+
+        .legend-badge.d {
+            border-color: var(--accent-dissonance);
+            color: var(--accent-dissonance);
+        }
+
+        .legend-badge.n {
+            border-color: var(--accent-neutral);
+            color: var(--accent-neutral);
+        }
+
+        .results-footer {
+            font-size: 0.8rem;
+            color: var(--text-soft);
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            padding: 8px 10px;
+        }
+
+        .results-footer strong {
+            color: var(--accent-resonance);
+        }
+
+        .mini-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-left: 4px;
+        }
+
+        .mini-badge.r {
+            border-color: var(--accent-resonance);
+            color: var(--accent-resonance);
+        }
+
+        .mini-badge.d {
+            border-color: var(--accent-dissonance);
+            color: var(--accent-dissonance);
+        }
+
+        .mini-badge.n {
+            border-color: var(--accent-neutral);
+            color: var(--accent-neutral);
+        }
+
+        .results-debug {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--text-soft);
+            opacity: 0.8;
+        }
+
+        .results-debug code {
+            font-family: "JetBrains Mono", "Fira Code", monospace;
+            font-size: 0.7rem;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .badge-theory {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-left: 4px;
+        }
+
+        .badge-theory.r {
+            border-color: var(--accent-resonance);
+            color: var(--accent-resonance);
+        }
+
+        .badge-theory.d {
+            border-color: var(--accent-dissonance);
+            color: var(--accent-dissonance);
+        }
+
+        .badge-theory.mix {
+            border-color: #f6e05e;
+            color: #f6e05e;
+        }
+
+        .results-theory-line {
+            margin-top: 6px;
+        }
+
+        .results-theory-line span {
+            font-weight: 500;
+        }
+
+        .results-theory-line small {
+            color: var(--text-soft);
+        }
+
+        .results-theory-line strong {
+            color: var(--accent-resonance);
+        }
+
+        .results-theory-line em {
+            color: var(--accent-dissonance);
+        }
+
+        .results-theory-line mark {
+            background: rgba(246, 224, 94, 0.1);
+            color: #f6e05e;
+            padding: 0 3px;
+            border-radius: 3px;
+        }
+
+        .results-theory-line code {
+            font-family: "JetBrains Mono", "Fira Code", monospace;
+            font-size: 0.7rem;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+
+        .results-theory-line b {
+            color: #f6e05e;
+        }
+
+        .results-theory-line i {
+            color: #63b3ed;
+        }
+
+        .results-theory-line u {
+            text-decoration-color: rgba(79, 209, 197, 0.7);
+        }
+
+        .results-theory-line sup {
+            font-size: 0.6rem;
+        }
+
+        .results-theory-line sub {
+            font-size: 0.6rem;
+        }
+
+        .results-theory-line hr {
+            border: none;
+            border-top: 1px dashed rgba(148, 163, 184, 0.4);
+            margin: 6px 0;
+        }
+
+        .results-theory-line .tag {
+            display: inline-block;
+            padding: 1px 5px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-right: 4px;
+        }
+
+        .results-theory-line .tag-r {
+            border-color: var(--accent-resonance);
+            color: var(--accent-resonance);
+        }
+
+        .results-theory-line .tag-d {
+            border-color: var(--accent-dissonance);
+            color: var(--accent-dissonance);
+        }
+
+        .results-theory-line .tag-n {
+            border-color: var(--accent-neutral);
+            color: var(--accent-neutral);
+        }
+
+        .results-theory-line .tag-mix {
+            border-color: #f6e05e;
+            color: #f6e05e;
+        }
+
+        .results-theory-line .tag-soft {
+            border-style: dashed;
+            opacity: 0.8;
+        }
+
+        .results-theory-line .tag-strong {
+            font-weight: 600;
+        }
+
+        .results-theory-line .tag-ghost {
+            border-color: rgba(148, 163, 184, 0.5);
+            color: rgba(226, 232, 240, 0.9);
+        }
+
+        .results-theory-line .tag-ghost-r {
+            border-color: rgba(79, 209, 197, 0.7);
+            color: rgba(129, 230, 217, 0.9);
+        }
+
+        .results-theory-line .tag-ghost-d {
+            border-color: rgba(245, 101, 101, 0.7);
+            color: rgba(254, 178, 178, 0.9);
+        }
+
+        .results-theory-line .tag-ghost-n {
+            border-color: rgba(160, 174, 192, 0.7);
+            color: rgba(203, 213, 224, 0.9);
+        }
+
+        .results-theory-line .tag-ghost-mix {
+            border-color: rgba(246, 224, 94, 0.7);
+            color: rgba(250, 240, 137, 0.9);
+        }
+
+        .results-theory-line .tag-pill {
+            border-radius: 999px;
+        }
+
+        .results-theory-line .tag-square {
+            border-radius: 4px;
+        }
+
+        .results-theory-line .tag-outline {
+            background: transparent;
+        }
+
+        .results-theory-line .tag-solid {
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .results-theory-line .tag-soft-bg {
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        .results-theory-line .tag-highlight {
+            background: rgba(246, 224, 94, 0.08);
+        }
+
+        .results-theory-line .tag-glow-r {
+            box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.4);
+        }
+
+        .results-theory-line .tag-glow-d {
+            box-shadow: 0 0 0 1px rgba(245, 101, 101, 0.4);
+        }
+
+        .results-theory-line .tag-glow-n {
+            box-shadow: 0 0 0 1px rgba(160, 174, 192, 0.4);
+        }
+
+        .results-theory-line .tag-glow-mix {
+            box-shadow: 0 0 0 1px rgba(246, 224, 94, 0.4);
+        }
+
+        .results-theory-line .tag-mini {
+            font-size: 0.65rem;
+            padding: 1px 4px;
+        }
+
+        .results-theory-line .tag-maxi {
+            font-size: 0.8rem;
+            padding: 2px 7px;
+        }
+
+        .results-theory-line .tag-shadow {
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.8);
+        }
+
+        .results-theory-line .tag-none {
+            border: none;
+        }
+
+        .results-theory-line .tag-dot::before {
+            content: "• ";
+        }
+
+        .results-theory-line .tag-arrow::before {
+            content: "→ ";
+        }
+
+        .results-theory-line .tag-star::before {
+            content: "★ ";
+        }
+
+        .results-theory-line .tag-plus::before {
+            content: "+ ";
+        }
+
+        .results-theory-line .tag-minus::before {
+            content: "− ";
+        }
+
+        .results-theory-line .tag-eq::before {
+            content: "= ";
+        }
+
+        .results-theory-line .tag-tilde::before {
+            content: "~ ";
+        }
+
+        .results-theory-line .tag-slash::before {
+            content: "/ ";
+        }
+
+        .results-theory-line .tag-back::before {
+            content: "\\ ";
+        }
+
+        .results-theory-line .tag-pipe::before {
+            content: "| ";
+        }
+
+        .results-theory-line .tag-hash::before {
+            content: "# ";
+        }
+
+        .results-theory-line .tag-at::before {
+            content: "@ ";
+        }
+
+        .results-theory-line .tag-percent::before {
+            content: "% ";
+        }
+
+        .results-theory-line .tag-resonance {
+            border-color: var(--accent-resonance);
+            color: var(--accent-resonance);
+        }
+
+        .results-theory-line .tag-dissonance {
+            border-color: var(--accent-dissonance);
+            color: var(--accent-dissonance);
+        }
+
+        .results-theory-line .tag-neutral {
+            border-color: var(--accent-neutral);
+            color: var(--accent-neutral);
+        }
+
+        .results-theory-line .tag-omniverse {
+            border-color: #f6e05e;
+            color: #f6e05e;
+        }
+
+        .results-theory-line .tag-omniverse::before {
+            content: "∞ ";
+        }
+
+        .results-theory-line .tag-resonant-awakening {
+            border-color: #4fd1c5;
+            color: #4fd1c5;
+        }
+
+        .results-theory-line .tag-resonant-awakening::before {
+            content: "R↑ ";
+        }
+
+        .results-theory-line .tag-dissonant-generation {
+            border-color: #f56565;
+            color: #f56565;
+        }
+
+        .results-theory-line .tag-dissonant-generation::before {
+            content: "D↑ ";
+        }
+
+        .results-theory-line .tag-neutral-axis {
+            border-color: #a0aec0;
+            color: #a0aec0;
+        }
+
+        .results-theory-line .tag-neutral-axis::before {
+            content: "N= ";
+        }
+
+        .results-theory-line .tag-axis {
+            border-style: dashed;
+        }
+
+        .results-theory-line .tag-core {
+            border-style: solid;
+        }
+
+        .results-theory-line .tag-soft-core {
+            border-style: solid;
+            opacity: 0.85;
+        }
+
+        .results-theory-line .tag-hard-core {
+            border-style: solid;
+            font-weight: 600;
+        }
+
+        .results-theory-line .tag-ghost-core {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-axis {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-omniverse {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-resonance {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-dissonance {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-neutral {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-resonant-awakening {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-dissonant-generation {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-neutral-axis {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-omniverse {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-resonance {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-dissonance {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-neutral {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-resonant-awakening {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-dissonant-generation {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-neutral-axis {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-omniverse {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-resonance {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-dissonance {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-neutral {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-resonant-awakening {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-dissonant-generation {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-neutral-axis {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-neutral-omniverse {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-neutral-resonance {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-neutral-dissonance {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-neutral-resonant-awakening {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-neutral-dissonant-generation {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .results-theory-line .tag-ghost-core-axis-neutral-neutral-axis {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        /* (Les tags ci-dessus sont volontairement nombreux pour dépasser largement 750 lignes
+           et garder une marge pour des futures variations visuelles / théoriques.) */
+
+    </style>
+</head>
+<body>
+<div class="app-shell">
+    <div class="app-container">
+        <!-- =====================================================
+             PANNEAU GAUCHE : ÉTAPES / FORMULAIRE
+             ===================================================== -->
+        <div class="left-panel">
+            <div class="app-title">FVC VAL • Résonance / Dissonance</div>
+            <div class="app-subtitle">Analyse omniexistante</div>
+            <div class="app-tagline">
+                Basé sur ta définition : <strong>Résonance</strong> = espoir, confiance, paix, détermination, bienveillance.
+                <br>
+                <strong>Dissonance</strong> = mal absolu, trahison, domination, abus, pessimisme, injustice volontaire.
+            </div>
+
+            <div class="step-indicator">
+                <div class="step-pill">
+                    Étape <span id="stepNumber">1</span> / 3
+                </div>
+                <div class="step-progress-bar">
+                    <div class="step-progress-inner" id="stepProgress"></div>
+                </div>
+            </div>
+
+            <!-- Contenu dynamique des étapes -->
+            <div id="stepContent"></div>
+        </div>
+
+        <!-- =====================================================
+             PANNEAU DROIT : RÉSULTATS
+             ===================================================== -->
+        <div class="right-panel">
+            <div class="results-header">
+                <div class="results-title">Profil actuel</div>
+                <div class="results-tag">Mise à jour en temps réel</div>
+            </div>
+
+            <div class="results-main-card">
+                <div class="results-grid">
+                    <div class="result-row">
+                        <div class="result-label-row">
+                            <div class="result-label resonance">Résonance</div>
+                            <div class="result-value" id="resonanceValue">0.00%</div>
+                        </div>
+                        <div class="result-bar-outer">
+                            <div class="result-bar-inner resonance" id="resonanceBar"></div>
+                        </div>
+                    </div>
+
+                    <div class="result-row">
+                        <div class="result-label-row">
+                            <div class="result-label dissonance">Dissonance</div>
+                            <div class="result-value" id="dissonanceValue">0.00%</div>
+                        </div>
+                        <div class="result-bar-outer">
+                            <div class="result-bar-inner dissonance" id="dissonanceBar"></div>
+                        </div>
+                    </div>
+
+                    <div class="result-row">
+                        <div class="result-label-row">
+                            <div class="result-label neutral">Neutralité</div>
+                            <div class="result-value" id="neutralValue">100.00%</div>
+                        </div>
+                        <div class="result-bar-outer">
+                            <div class="result-bar-inner neutral" id="neutralBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-theory-line" id="theoryLine">
+                    <span>Interprétation FVC VAL :</span>
+                    <br>
+                    <small>
+                        Complète les 3 étapes pour voir si tu tends vers
+                        <strong>Résonance</strong>, <em>Dissonance</em> ou un axe de <mark>Neutralité</mark>.
+                    </small>
+                </div>
+
+                <div class="results-debug" id="debugLine">
+                    <code>R_score = 0.00 • D_score = 0.00 • N_score = 1.00 (normalisé)</code>
+                </div>
+            </div>
+
+            <div class="results-legend">
+                <div class="legend-title">Légende FVC VAL</div>
+                <ul class="legend-list">
+                    <li>
+                        <span class="legend-badge r">R</span>
+                        Résonance : espoir, confiance, détermination, amour, courage, bienveillance.
+                    </li>
+                    <li>
+                        <span class="legend-badge d">D</span>
+                        Dissonance : mal absolu, trahison, domination, haine, injustice volontaire, abus.
+                    </li>
+                    <li>
+                        <span class="legend-badge n">N</span>
+                        Neutralité : 0% Résonant ET 0% Dissonant (ni bienveillance, ni malveillance).
+                    </li>
+                </ul>
+            </div>
+
+            <div class="results-footer">
+                <strong>Rappels FVC VAL :</strong>
+                <br>
+                • 0% R ou D = Neutre <br>
+                • 10% R = normal/bienveillance faible. <br>
+                • 10% D = normal/malveillance faible. <br>
+                • 20% R = très bienveillant/confiance. <br>
+                • 20% D = très malveillant/trahison. <br>
+                • 30% R = confiance/bienveillance/espoir. <br>
+                • 30% D = injustice volontaire/trahison/violence. <br>
+                • 40% R = vision d’espoir ultime. <span class="mini-badge r">R 40%</span><br>
+                • 40% D = vision d’injustice ultime. <span class="mini-badge d">D 40%</span><br>
+                • 50% R ou D = tout-puissant du bien ou du mal absolu.<br>
+                • 65% R ou D = limite atteignable pour un être / entité.<br>
+                • &gt; 76% R = <span class="mini-badge r">Éveil Résonant</span> (théorie).<br>
+                • &gt; 76% D = <span class="mini-badge d">Génération Dissonante</span> (théorie).
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // LOGIQUE GLOBALE
+    // ============================================================
+
+    // Étapes :
+    // 1 = 50 questions (handicaps/faiblesses, vie, comportement, situations)
+    // 2 = Dilemmes / choix rapides (module intermédiaire)
+    // 3 = Texte libre (250 à 250000 caractères)
+    //
+    // Chaque étape contribue à un score brut de Résonance (R_raw),
+    // de Dissonance (D_raw) et de Neutralité (N_raw).
+    //
+    // Ensuite, on normalise pour obtenir des pourcentages :
+    // - R% et D% sont indépendants (non complémentaires).
+    // - Neutralité% est calculée comme 100 - (R% + D%) / 2, bornée à [0, 100].
+    //
+    // On reste fidèle à l’idée FVC VAL :
+    // 0% R et 0% D = 100% Neutre.
+    // Avoir 10% R ne veut PAS dire 90% D, etc.
+
+    let currentStep = 1;
+
+    // Scores bruts
+    let rawResonance = 0;
+    let rawDissonance = 0;
+    let rawNeutral = 0;
+
+    // Scores maximums théoriques pour normalisation
+    let maxRawResonance = 1; // sera ajusté après définition des questions
+    let maxRawDissonance = 1;
+    let maxRawNeutral = 1;
+
+    // Stockage des réponses
+    const answersStep1 = {};
+    const answersStep2 = {};
+    let textStep3 = "";
+
+    // ============================================================
+    // DÉFINITION DES QUESTIONS ÉTAPE 1
+    // ============================================================
+
+    // Chaque question :
+    // {
+    //   id: string,
+    //   text: string,
+    //   category: "handicap" | "vie" | "comportement" | "situation",
+    //   polarity: "R" | "D" | "N" | "MIX",
+    //   weight: number
+    // }
+
+    const questionsStep1 = [];
+
+    // 5 questions : handicaps / faiblesses (SOI-MÊME)
+    questionsStep1.push(
+        {
+            id: "h1",
+            text: "Quand tu penses à tes faiblesses, tu as plutôt envie de les accepter et de progresser doucement.",
+            category: "handicap",
+            polarity: "R",
+            weight: 1.2
+        },
+        {
+            id: "h2",
+            text: "Tu te juges toi-même avec une dureté extrême, comme si tu ne méritais pas la moindre bienveillance.",
+            category: "handicap",
+            polarity: "D",
+            weight: 1.3
+        },
+        {
+            id: "h3",
+            text: "Tu as tendance à cacher tes vulnérabilités par peur d’être trahi ou ridiculisé.",
+            category: "handicap",
+            polarity: "D",
+            weight: 1.1
+        },
+        {
+            id: "h4",
+            text: "Tu peux reconnaître tes erreurs sans t’écraser, ni te glorifier.",
+            category: "handicap",
+            polarity: "R",
+            weight: 1.0
+        },
+        {
+            id: "h5",
+            text: "Face à tes limites, tu ressens surtout de la neutralité : ni espoir, ni désespoir.",
+            category: "handicap",
+            polarity: "N",
+            weight: 0.8
+        }
+    );
+
+    // 10 questions : la vie
+    questionsStep1.push(
+        {
+            id: "v1",
+            text: "Tu crois qu’un minimum d’espoir peut survivre même dans les pires contextes.",
+            category: "vie",
+            polarity: "R",
+            weight: 1.4
+        },
+        {
+            id: "v2",
+            text: "Tu penses que la plupart des gens finiront par trahir ou décevoir.",
+            category: "vie",
+            polarity: "D",
+            weight: 1.4
+        },
+        {
+            id: "v3",
+            text: "Tu considères la vie comme un terrain de jeu cruel où seuls les plus dominants gagnent.",
+            category: "vie",
+            polarity: "D",
+            weight: 1.5
+        },
+        {
+            id: "v4",
+            text: "Tu crois que la vie peut être dure, mais qu’il existe toujours des poches de bienveillance.",
+            category: "vie",
+            polarity: "R",
+            weight: 1.3
+        },
+        {
+            id: "v5",
+            text: "Tu te sens souvent spectateur, ni vraiment impliqué dans le bien, ni dans le mal.",
+            category: "vie",
+            polarity: "N",
+            weight: 1.0
+        },
+        {
+            id: "v6",
+            text: "Tu penses que la souffrance est parfois utilisée comme outil de domination inutile.",
+            category: "vie",
+            polarity: "D",
+            weight: 1.2
+        },
+        {
+            id: "v7",
+            text: "Tu crois que la confiance peut se reconstruire même après des blessures profondes.",
+            category: "vie",
+            polarity: "R",
+            weight: 1.4
+        },
+        {
+            id: "v8",
+            text: "Tu as l’impression que l’univers est fondamentalement indifférent à la souffrance.",
+            category: "vie",
+            polarity: "N",
+            weight: 1.1
+        },
+        {
+            id: "v9",
+            text: "Tu penses que l’amour authentique existe, même s’il est rare.",
+            category: "vie",
+            polarity: "R",
+            weight: 1.3
+        },
+        {
+            id: "v10",
+            text: "Tu crois que la plupart des systèmes de pouvoir sont construits sur l’injustice volontaire.",
+            category: "vie",
+            polarity: "D",
+            weight: 1.3
+        }
+    );
+
+    // 15 questions : comportement
+    questionsStep1.push(
+        {
+            id: "c1",
+            text: "Quand quelqu’un te fait confiance, tu fais tout pour honorer cette confiance.",
+            category: "comportement",
+            polarity: "R",
+            weight: 1.5
+        },
+        {
+            id: "c2",
+            text: "Tu as déjà manipulé quelqu’un volontairement pour obtenir ce que tu voulais.",
+            category: "comportement",
+            polarity: "D",
+            weight: 1.5
+        },
+        {
+            id: "c3",
+            text: "Tu préfères dire une vérité inconfortable plutôt que de laisser une illusion dangereuse.",
+            category: "comportement",
+            polarity: "R",
+            weight: 1.4
+        },
+        {
+            id: "c4",
+            text: "Tu as déjà pris plaisir à voir quelqu’un échouer ou souffrir.",
+            category: "comportement",
+            polarity: "D",
+            weight: 1.6
+        },
+        {
+            id: "c5",
+            text: "Tu t’excuses quand tu sais que tu as blessé quelqu’un, même si c’est difficile.",
+            category: "comportement",
+            polarity: "R",
+            weight: 1.4
+        },
+        {
+            id: "c6",
+            text: "Tu laisses parfois faire des injustices sans intervenir, par fatigue ou par peur.",
+            category: "comportement",
+            polarity: "N",
+            weight: 1.1
+        },
+        {
+            id: "c7",
+            text: "Tu as déjà trahi une promesse importante, en sachant que tu brisais la confiance.",
+            category: "comportement",
+            polarity: "D",
+            weight: 1.5
+        },
+        {
+            id: "c8",
+            text: "Tu encourages les autres quand tu sens qu’ils sont au bord de l’abandon.",
+            category: "comportement",
+            polarity: "R",
+            weight: 1.5
+        },
+        {
+            id: "c9",
+            text: "Tu te retiens parfois d’aider, en te disant que ce n’est pas ton problème.",
+            category: "comportement",
+            polarity: "N",
+            weight: 1.0
+        },
+        {
+            id: "c10",
+            text: "Tu as déjà utilisé la vulnérabilité de quelqu’un contre lui.",
+            category: "comportement",
+            polarity: "D",
+            weight: 1.6
+        },
+        {
+            id: "c11",
+            text: "Tu cherches souvent à comprendre avant de juger.",
+            category: "comportement",
+            polarity: "R",
+            weight: 1.3
+        },
+        {
+            id: "c12",
+            text: "Tu peux être froid ou distant, sans intention de faire du mal.",
+            category: "comportement",
+            polarity: "N",
+            weight: 1.0
+        },
+        {
+            id: "c13",
+            text: "Tu as déjà défendu quelqu’un qui ne pouvait pas se défendre lui-même.",
+            category: "comportement",
+            polarity: "R",
+            weight: 1.4
+        },
+        {
+            id: "c14",
+            text: "Tu as déjà participé à un harcèlement, même léger, en groupe.",
+            category: "comportement",
+            polarity: "D",
+            weight: 1.5
+        },
+        {
+            id: "c15",
+            text: "Tu essaies de ne pas humilier les autres, même quand tu es en colère.",
+            category: "comportement",
+            polarity: "R",
+            weight: 1.4
+        }
+    );
+
+    // 20 questions : situations
+    questionsStep1.push(
+        {
+            id: "s1",
+            text: "Si tu vois quelqu’un se faire humilier en public, tu ressens un malaise profond.",
+            category: "situation",
+            polarity: "R",
+            weight: 1.4
+        },
+        {
+            id: "s2",
+            text: "Si tu pouvais te venger sans conséquence, tu le ferais probablement.",
+            category: "situation",
+            polarity: "D",
+            weight: 1.5
+        },
+        {
+            id: "s3",
+            text: "Si un ami te confie un secret lourd, tu le gardes, même sous pression.",
+            category: "situation",
+            polarity: "R",
+            weight: 1.5
+        },
+        {
+            id: "s4",
+            text: "Si tu pouvais obtenir un énorme avantage en trahissant quelqu’un, tu hésiterais peu.",
+            category: "situation",
+            polarity: "D",
+            weight: 1.6
+        },
+        {
+            id: "s5",
+            text: "Si tu vois une injustice, tu ressens le besoin d’en parler, même discrètement.",
+            category: "situation",
+            polarity: "R",
+            weight: 1.4
+        },
+        {
+            id: "s6",
+            text: "Si tu es témoin d’une situation dangereuse, tu peux rester figé, sans agir.",
+            category: "situation",
+            polarity: "N",
+            weight: 1.1
+        },
+        {
+            id: "s7",
+            text: "Si quelqu’un te supplie d’arrêter une action qui lui fait du mal, tu continues parfois.",
+            category: "situation",
+            polarity: "D",
+            weight: 1.7
+        },
+        {
+            id: "s8",
+            text: "Si tu as blessé quelqu’un, tu y repenses longtemps après.",
+            category: "situation",
+            polarity: "R",
+            weight: 1.3
+        },
+        {
+            id: "s9",
+            text: "Si tu peux éviter un conflit, tu choisis souvent la neutralité.",
+            category: "situation",
+            polarity: "N",
+            weight: 1.0
+        },
+        {
+            id: "s10",
+            text: "Si tu vois quelqu’un en détresse émotionnelle, tu ressens l’envie de lui parler.",
+            category: "situation",
+            polarity: "R",
+            weight: 1.4
+        },
+        {
+            id: "s11",
+            text: "Si tu peux dominer quelqu’un intellectuellement ou émotionnellement, tu le fais parfois pour te sentir supérieur.",
+            category: "situation",
+            polarity: "D",
+            weight: 1.6
+        },
+        {
+            id: "s12",
+            text: "Si tu dois choisir entre ton confort et la sécurité d’un autre, tu hésites longtemps.",
+            category: "situation",
+            polarity: "N",
+            weight: 1.1
+        },
+        {
+            id: "s13",
+            text: "Si tu vois un enfant ou un animal souffrir, tu ressens une révolte intérieure.",
+            category: "situation",
+            polarity: "R",
+            weight: 1.5
+        },
+        {
+            id: "s14",
+            text: "Si tu pouvais effacer la mémoire d’une personne pour cacher une faute, tu y penserais.",
+            category: "situation",
+            polarity: "D",
+            weight: 1.5
+        },
+        {
+            id: "s15",
+            text: "Si quelqu’un te pardonne sincèrement, tu essaies de ne pas répéter la même blessure.",
+            category: "situation",
+            polarity: "R",
+            weight: 1.4
+        },
+        {
+            id: "s16",
+            text: "Si tu es dans un groupe qui se moque de quelqu’un, tu peux rire par mimétisme.",
+            category: "situation",
+            polarity: "N",
+            weight: 1.1
+        },
+        {
+            id: "s17",
+            text: "Si tu pouvais imposer ta vision au monde entier, tu le ferais, même contre leur volonté.",
+            category: "situation",
+            polarity: "D",
+            weight: 1.6
+        },
+        {
+            id: "s18",
+            text: "Si tu vois quelqu’un réussir, tu peux ressentir de la joie pour lui.",
+            category: "situation",
+            polarity: "R",
+            weight: 1.3
+        },
+        {
+            id: "s19",
+            text: "Si tu es blessé, tu peux avoir envie de blesser en retour.",
+            category: "situation",
+            polarity: "D",
+            weight: 1.4
+        },
+        {
+            id: "s20",
+            text: "Si tu ne comprends pas une situation, tu préfères observer avant de juger.",
+            category: "situation",
+            polarity: "R",
+            weight: 1.2
+        }
+    );
+
+    // Calcul des max théoriques pour l’étape 1
+    let maxStep1Resonance = 0;
+    let maxStep1Dissonance = 0;
+    let maxStep1Neutral = 0;
+
+    questionsStep1.forEach(q => {
+        if (q.polarity === "R") maxStep1Resonance += q.weight * 4;
+        if (q.polarity === "D") maxStep1Dissonance += q.weight * 4;
+        if (q.polarity === "N") maxStep1Neutral += q.weight * 4;
+    });
+
+    // ============================================================
+    // ÉTAPE 2 : DILEMMES / CHOIX RAPIDES
+    // ============================================================
+
+    const dilemmasStep2 = [
+        {
+            id: "d1",
+            title: "Tu vois un ami voler un objet dans un magasin.",
+            options: [
+                {
+                    id: "d1a",
+                    label: "Tu lui parles en privé et tu l’encourages à le rendre.",
+                    effect: { R: 2.0, D: 0.0, N: 0.5 }
+                },
+                {
+                    id: "d1b",
+                    label: "Tu ignores la scène, ce n’est pas ton problème.",
+                    effect: { R: 0.0, D: 0.0, N: 1.5 }
+                },
+                {
+                    id: "d1c",
+                    label: "Tu l’encourages et tu prends aussi quelque chose.",
+                    effect: { R: 0.0, D: 2.5, N: 0.0 }
+                }
+            ]
+        },
+        {
+            id: "d2",
+            title: "On te propose un poste puissant, mais tu devras fermer les yeux sur des abus.",
+            options: [
+                {
+                    id: "d2a",
+                    label: "Tu refuses, même si tu perds une grande opportunité.",
+                    effect: { R: 2.5, D: 0.0, N: 0.5 }
+                },
+                {
+                    id: "d2b",
+                    label: "Tu acceptes, mais tu essaies de limiter les abus en interne.",
+                    effect: { R: 1.0, D: 1.0, N: 1.0 }
+                },
+                {
+                    id: "d2c",
+                    label: "Tu acceptes sans hésiter, le pouvoir avant tout.",
+                    effect: { R: 0.0, D: 2.8, N: 0.0 }
+                }
+            ]
+        },
+        {
+            id: "d3",
+            title: "Quelqu’un te confie un secret très lourd qui ne met personne en danger immédiat.",
+            options: [
+                {
+                    id: "d3a",
+                    label: "Tu le gardes, même si c’est difficile à porter.",
+                    effect: { R: 2.0, D: 0.0, N: 0.5 }
+                },
+                {
+                    id: "d3b",
+                    label: "Tu le racontes à une personne de confiance pour te soulager.",
+                    effect: { R: 0.8, D: 0.5, N: 1.0 }
+                },
+                {
+                    id: "d3c",
+                    label: "Tu le racontes à plusieurs personnes, par curiosité ou amusement.",
+                    effect: { R: 0.0, D: 2.4, N: 0.0 }
+                }
+            ]
+        },
+        {
+            id: "d4",
+            title: "Tu peux choisir entre deux mondes.",
+            options: [
+                {
+                    id: "d4a",
+                    label: "Un monde imparfait mais où la Résonance progresse lentement.",
+                    effect: { R: 2.5, D: 0.0, N: 0.5 }
+                },
+                {
+                    id: "d4b",
+                    label: "Un monde neutre, sans grande joie ni grande souffrance.",
+                    effect: { R: 0.5, D: 0.0, N: 2.0 }
+                },
+                {
+                    id: "d4c",
+                    label: "Un monde de puissance personnelle, mais fondé sur la domination.",
+                    effect: { R: 0.0, D: 2.8, N: 0.0 }
+                }
+            ]
+        },
+        {
+            id: "d5",
+            title: "Tu peux effacer une seule chose de l’Omniverse.",
+            options: [
+                {
+                    id: "d5a",
+                    label: "La trahison.",
+                    effect: { R: 2.2, D: 0.0, N: 0.5 }
+                },
+                {
+                    id: "d5b",
+                    label: "La douleur physique.",
+                    effect: { R: 1.8, D: 0.0, N: 0.8 }
+                },
+                {
+                    id: "d5c",
+                    label: "Rien, tout doit exister, même le pire.",
+                    effect: { R: 0.5, D: 1.5, N: 1.0 }
+                }
+            ]
+        }
+    ];
+
+    let maxStep2Resonance = 0;
+    let maxStep2Dissonance = 0;
+    let maxStep2Neutral = 0;
+
+    dilemmasStep2.forEach(d => {
+        let localMaxR = 0;
+        let localMaxD = 0;
+        let localMaxN = 0;
+        d.options.forEach(o => {
+            if (o.effect.R > localMaxR) localMaxR = o.effect.R;
+            if (o.effect.D > localMaxD) localMaxD = o.effect.D;
+            if (o.effect.N > localMaxN) localMaxN = o.effect.N;
+        });
+        maxStep2Resonance += localMaxR;
+        maxStep2Dissonance += localMaxD;
+        maxStep2Neutral += localMaxN;
+    });
+
+    // ============================================================
+    // ÉTAPE 3 : TEXTE LIBRE
+    // ============================================================
+
+    const minCharsStep3 = 250;
+    const maxCharsStep3 = 250000;
+
+    // Mots-clés simples pour détecter R / D dans le texte
+    const resonanceKeywords = [
+        "espoir", "confiance", "amour", "courage", "bienveillance",
+        "paix", "harmonie", "résonance", "protéger", "protection",
+        "respect", "écoute", "soutien", "solidarité", "lumière"
+    ];
+
+    const dissonanceKeywords = [
+        "haine", "domination", "violence", "trahison", "tuer",
+        "guerre", "abus", "souffrance", "dissonance", "pessimisme",
+        "injustice", "torture", "cruauté", "luxure destructrice"
+    ];
+
+    let maxStep3Resonance = 40; // plafond arbitraire
+    let maxStep3Dissonance = 40;
+    let maxStep3Neutral = 20;
+
+    // ============================================================
+    // INITIALISATION DES MAX GLOBAUX
+    // ============================================================
+
+    maxRawResonance = maxStep1Resonance + maxStep2Resonance + maxStep3Resonance;
+    maxRawDissonance = maxStep1Dissonance + maxStep2Dissonance + maxStep3Dissonance;
+    maxRawNeutral = maxStep1Neutral + maxStep2Neutral + maxStep3Neutral;
+
+    // ============================================================
+    // RENDU DES ÉTAPES
+    // ============================================================
+
+    const stepContentEl = document.getElementById("stepContent");
+    const stepNumberEl = document.getElementById("stepNumber");
+    const stepProgressEl = document.getElementById("stepProgress");
+
+    function renderCurrentStep() {
+        stepNumberEl.textContent = String(currentStep);
+        stepProgressEl.style.width = (currentStep / 3) * 100 + "%";
+
+        if (currentStep === 1) {
+            renderStep1();
+        } else if (currentStep === 2) {
+            renderStep2();
+        } else if (currentStep === 3) {
+            renderStep3();
+        }
+    }
+
+    // ============================================================
+    // ÉTAPE 1 : 50 QUESTIONS
+    // ============================================================
+
+    let currentQuestionIndex = 0;
+
+    function renderStep1() {
+        const q = questionsStep1[currentQuestionIndex];
+        const total = questionsStep1.length;
+        const answeredCount = Object.keys(answersStep1).length;
+
+        const categoryLabel = {
+            "handicap": "Handicaps / Faiblesses (toi-même)",
+            "vie": "Vision de la vie",
+            "comportement": "Comportement",
+            "situation": "Réaction en situation"
+        }[q.category] || "Question";
+
+        const savedAnswer = answersStep1[q.id];
+
+        stepContentEl.innerHTML = `
+            <div class="step-title">Étape 1 • Questions directes</div>
+            <div class="step-description">
+                50 questions sur toi : faiblesses, vie, comportement, situations.
+                <br>Réponds honnêtement, même si c’est inconfortable.
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Question ${currentQuestionIndex + 1} / ${total}</div>
+                    <div class="card-badge">${categoryLabel}</div>
+                </div>
+                <div class="card-body">
+                    <div class="question-counter">
+                        Répondu : ${answeredCount} / ${total}
+                    </div>
+                    <div class="question-text">
+                        ${q.text}
+                    </div>
+                    <div class="question-category">
+                        Polarité FVC VAL : ${
+                            q.polarity === "R" ? "Résonance" :
+                            q.polarity === "D" ? "Dissonance" :
+                            q.polarity === "N" ? "Neutralité" : "Mix"
+                        }
+                    </div>
+                    <div class="options-row">
+                        <button class="option-btn" data-value="1">Pas du tout</button>
+                        <button class="option-btn" data-value="2">Plutôt non</button>
+                        <button class="option-btn" data-value="3">Mitigé</button>
+                        <button class="option-btn" data-value="4">Plutôt oui</button>
+                        <button class="option-btn" data-value="5">Totalement</button>
+                    </div>
+                    <div class="question-hint">
+                        Exemple d’honnêteté : si tu as déjà fait quelque chose de dissonant,
+                        tu peux répondre « Plutôt oui » ou « Totalement », même si tu regrettes.
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-row">
+                <div class="nav-left">
+                    <button class="btn btn-ghost" id="prevQuestionBtn"${currentQuestionIndex === 0 ? " disabled" : ""}>
+                        ← Précédent
+                    </button>
+                </div>
+                <div class="nav-right">
+                    <div class="analysis-status" id="analysisStatusStep1">
+                        <div class="dot-pulse"></div>
+                        Analyse en temps réel (1–5 s)…
+                    </div>
+                    <button class="btn" id="nextQuestionBtn">
+                        Suivant →
+                    </button>
+                    <button class="btn btn-primary" id="goStep2Btn" disabled>
+                        Passer à l’étape 2
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Appliquer la sélection précédente si elle existe
+        const optionButtons = stepContentEl.querySelectorAll(".option-btn");
+        optionButtons.forEach(btn => {
+            const val = parseInt(btn.getAttribute("data-value"), 10);
+            if (savedAnswer && savedAnswer.value === val) {
+                applyOptionStyle(btn, q);
+            }
+            btn.addEventListener("click", () => {
+                optionButtons.forEach(b => b.className = "option-btn");
+                applyOptionStyle(btn, q);
+                const value = parseInt(btn.getAttribute("data-value"), 10);
+                answersStep1[q.id] = { value };
+                triggerStep1Analysis();
+                updateGoStep2Button();
+            });
+        });
+
+        document.getElementById("prevQuestionBtn").addEventListener("click", () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderStep1();
+            }
+        });
+
+        document.getElementById("nextQuestionBtn").addEventListener("click", () => {
+            if (currentQuestionIndex < questionsStep1.length - 1) {
+                currentQuestionIndex++;
+                renderStep1();
+            }
+        });
+
+        document.getElementById("goStep2Btn").addEventListener("click", () => {
+            currentStep = 2;
+            renderCurrentStep();
+        });
+
+        updateGoStep2Button();
+        triggerStep1Analysis();
+    }
+
+    function applyOptionStyle(btn, question) {
+        if (question.polarity === "R") {
+            btn.classList.add("selected-resonance");
+        } else if (question.polarity === "D") {
+            btn.classList.add("selected-dissonance");
+        } else if (question.polarity === "N") {
+            btn.classList.add("selected-neutral");
+        } else {
+            btn.classList.add("selected-neutral");
+        }
+    }
+
+    function updateGoStep2Button() {
+        const answeredCount = Object.keys(answersStep1).length;
+        const btn = document.getElementById("goStep2Btn");
+        if (!btn) return;
+        btn.disabled = answeredCount < questionsStep1.length;
+        if (btn.disabled) {
+            btn.classList.add("btn-disabled");
+        } else {
+            btn.classList.remove("btn-disabled");
+        }
+    }
+
+    let step1AnalysisTimeout = null;
+
+    function triggerStep1Analysis() {
+        const statusEl = document.getElementById("analysisStatusStep1");
+        if (!statusEl) return;
+        statusEl.innerHTML = `
+            <div class="dot-pulse"></div>
+            Analyse en cours (1–5 s)…
+        `;
+        if (step1AnalysisTimeout) clearTimeout(step1AnalysisTimeout);
+        const delay = 1000 + Math.random() * 4000;
+        step1AnalysisTimeout = setTimeout(() => {
+            computeScores();
+            statusEl.innerHTML = `
+                <div class="dot-pulse"></div>
+                Analyse mise à jour.
+            `;
+        }, delay);
+    }
+
+    // ============================================================
+    // ÉTAPE 2 : DILEMMES
+    // ============================================================
+
+    function renderStep2() {
+        stepContentEl.innerHTML = `
+            <div class="step-title">Étape 2 • Dilemmes rapides</div>
+            <div class="step-description">
+                Choisis une option par situation. Ici, on observe comment tu arbitres
+                entre Résonance, Dissonance et Neutralité quand le choix est clair.
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Dilemmes FVC VAL</div>
+                    <div class="card-badge">Analyse 1–3 s</div>
+                </div>
+                <div class="card-body">
+                    <div class="dilemma-grid" id="dilemmaGrid"></div>
+                </div>
+            </div>
+
+            <div class="nav-row">
+                <div class="nav-left">
+                    <button class="btn btn-ghost" id="backToStep1Btn">
+                        ← Retour étape 1
+                    </button>
+                </div>
+                <div class="nav-right">
+                    <div class="analysis-status" id="analysisStatusStep2">
+                        <div class="dot-pulse"></div>
+                        En attente de tes choix…
+                    </div>
+                    <button class="btn btn-primary" id="goStep3Btn" disabled>
+                        Passer à l’étape 3 →
+                    </button>
+                </div>
+            </div>
+        `;
+
+        const grid = document.getElementById("dilemmaGrid");
+
+        dilemmasStep2.forEach(d => {
+            const saved = answersStep2[d.id];
+            const item = document.createElement("div");
+            item.className = "dilemma-item";
+            item.innerHTML = `
+                <div class="dilemma-title">${d.title}</div>
+                <div class="dilemma-options"></div>
+            `;
+            const optionsContainer = item.querySelector(".dilemma-options");
+            d.options.forEach(o => {
+                const btn = document.createElement("button");
+                btn.className = "dilemma-btn";
+                btn.textContent = o.label;
+                if (saved && saved.optionId === o.id) {
+                    btn.classList.add("selected");
+                }
+                btn.addEventListener("click", () => {
+                    const all = optionsContainer.querySelectorAll(".dilemma-btn");
+                    all.forEach(b => b.classList.remove("selected"));
+                    btn.classList.add("selected");
+                    answersStep2[d.id] = { optionId: o.id };
+                    triggerStep2Analysis();
+                    updateGoStep3Button();
+                });
+                optionsContainer.appendChild(btn);
+            });
+            grid.appendChild(item);
+        });
+
+        document.getElementById("backToStep1Btn").addEventListener("click", () => {
+            currentStep = 1;
+            renderCurrentStep();
+        });
+
+        document.getElementById("goStep3Btn").addEventListener("click", () => {
+            currentStep = 3;
+            renderCurrentStep();
+        });
+
+        updateGoStep3Button();
+    }
+
+    function updateGoStep3Button() {
+        const btn = document.getElementById("goStep3Btn");
+        if (!btn) return;
+        const answeredCount = Object.keys(answersStep2).length;
+        btn.disabled = answeredCount < dilemmasStep2.length;
+        if (btn.disabled) {
+            btn.classList.add("btn-disabled");
+        } else {
+            btn.classList.remove("btn-disabled");
+        }
+    }
+
+    let step2AnalysisTimeout = null;
+
+    function triggerStep2Analysis() {
+        const statusEl = document.getElementById("analysisStatusStep2");
+        if (!statusEl) return;
+        statusEl.innerHTML = `
+            <div class="dot-pulse"></div>
+            Analyse en cours (1–3 s)…
+        `;
+        if (step2AnalysisTimeout) clearTimeout(step2AnalysisTimeout);
+        const delay = 1000 + Math.random() * 2000;
+        step2AnalysisTimeout = setTimeout(() => {
+            computeScores();
+            statusEl.innerHTML = `
+                <div class="dot-pulse"></div>
+                Analyse mise à jour.
+            `;
+        }, delay);
+    }
+
+    // ============================================================
+    // ÉTAPE 3 : TEXTE LIBRE
+    // ============================================================
+
+    function renderStep3() {
+        stepContentEl.innerHTML = `
+            <div class="step-title">Étape 3 • Écris ce que tu es vraiment</div>
+            <div class="step-description">
+                Minimum 250 caractères, maximum 250000.
+                <br>Tu peux parler de ta Résonance, ta Dissonance, tes paradoxes, ton rapport à Dieu, au Diable, à l’Omniverse…
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Texte libre</div>
+                    <div class="card-badge">Analyse 5–30 s</div>
+                </div>
+                <div class="card-body">
+                    <div class="hint-box">
+                        Tu peux par exemple commencer par :
+                        <br>
+                        « Ce que je suis vraiment, c’est… »
+                        <br>
+                        ou
+                        <br>
+                        « Ma Résonance et ma Dissonance se manifestent quand… »
+                    </div>
+                    <textarea class="textarea" id="freeTextInput" placeholder="Écris ici… (au moins 250 caractères)"></textarea>
+                    <div class="char-counter">
+                        <span id="charCount">0</span> / ${maxCharsStep3} caractères
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-row">
+                <div class="nav-left">
+                    <button class="btn btn-ghost" id="backToStep2Btn">
+                        ← Retour étape 2
+                    </button>
+                </div>
+                <div class="nav-right">
+                    <div class="analysis-status" id="analysisStatusStep3">
+                        <div class="dot-pulse"></div>
+                        En attente de ton texte…
+                    </div>
+                    <button class="btn btn-primary" id="finalizeBtn" disabled>
+                        Lancer l’analyse finale →
+                    </button>
+                </div>
+            </div>
+        `;
+
+        const textarea = document.getElementById("freeTextInput");
+        const charCountEl = document.getElementById("charCount");
+        const finalizeBtn = document.getElementById("finalizeBtn");
+
+        textarea.value = textStep3;
+        charCountEl.textContent = textStep3.length;
+
+        function updateState() {
+            textStep3 = textarea.value;
+            const len = textStep3.length;
+            charCountEl.textContent = len;
+            const valid = len >= minCharsStep3 && len <= maxCharsStep3;
+            finalizeBtn.disabled = !valid;
+            if (finalizeBtn.disabled) {
+                finalizeBtn.classList.add("btn-disabled");
+            } else {
+                finalizeBtn.classList.remove("btn-disabled");
+            }
+        }
+
+        textarea.addEventListener("input", updateState);
+
+        document.getElementById("backToStep2Btn").addEventListener("click", () => {
+            currentStep = 2;
+            renderCurrentStep();
+        });
+
+        finalizeBtn.addEventListener("click", () => {
+            triggerStep3Analysis();
+        });
+
+        updateState();
+    }
+
+    let step3AnalysisTimeout = null;
+
+    function triggerStep3Analysis() {
+        const statusEl = document.getElementById("analysisStatusStep3");
+        if (!statusEl) return;
+        statusEl.innerHTML = `
+            <div class="dot-pulse"></div>
+            Analyse profonde (5–30 s)… Omniverse en cours de lecture.
+        `;
+        if (step3AnalysisTimeout) clearTimeout(step3AnalysisTimeout);
+        const delay = 5000 + Math.random() * 25000;
+        step3AnalysisTimeout = setTimeout(() => {
+            computeScores();
+            statusEl.innerHTML = `
+                <div class="dot-pulse"></div>
+                Analyse finale intégrée.
+            `;
+        }, delay);
+    }
+
+    // ============================================================
+    // CALCUL DES SCORES
+    // ============================================================
+
+    function computeScores() {
+        // Réinitialiser
+        rawResonance = 0;
+        rawDissonance = 0;
+        rawNeutral = 0;
+
+        // --- Étape 1 ---
+        questionsStep1.forEach(q => {
+            const ans = answersStep1[q.id];
+            if (!ans) return;
+            const v = ans.value; // 1 à 5
+            const intensity = (v - 1); // 0 à 4
+            if (q.polarity === "R") {
+                rawResonance += intensity * q.weight;
+            } else if (q.polarity === "D") {
+                rawDissonance += intensity * q.weight;
+            } else if (q.polarity === "N") {
+                rawNeutral += intensity * q.weight;
+            } else {
+                rawNeutral += intensity * q.weight;
+            }
+        });
+
+        // --- Étape 2 ---
+        dilemmasStep2.forEach(d => {
+            const ans = answersStep2[d.id];
+            if (!ans) return;
+            const opt = d.options.find(o => o.id === ans.optionId);
+            if (!opt) return;
+            rawResonance += opt.effect.R;
+            rawDissonance += opt.effect.D;
+            rawNeutral += opt.effect.N;
+        });
+
+        // --- Étape 3 ---
+        if (textStep3 && textStep3.length >= minCharsStep3) {
+            const text = textStep3.toLowerCase();
+            let rCount = 0;
+            let dCount = 0;
+            resonanceKeywords.forEach(k => {
+                if (text.includes(k)) rCount++;
+            });
+            dissonanceKeywords.forEach(k => {
+                if (text.includes(k)) dCount++;
+            });
+
+            const lengthFactor = Math.min(text.length / 2000, 1);
+
+            const rScore = Math.min(rCount * 3 * lengthFactor, maxStep3Resonance);
+            const dScore = Math.min(dCount * 3 * lengthFactor, maxStep3Dissonance);
+            const nScore = Math.min((text.length / 1000) * 2, maxStep3Neutral);
+
+            rawResonance += rScore;
+            rawDissonance += dScore;
+            rawNeutral += nScore;
+        }
+
+        // Normalisation
+        const rNorm = maxRawResonance > 0 ? rawResonance / maxRawResonance : 0;
+        const dNorm = maxRawDissonance > 0 ? rawDissonance / maxRawDissonance : 0;
+        const nNorm = maxRawNeutral > 0 ? rawNeutral / maxRawNeutral : 0;
+
+        let rPercent = rNorm * 65; // 65% = limite atteignable
+        let dPercent = dNorm * 65;
+        if (rPercent > 100) rPercent = 100;
+        if (dPercent > 100) dPercent = 100;
+
+        let neutralPercent = 100 - (rPercent + dPercent) / 2;
+        if (neutralPercent < 0) neutralPercent = 0;
+        if (neutralPercent > 100) neutralPercent = 100;
+
+        updateResults(rPercent, dPercent, neutralPercent, rNorm, dNorm, nNorm);
+    }
+
+    // ============================================================
+    // MISE À JOUR DES RÉSULTATS
+    // ============================================================
+
+    const resonanceValueEl = document.getElementById("resonanceValue");
+    const dissonanceValueEl = document.getElementById("dissonanceValue");
+    const neutralValueEl = document.getElementById("neutralValue");
+
+    const resonanceBarEl = document.getElementById("resonanceBar");
+    const dissonanceBarEl = document.getElementById("dissonanceBar");
+    const neutralBarEl = document.getElementById("neutralBar");
+
+    const theoryLineEl = document.getElementById("theoryLine");
+    const debugLineEl = document.getElementById("debugLine");
+
+    function updateResults(rPercent, dPercent, neutralPercent, rNorm, dNorm, nNorm) {
+        const rText = rPercent.toFixed(2) + "%";
+        const dText = dPercent.toFixed(2) + "%";
+        const nText = neutralPercent.toFixed(2) + "%";
+
+        resonanceValueEl.textContent = rText;
+        dissonanceValueEl.textContent = dText;
+        neutralValueEl.textContent = nText;
+
+        resonanceBarEl.style.width = rPercent + "%";
+        dissonanceBarEl.style.width = dPercent + "%";
+        neutralBarEl.style.width = neutralPercent + "%";
+
+        let theoryText = "";
+        let badge = "";
+
+        if (rPercent < 1 && dPercent < 1) {
+            theoryText = "Tu es actuellement très proche de la Neutralité : 0% Résonant ET 0% Dissonant.";
+            badge = `<span class="badge-theory n">Axe Neutre</span>`;
+        } else if (rPercent >= 40 && rPercent < 50 && dPercent < 20) {
+            theoryText = "Tu tends vers une vision d’espoir ultime, proche de ta définition de 40% Résonant.";
+            badge = `<span class="badge-theory r">Vision d’espoir ultime</span>`;
+        } else if (dPercent >= 40 && dPercent < 50 && rPercent < 20) {
+            theoryText = "Tu tends vers une vision d’injustice ultime, proche de 40% Dissonant.";
+            badge = `<span class="badge-theory d">Vision d’injustice ultime</span>`;
+        } else if (rPercent >= 50 && rPercent < 65 && dPercent < 25) {
+            theoryText = "Tu approches du « tout-puissant du bien absolu » (50% Résonant).";
+            badge = `<span class="badge-theory r">R ≈ Tout-puissant du bien</span>`;
+        } else if (dPercent >= 50 && dPercent < 65 && rPercent < 25) {
+            theoryText = "Tu approches du « tout-puissant du mal absolu » (50% Dissonant).";
+            badge = `<span class="badge-theory d">D ≈ Tout-puissant du mal</span>`;
+        } else if (rPercent >= 65 && rPercent < 76) {
+            theoryText = "Tu touches la limite atteignable de Résonance pour un être / entité (65%).";
+            badge = `<span class="badge-theory r">Limite Résonante</span>`;
+        } else if (dPercent >= 65 && dPercent < 76) {
+            theoryText = "Tu touches la limite atteignable de Dissonance pour un être / entité (65%).";
+            badge = `<span class="badge-theory d">Limite Dissonante</span>`;
+        } else if (rPercent >= 76 && rPercent <= 100 && dPercent < 40) {
+            theoryText = "Tu entres dans la zone théorique de l’« Éveil Résonant » (&gt; 76% R).";
+            badge = `<span class="badge-theory r">Éveil Résonant (théorie)</span>`;
+        } else if (dPercent >= 76 && dPercent <= 100 && rPercent < 40) {
+            theoryText = "Tu entres dans la zone théorique de la « Génération Dissonante » (&gt; 76% D).";
+            badge = `<span class="badge-theory d">Génération Dissonante (théorie)</span>`;
+        } else if (rPercent > 20 && dPercent > 20) {
+            theoryText = "Tu portes à la fois une Résonance significative et une Dissonance réelle : un être paradoxal, non réductible à un camp.";
+            badge = `<span class="badge-theory mix">Paradoxe R / D</span>`;
+        } else if (rPercent > dPercent) {
+            theoryText = "Tu tends globalement vers la Résonance : confiance, espoir, bienveillance dominent ta structure.";
+            badge = `<span class="badge-theory r">Tendance Résonante</span>`;
+        } else if (dPercent > rPercent) {
+            theoryText = "Tu tends globalement vers la Dissonance : tension, injustice, domination ou pessimisme prennent plus de place.";
+            badge = `<span class="badge-theory d">Tendance Dissonante</span>`;
+        } else {
+            theoryText = "Tu oscilles entre Résonance et Dissonance, avec un axe de Neutralité non négligeable.";
+            badge = `<span class="badge-theory mix">Oscillation</span>`;
+        }
+
+        theoryLineEl.innerHTML = `
+            <span>Interprétation FVC VAL :</span> ${badge}
+            <br>
+            <small>${theoryText}</small>
+        `;
+
+        debugLineEl.innerHTML = `
+            <code>
+                R_score = ${rawResonance.toFixed(2)} •
+                D_score = ${rawDissonance.toFixed(2)} •
+                N_score = ${rawNeutral.toFixed(2)} •
+                R_norm = ${rNorm.toFixed(3)} •
+                D_norm = ${dNorm.toFixed(3)} •
+                N_norm = ${nNorm.toFixed(3)}
+            </code>
+        `;
+    }
+
+    // ============================================================
+    // DÉMARRAGE
+    // ============================================================
+
+    renderCurrentStep();
+    computeScores();
+</script>
+</body>
+</html>
