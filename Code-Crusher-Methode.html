@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>827scall - Security Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Icône de la page -->
+    <link rel="icon" type="image/png" href="827scall Logo (Carré).png">
+
+    <!-- Police titres : Inndam Extended (à remplacer par ta vraie source si besoin) -->
+    <style>
+        @font-face {
+            font-family: "Inndam Extended";
+            src: local("Inndam Extended"), local("Inndam-Extended");
+            /* Remplace par une vraie URL si tu as le fichier :
+            src: url("fonts/InndamExtended.woff2") format("woff2");
+            */
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --bg-color: #050608;
+            --bg-color-alt: #07090d;
+            --text-color: #e5e5e5;
+            --accent: #27f0c7;
+            --accent-soft: rgba(39, 240, 199, 0.2);
+            --danger: #ff0033;
+            --danger-soft: rgba(255, 0, 51, 0.2);
+            --border-color: #22252b;
+            --glitch1: #ff00c8;
+            --glitch2: #00fff2;
+            --font-title: "Inndam Extended", system-ui, sans-serif;
+            --font-body: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+            --transition-fast: 0.18s ease-out;
+            --transition-med: 0.28s ease-out;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            background: radial-gradient(circle at top, #10131a 0, #050608 55%, #020308 100%);
+            color: var(--text-color);
+            font-family: var(--font-body);
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        /* Conteneur principal */
+        .shell {
+            position: relative;
+            width: 100%;
+            max-width: 720px;
+            background: linear-gradient(145deg, rgba(10, 12, 18, 0.98), rgba(4, 5, 9, 0.98));
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.02),
+                0 18px 45px rgba(0, 0, 0, 0.75),
+                0 0 60px rgba(39, 240, 199, 0.08);
+            overflow: hidden;
+        }
+
+        /* Bandeau supérieur */
+        .shell-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            background: radial-gradient(circle at top left, rgba(39, 240, 199, 0.12), transparent 55%);
+        }
+
+        .shell-header-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            background-image: url("827scall Logo (Carré).png");
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 0 0 1px rgba(39, 240, 199, 0.4);
+        }
+
+        .shell-header-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .shell-header-title {
+            font-family: var(--font-title);
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .shell-header-sub {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .shell-header-status {
+            margin-left: auto;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(39, 240, 199, 0.35);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 10px rgba(39, 240, 199, 0.9);
+        }
+
+        /* Corps */
+        .shell-body {
+            position: relative;
+            padding: 22px 22px 20px;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .step-title {
+            font-family: var(--font-title);
+            font-size: 18px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .step-subtitle {
+            font-size: 12px;
+            opacity: 0.75;
+            margin-bottom: 18px;
+        }
+
+        .divider {
+            height: 1px;
+            width: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.12),
+                transparent
+            );
+            margin: 10px 0 18px;
+        }
+
+        /* Bloc captcha */
+        .captcha-box {
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.9));
+            padding: 16px 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .captcha-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: border var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+        }
+
+        .captcha-checkbox:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(39, 240, 199, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .captcha-checkbox.checked {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(39, 240, 199, 0.9);
+        }
+
+        .captcha-checkbox.checked::after {
+            content: "✓";
+            font-size: 14px;
+            color: #020304;
+            font-weight: 700;
+        }
+
+        .captcha-text-main {
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .captcha-text-sub {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .captcha-brand {
+            margin-left: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .captcha-brand-main {
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .captcha-brand-sub {
+            font-size: 9px;
+            opacity: 0.5;
+        }
+
+        /* Bouton continuer */
+        .btn-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 16px;
+            gap: 10px;
+        }
+
+        .btn {
+            position: relative;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 7px 16px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--text-color);
+            cursor: pointer;
+            overflow: hidden;
+            transition: background var(--transition-fast), border var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
+        }
+
+        .btn-primary {
+            border-color: rgba(39, 240, 199, 0.7);
+            background: radial-gradient(circle at top left, rgba(39, 240, 199, 0.35), rgba(0, 0, 0, 0.9));
+        }
+
+        .btn-primary::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(39, 240, 199, 0.4), transparent, rgba(39, 240, 199, 0.4));
+            opacity: 0;
+            mix-blend-mode: screen;
+            transition: opacity var(--transition-fast);
+        }
+
+        .btn-primary:hover::before {
+            opacity: 0.7;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 18px rgba(39, 240, 199, 0.35);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .btn-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+            border-style: dashed;
+        }
+
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Glitch overlay */
+        .glitch-overlay {
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            background: #000;
+            mix-blend-mode: screen;
+            opacity: 0;
+            z-index: 20;
+        }
+
+        .glitch-overlay.active {
+            animation: glitchFlash 1s steps(2, end) forwards;
+        }
+
+        @keyframes glitchFlash {
+            0% {
+                opacity: 0;
+                background: #000;
+            }
+            10% {
+                opacity: 1;
+                background: #000;
+            }
+            20% {
+                opacity: 1;
+                background: linear-gradient(0deg, var(--glitch1), #000 40%, var(--glitch2));
+            }
+            40% {
+                opacity: 0.8;
+                background: linear-gradient(180deg, #000, var(--glitch2) 40%, #000);
+            }
+            60% {
+                opacity: 1;
+                background: repeating-linear-gradient(
+                    0deg,
+                    #000,
+                    #000 2px,
+                    var(--glitch1) 3px,
+                    var(--glitch2) 4px
+                );
+            }
+            80% {
+                opacity: 0.6;
+                background: #000;
+            }
+            100% {
+                opacity: 0;
+                background: #000;
+            }
+        }
+
+        /* Étape 2 : code */
+        .code-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 18px;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 640px) {
+            .code-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .code-display-box {
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: radial-gradient(circle at top left, rgba(39, 240, 199, 0.12), rgba(0, 0, 0, 0.9));
+            padding: 14px 14px 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-display-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            opacity: 0.7;
+            margin-bottom: 6px;
+        }
+
+        .code-display-value {
+            font-family: var(--font-title);
+            font-size: 22px;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            user-select: none;
+            position: relative;
+        }
+
+        .code-display-value::before,
+        .code-display-value::after {
+            content: attr(data-code);
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            opacity: 0;
+        }
+
+        .code-display-value.glitchy::before {
+            opacity: 0.7;
+            color: var(--glitch1);
+            transform: translate(-1px, 0);
+        }
+
+        .code-display-value.glitchy::after {
+            opacity: 0.7;
+            color: var(--glitch2);
+            transform: translate(1px, 0);
+        }
+
+        .code-timer {
+            margin-top: 8px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0.8;
+        }
+
+        .code-timer span {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .code-timer-bar {
+            margin-top: 6px;
+            width: 100%;
+            height: 3px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+        }
+
+        .code-timer-bar-inner {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #ffdd00);
+            transform-origin: left;
+            transform: scaleX(1);
+            transition: transform 0.2s linear;
+        }
+
+        .code-input-box {
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 255, 255, 0.18);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 14px 14px 12px;
+        }
+
+        .code-input-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            opacity: 0.7;
+            margin-bottom: 8px;
+        }
+
+        .code-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .code-input {
+            flex: 1;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 8px 10px;
+            font-family: var(--font-body);
+            font-size: 13px;
+            color: var(--text-color);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            outline: none;
+            transition: border var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+        }
+
+        .code-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(39, 240, 199, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .code-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .code-hint {
+            margin-top: 8px;
+            font-size: 11px;
+            opacity: 0.65;
+        }
+
+        .code-hint strong {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .code-status {
+            margin-top: 6px;
+            font-size: 11px;
+            min-height: 14px;
+        }
+
+        .code-status.ok {
+            color: var(--accent);
+        }
+
+        .code-status.error {
+            color: var(--danger);
+        }
+
+        /* Boutons invisibles pour robots */
+        .bot-trap-zone {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 5;
+        }
+
+        .bot-trap-btn {
+            position: absolute;
+            width: 120px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: transparent;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        /* Red screen */
+        .red-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #ff3355 0, #8b0000 40%, #000 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease-out;
+        }
+
+        .red-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .red-screen-box {
+            max-width: 520px;
+            padding: 26px 24px 22px;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.08),
+                0 0 40px rgba(255, 0, 51, 0.8);
+            text-align: center;
+        }
+
+        .red-screen-title {
+            font-family: var(--font-title);
+            font-size: 16px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #ffccd5;
+            margin-bottom: 10px;
+        }
+
+        .red-screen-text {
+            font-size: 13px;
+            color: #ffd6de;
+            opacity: 0.9;
+        }
+
+        .red-screen-text strong {
+            color: #ffffff;
+        }
+
+        .footer-meta {
+            margin-top: 18px;
+            font-size: 10px;
+            opacity: 0.45;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .footer-meta span {
+            white-space: nowrap;
+        }
+
+        .footer-meta span:last-child {
+            text-align: right;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="shell" id="shell">
+    <div class="glitch-overlay" id="glitchOverlay"></div>
+
+    <div class="shell-header">
+        <div class="shell-header-icon"></div>
+        <div class="shell-header-text">
+            <div class="shell-header-title">8 February 2027's Call</div>
+            <div class="shell-header-sub">Security Verification Gateway</div>
+        </div>
+        <div class="shell-header-status">
+            <span class="status-dot"></span>
+            <span>Secure channel</span>
+        </div>
+    </div>
+
+    <div class="shell-body">
+        <!-- Étape 1 : Captcha -->
+        <section class="step active" id="step1">
+            <h1 class="step-title">Human verification</h1>
+            <p class="step-subtitle">
+                Avant d'accéder au lien, nous devons vérifier que vous n'utilisez pas d'automatisation ou de robot.
+            </p>
+
+            <div class="divider"></div>
+
+            <div class="captcha-box">
+                <div class="captcha-checkbox" id="captchaCheckbox" aria-label="Je ne suis pas un robot"></div>
+                <div>
+                    <div class="captcha-text-main">Je ne suis pas un robot</div>
+                    <div class="captcha-text-sub">
+                        En cochant cette case, vous confirmez que vous effectuez cette action manuellement.
+                    </div>
+                </div>
+                <div class="captcha-brand">
+                    <div class="captcha-brand-main">827scall</div>
+                    <div class="captcha-brand-sub">Adaptive Security Layer</div>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-primary btn-disabled" id="btnContinueStep1" disabled>
+                    Continuer
+                </button>
+            </div>
+
+            <div class="footer-meta">
+                <span>827scall / Verification Node</span>
+                <span>Step 1 / 2</span>
+            </div>
+        </section>
+
+        <!-- Étape 2 : Code -->
+        <section class="step" id="step2">
+            <h1 class="step-title">Access code required</h1>
+            <p class="step-subtitle">
+                Saisissez le code affiché ci-dessous. Il change toutes les 15&nbsp;secondes. Les anciennes combinaisons
+                deviennent immédiatement invalides.
+            </p>
+
+            <div class="divider"></div>
+
+            <!-- Zone de pièges pour robots (27 boutons invisibles) -->
+            <div class="bot-trap-zone" id="botTrapZone" aria-hidden="true">
+                <!-- Les positions sont volontairement un peu aléatoires -->
+                <!-- 27 boutons avec des libellés trompeurs -->
+                <button class="bot-trap-btn" data-trap="1" style="top:4%; left:6%;">Cliquer pour accéder au lien</button>
+                <button class="bot-trap-btn" data-trap="2" style="top:10%; right:8%;">Valider</button>
+                <button class="bot-trap-btn" data-trap="3" style="top:18%; left:20%;">Confirmer</button>
+                <button class="bot-trap-btn" data-trap="4" style="top:26%; right:18%;">Continuer</button>
+                <button class="bot-trap-btn" data-trap="5" style="top:34%; left:12%;">Accéder</button>
+                <button class="bot-trap-btn" data-trap="6" style="top:42%; right:12%;">Submit</button>
+                <button class="bot-trap-btn" data-trap="7" style="top:50%; left:30%;">Next</button>
+                <button class="bot-trap-btn" data-trap="8" style="top:58%; right:26%;">Go</button>
+                <button class="bot-trap-btn" data-trap="9" style="top:66%; left:8%;">Open</button>
+                <button class="bot-trap-btn" data-trap="10" style="top:74%; right:8%;">Security Check</button>
+                <button class="bot-trap-btn" data-trap="11" style="top:82%; left:22%;">Validate</button>
+                <button class="bot-trap-btn" data-trap="12" style="top:90%; right:22%;">Confirm</button>
+                <button class="bot-trap-btn" data-trap="13" style="top:14%; left:40%;">Click here</button>
+                <button class="bot-trap-btn" data-trap="14" style="top:22%; right:40%;">Open link</button>
+                <button class="bot-trap-btn" data-trap="15" style="top:30%; left:4%;">Access</button>
+                <button class="bot-trap-btn" data-trap="16" style="top:38%; right:4%;">Unlock</button>
+                <button class="bot-trap-btn" data-trap="17" style="top:46%; left:16%;">Authorize</button>
+                <button class="bot-trap-btn" data-trap="18" style="top:54%; right:16%;">Proceed</button>
+                <button class="bot-trap-btn" data-trap="19" style="top:62%; left:36%;">Enter</button>
+                <button class="bot-trap-btn" data-trap="20" style="top:70%; right:36%;">Continue</button>
+                <button class="bot-trap-btn" data-trap="21" style="top:8%; left:28%;">Clicker pour accéder au lien</button>
+                <button class="bot-trap-btn" data-trap="22" style="top:16%; right:28%;">Valider</button>
+                <button class="bot-trap-btn" data-trap="23" style="top:24%; left:48%;">Confirmer</button>
+                <button class="bot-trap-btn" data-trap="24" style="top:32%; right:48%;">Security</button>
+                <button class="bot-trap-btn" data-trap="25" style="top:44%; left:52%;">Check</button>
+                <button class="bot-trap-btn" data-trap="26" style="top:56%; right:52%;">Robot</button>
+                <button class="bot-trap-btn" data-trap="27" style="top:68%; left:50%;">Human</button>
+            </div>
+
+            <div class="code-grid">
+                <div class="code-display-box">
+                    <div class="code-display-label">Code actuel</div>
+                    <div class="code-display-value" id="codeDisplay" data-code="--------">--------</div>
+                    <div class="code-timer">
+                        <span>Expiration du code</span>
+                        <span id="timerLabel">15s</span>
+                    </div>
+                    <div class="code-timer-bar">
+                        <div class="code-timer-bar-inner" id="timerBar"></div>
+                    </div>
+                </div>
+
+                <div class="code-input-box">
+                    <div class="code-input-label">Saisie du code</div>
+                    <div class="code-input-row">
+                        <input
+                            type="text"
+                            id="codeInput"
+                            class="code-input"
+                            maxlength="8"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="characters"
+                            spellcheck="false"
+                            placeholder="________"
+                        >
+                        <button class="btn btn-primary" id="btnValidateCode">
+                            Valider
+                        </button>
+                    </div>
+                    <div class="code-hint">
+                        Le code est volontairement <strong>difficile à lire</strong>. Vérifiez bien chaque caractère avant de valider.
+                    </div>
+                    <div class="code-status" id="codeStatus"></div>
+                </div>
+            </div>
+
+            <div class="footer-meta">
+                <span>827scall / Verification Node</span>
+                <span>Step 2 / 2</span>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Red screen -->
+<div class="red-screen" id="redScreen">
+    <div class="red-screen-box">
+        <div class="red-screen-title">Access blocked</div>
+        <div class="red-screen-text">
+            On vous a bloqué pour avoir utilisé un robot, ou d'avoir fait une activité suspecte.<br>
+            <strong>La session de vérification est terminée.</strong>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================
+    // CONFIGURATIONS MODIFIABLES
+    // ==========================
+
+    // Lien de redirection après validation correcte du code
+    // -> Tu peux changer ce lien facilement ici
+    const REDIRECT_URL = "https://canva.link/wtjyetnnc3fi2tc";
+
+    // Description / texte additionnel (si tu veux l'utiliser plus tard)
+    const PAGE_DESCRIPTION = "Gateway sécurisé pour la communauté 8 February 2027's Call.";
+
+    // Durée de validité du code (en secondes)
+    const CODE_DURATION = 15;
+
+    // ==========================
+    // ÉTAPE 1 : CAPTCHA
+    // ==========================
+
+    const captchaCheckbox = document.getElementById("captchaCheckbox");
+    const btnContinueStep1 = document.getElementById("btnContinueStep1");
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+    const glitchOverlay = document.getElementById("glitchOverlay");
+
+    let captchaChecked = false;
+
+    captchaCheckbox.addEventListener("click", () => {
+        captchaChecked = !captchaChecked;
+        captchaCheckbox.classList.toggle("checked", captchaChecked);
+
+        if (captchaChecked) {
+            btnContinueStep1.classList.remove("btn-disabled");
+            btnContinueStep1.disabled = false;
+        } else {
+            btnContinueStep1.classList.add("btn-disabled");
+            btnContinueStep1.disabled = true;
+        }
+    });
+
+    btnContinueStep1.addEventListener("click", () => {
+        if (!captchaChecked) return;
+
+        // Lancer l'animation glitch (1 seconde)
+        glitchOverlay.classList.add("active");
+
+        setTimeout(() => {
+            glitchOverlay.classList.remove("active");
+            // Passer à l'étape 2
+            step1.classList.remove("active");
+            step2.classList.add("active");
+        }, 1000);
+    });
+
+    // ==========================
+    // PIÈGES POUR ROBOTS
+    // ==========================
+
+    const botTrapZone = document.getElementById("botTrapZone");
+    const botTrapButtons = botTrapZone.querySelectorAll(".bot-trap-btn");
+    const redScreen = document.getElementById("redScreen");
+
+    function triggerRedScreenAndClose() {
+        redScreen.classList.add("active");
+
+        // Après 3 secondes, fermer la fenêtre (ou rediriger vers about:blank)
+        setTimeout(() => {
+            // Tentative de fermeture (ne marche pas toujours selon le navigateur)
+            window.close();
+            // Fallback : redirection vers about:blank
+            window.location.href = "about:blank";
+        }, 3000);
+    }
+
+    botTrapButtons.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            triggerRedScreenAndClose();
+        });
+    });
+
+    // ==========================
+    // GÉNÉRATION DU CODE
+    // ==========================
+
+    const codeDisplay = document.getElementById("codeDisplay");
+    const timerLabel = document.getElementById("timerLabel");
+    const timerBar = document.getElementById("timerBar");
+    const codeInput = document.getElementById("codeInput");
+    const btnValidateCode = document.getElementById("btnValidateCode");
+    const codeStatus = document.getElementById("codeStatus");
+
+    let currentCode = "";
+    let remainingTime = CODE_DURATION;
+    let timerInterval = null;
+
+    function generateRandomCode(length) {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // pas de 0, O, I, 1 pour compliquer
+        let result = "";
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    function updateCodeDisplay() {
+        codeDisplay.textContent = currentCode;
+        codeDisplay.setAttribute("data-code", currentCode);
+
+        // Effet glitch léger au changement
+        codeDisplay.classList.add("glitchy");
+        setTimeout(() => {
+            codeDisplay.classList.remove("glitchy");
+        }, 220);
+    }
+
+    function resetTimer() {
+        remainingTime = CODE_DURATION;
+        timerLabel.textContent = remainingTime + "s";
+        timerBar.style.transform = "scaleX(1)";
+    }
+
+    function startTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+
+        timerInterval = setInterval(() => {
+            remainingTime--;
+            if (remainingTime < 0) {
+                // Code expiré -> régénérer
+                currentCode = generateRandomCode(8);
+                updateCodeDisplay();
+                resetTimer();
+                codeStatus.textContent = "";
+                codeInput.value = "";
+                return;
+            }
+
+            timerLabel.textContent = remainingTime + "s";
+            const ratio = remainingTime / CODE_DURATION;
+            timerBar.style.transform = "scaleX(" + ratio.toFixed(2) + ")";
+        }, 1000);
+    }
+
+    function initCodeSystem() {
+        currentCode = generateRandomCode(8);
+        updateCodeDisplay();
+        resetTimer();
+        startTimer();
+    }
+
+    // ==========================
+    // VALIDATION DU CODE
+    // ==========================
+
+    function validateCode() {
+        const userCode = (codeInput.value || "").toUpperCase().trim();
+
+        if (userCode.length !== 8) {
+            codeStatus.textContent = "Le code doit contenir exactement 8 caractères.";
+            codeStatus.classList.remove("ok");
+            codeStatus.classList.add("error");
+            return;
+        }
+
+        if (remainingTime <= 0) {
+            codeStatus.textContent = "Ce code a expiré. Attendez le prochain code.";
+            codeStatus.classList.remove("ok");
+            codeStatus.classList.add("error");
+            return;
+        }
+
+        if (userCode === currentCode) {
+            codeStatus.textContent = "Code correct. Redirection en cours...";
+            codeStatus.classList.remove("error");
+            codeStatus.classList.add("ok");
+
+            setTimeout(() => {
+                window.location.href = REDIRECT_URL;
+            }, 800);
+        } else {
+            codeStatus.textContent = "Code incorrect. Attendez le prochain code ou réessayez.";
+            codeStatus.classList.remove("ok");
+            codeStatus.classList.add("error");
+        }
+    }
+
+    btnValidateCode.addEventListener("click", () => {
+        validateCode();
+    });
+
+    codeInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            validateCode();
+        }
+    });
+
+    codeInput.addEventListener("input", () => {
+        // Forcer en majuscules
+        codeInput.value = codeInput.value.toUpperCase();
+    });
+
+    // ==========================
+    // INITIALISATION
+    // ==========================
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initCodeSystem();
+    });
+</script>
+</body>
+</html>
